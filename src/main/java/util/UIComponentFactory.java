@@ -5,7 +5,15 @@ import java.awt.*;
 
 public class UIComponentFactory {
 
-    public static JPanel getRoleSelectionPanel() {
+    public static JPanel createMainPanel() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setPreferredSize(new Dimension(400, 200));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 120, 0));
+        return mainPanel;
+    }
+
+    public static JPanel createRoleSelectionPanel() {
         JPanel roleSelectionPanel = new JPanel();
         roleSelectionPanel.setLayout(new BoxLayout(roleSelectionPanel, BoxLayout.Y_AXIS));
 
@@ -20,7 +28,7 @@ public class UIComponentFactory {
         roleLabelPanel.add(roleLabel);
 
         // radio buttons
-        JPanel radioButtonPanel = getRadioButtonPanel();
+        JPanel radioButtonPanel = createRadioButtonPanel();
 
         roleSelectionPanel.add(roleLabelPanel);
         roleSelectionPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -30,7 +38,19 @@ public class UIComponentFactory {
         return roleSelectionPanel;
     }
 
-    private static JPanel getRadioButtonPanel() {
+    public static JPanel createTitlePanel() {
+        JPanel titlePanel = new JPanel();
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
+        return titlePanel;
+    }
+
+    public static JLabel createTitleLabel(String title) {
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Sans Serif", Font.BOLD, 24));
+        return titleLabel;
+    }
+
+    private static JPanel createRadioButtonPanel() {
         JPanel radioButtonPanel = new JPanel();
         radioButtonPanel.setLayout(new BoxLayout(radioButtonPanel, BoxLayout.X_AXIS));
 

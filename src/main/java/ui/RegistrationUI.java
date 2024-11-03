@@ -1,13 +1,21 @@
 package ui;
 
+import controller.MainController;
 import util.UIComponentFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class RegistrationUI extends JFrame {
+    private final MainController mainController;
+    private JButton loginButton;
+    private JButton registerButton;
 
-    public RegistrationUI() {
+    public RegistrationUI(MainController mainController) {
+        this.mainController = mainController;
+
+        // frame configuration
         setTitle("Registration Page");
         setSize(new Dimension(1000, 600));
         setResizable(false);
@@ -17,55 +25,54 @@ public class RegistrationUI extends JFrame {
         setLocationRelativeTo(null);
 
         // title panel
-        JPanel titlePanel = new JPanel();
-        JLabel titleLabel = new JLabel("Register for an account here.");
-        titleLabel.setFont(new Font("Sans Serif", Font.BOLD, 24));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(25, 30, 0, 0));
+        JPanel titlePanel = UIComponentFactory.createTitlePanel();
+        JLabel titleLabel = UIComponentFactory.createTitleLabel("Register for an account here");
         titlePanel.add(titleLabel);
 
         // main panel
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setPreferredSize(new Dimension(400, 200));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 180, 0));
+        JPanel mainPanel = UIComponentFactory.createMainPanel();
 
         add(titlePanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
 
         placeComponents(mainPanel);
+        setUpListeners();
 
         setVisible(true);
     }
 
+    // creating the UI components
     private void placeComponents(JPanel mainPanel) {
         // role selection
-        JPanel rolePanel = UIComponentFactory.getRoleSelectionPanel();
+        JPanel rolePanel = UIComponentFactory.createRoleSelectionPanel();
         rolePanel.setBorder(BorderFactory.createEmptyBorder(60, 0, 0, 0));
 
         // registration form
-        JPanel registrationFormPanel = getRegistrationFormPanel();
+        JPanel registrationFormPanel = createRegistrationFormPanel();
         registrationFormPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
         // login option
-        JPanel loginOptionPanel = getLoginOptionPanel();
+        JPanel loginOptionPanel = createLoginOptionPanel();
 
         mainPanel.add(rolePanel);
         mainPanel.add(registrationFormPanel);
         mainPanel.add(loginOptionPanel);
     }
 
-    private JPanel getRegistrationFormPanel() {
+    private JPanel createRegistrationFormPanel() {
+        final int FIELD_COLUMN_SIZE = 17;
+
         JPanel registrationPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);  // Add uniform padding around components
+        gbc.insets = new Insets(5, 5, 5, 5);  // add uniform padding around components
 
         // Name label and field
         gbc.gridx = 0; gbc.gridy = 0;
         registrationPanel.add(new JLabel("Name"), gbc);
 
         gbc.gridx = 1;
-        JTextField nameTextField = new JTextField(17);
+        JTextField nameTextField = new JTextField(FIELD_COLUMN_SIZE);
         registrationPanel.add(nameTextField, gbc);
 
         // Email label and field
@@ -73,7 +80,7 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(new JLabel("Email"), gbc);
 
         gbc.gridx = 1;
-        JTextField emailTextField = new JTextField(17);
+        JTextField emailTextField = new JTextField(FIELD_COLUMN_SIZE);
         registrationPanel.add(emailTextField, gbc);
 
         // Password label and field
@@ -81,7 +88,7 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(new JLabel("Password"), gbc);
 
         gbc.gridx = 1;
-        JPasswordField passwordField = new JPasswordField(17);
+        JPasswordField passwordField = new JPasswordField(FIELD_COLUMN_SIZE);
         registrationPanel.add(passwordField, gbc);
 
         // Confirm Password label and field
@@ -89,7 +96,7 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(new JLabel("Confirm Password"), gbc);
 
         gbc.gridx = 1;
-        JPasswordField confirmPasswordField = new JPasswordField(17);
+        JPasswordField confirmPasswordField = new JPasswordField(FIELD_COLUMN_SIZE);
         registrationPanel.add(confirmPasswordField, gbc);
 
         // Register button
@@ -99,7 +106,8 @@ public class RegistrationUI extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setPreferredSize(new Dimension(100, 40));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 114));
-        JButton registerButton = new JButton("Register");
+
+        registerButton = new JButton("Register");
         registerButton.setPreferredSize(new Dimension(90, 30));
         registerButton.setFocusPainted(false);
 
@@ -110,14 +118,14 @@ public class RegistrationUI extends JFrame {
     }
 
 
-    private JPanel getLoginOptionPanel() {
+    private JPanel createLoginOptionPanel() {
         JPanel loginOptionPanel = new JPanel();
         loginOptionPanel.setLayout(new BoxLayout(loginOptionPanel, BoxLayout.Y_AXIS));
 
         JLabel loginMessage = new JLabel("Already have an account? Login here.");
         loginMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton loginButton = new JButton("Login");
+        loginButton = new JButton("Login");
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginButton.setMaximumSize(new Dimension(90, 27));
         loginButton.setFocusPainted(false);
@@ -128,4 +136,15 @@ public class RegistrationUI extends JFrame {
 
         return loginOptionPanel;
     }
+
+    // initializing component interactivity
+    private void setUpListeners() {
+        loginButton.addActionListener(this::handleLoginClick);
+    }
+
+    private void handleLoginClick(ActionEvent e) {
+        mainController.navigateToLogin();
+        dispose();
+    }
+
 }

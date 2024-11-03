@@ -1,12 +1,22 @@
 package ui;
 
+import com.sun.tools.javac.Main;
+import controller.MainController;
 import util.UIComponentFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class LoginUI extends JFrame {
-    public LoginUI() {
+    private final MainController mainController;
+    private JButton loginButton;
+    private JButton registerButton;
+
+    public LoginUI(MainController mainController) {
+        this.mainController = mainController;
+
+        // frame configuration
         setTitle("Login page");
         setSize(new Dimension(1000, 600));
         setResizable(false);
@@ -16,100 +26,89 @@ public class LoginUI extends JFrame {
         setLocationRelativeTo(null);
 
         // title panel
-        JPanel titlePanel = new JPanel();
-        JLabel titleLabel = new JLabel("Welcome to UH Conference Management System.");
-        titleLabel.setFont(new Font("Sans Serif", Font.BOLD, 24));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(25, 55, 0, 0));
+        JPanel titlePanel = UIComponentFactory.createTitlePanel();
+        JLabel titleLabel = UIComponentFactory.createTitleLabel("Welcome to UH Conference Management System");
         titlePanel.add(titleLabel);
 
         // main panel
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setPreferredSize(new Dimension(400, 200));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 90, 0));      // moving main panel 90 rows north
+        JPanel mainPanel = UIComponentFactory.createMainPanel();
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 150, 0));
 
-        add(Box.createRigidArea(new Dimension(0, 40)));
         add(titlePanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
 
         placeComponents(mainPanel);
+        setUpListeners();
+
         setVisible(true);
     }
 
+    // creating the UI components
     private void placeComponents(JPanel mainPanel) {
         // role selection
-        JPanel rolePanel = UIComponentFactory.getRoleSelectionPanel();
+        JPanel rolePanel = UIComponentFactory.createRoleSelectionPanel();
+        rolePanel.setBorder(BorderFactory.createEmptyBorder(90, 0, 0, 0));
 
         // create the login form (username, password, login)
-        JPanel loginFormPanel = getLoginFormPanel();
-        loginFormPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        JPanel loginFormPanel = createLoginFormPanel();
 
         // option to register a new account
-        JPanel registerOptionPanel = getRegisterPanel();
+        JPanel registerOptionPanel = createRegisterOptionPanel();
 
         // placing the components
-        mainPanel.add(Box.createVerticalGlue());
         mainPanel.add(rolePanel);
         mainPanel.add(loginFormPanel);
         mainPanel.add(registerOptionPanel);
-        mainPanel.add(Box.createVerticalGlue());
     }
 
-    private JPanel getLoginFormPanel() {
-        // login form panel
-        JPanel loginPanel = new JPanel();
-        loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
+    private JPanel createLoginFormPanel() {
+        JPanel loginFormPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);  // Add uniform padding around components
 
-        // user id field
-        JPanel usernamePanel = new JPanel();
-        usernamePanel.setLayout(new BoxLayout(usernamePanel, BoxLayout.X_AXIS));
+        // Email label and field
+        gbc.gridx = 0; gbc.gridy = 1;
+        loginFormPanel.add(new JLabel("Email"), gbc);
 
-        JLabel usernameLabel = new JLabel("User Id");
-        JTextField usernameTextField = new JTextField(20);
-        usernameTextField.setMaximumSize(new Dimension(180, 50));
+        gbc.gridx = 1;
+        JTextField emailTextField = new JTextField(17);
+        loginFormPanel.add(emailTextField, gbc);
 
-        usernamePanel.add(usernameLabel);
-        usernamePanel.add(Box.createRigidArea(new Dimension(33, 0)));
-        usernamePanel.add(usernameTextField);
+        // Password label and field
+        gbc.gridx = 0; gbc.gridy = 2;
+        loginFormPanel.add(new JLabel("Password"), gbc);
 
-        // password field
-        JPanel passwordPanel = new JPanel();
-        passwordPanel.setLayout(new BoxLayout(passwordPanel, BoxLayout.X_AXIS));
+        gbc.gridx = 1;
+        JPasswordField passwordField = new JPasswordField(17);
+        loginFormPanel.add(passwordField, gbc);
 
-        JLabel passwordLabel = new JLabel("Password");
-        JPasswordField passwordField = new JPasswordField(20);
-        passwordField.setMaximumSize(new Dimension(180, 60));
+        // Login button
+        gbc.gridx = 1; gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.CENTER;
 
-        passwordPanel.add(passwordLabel);
-        passwordPanel.add(Box.createRigidArea(new Dimension(15, 0)));
-        passwordPanel.add(passwordField);
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.setPreferredSize(new Dimension(100, 40));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 65));
 
-        // login button
-        JPanel loginButtonPanel = new JPanel();
-        loginButtonPanel.setLayout(new BoxLayout(loginButtonPanel, BoxLayout.X_AXIS));
-
-        JButton loginButton = new JButton("Login");
-        loginButton.setMaximumSize(new Dimension(new Dimension(100, 40)));
+        loginButton = new JButton("Login");
+        loginButton.setPreferredSize(new Dimension(90, 30));
         loginButton.setFocusPainted(false);
-        loginButtonPanel.add(loginButton);
 
-        loginPanel.add(usernamePanel);
-        loginPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        loginPanel.add(passwordPanel);
-        loginPanel.add(Box.createRigidArea(new Dimension(0, 13)));
-        loginPanel.add(loginButtonPanel);
+        buttonPanel.add(loginButton);
+        loginFormPanel.add(buttonPanel, gbc);
 
-        return loginPanel;
+        return loginFormPanel;
     }
 
-    private JPanel getRegisterPanel() {
+    private JPanel createRegisterOptionPanel() {
         JPanel registerPanel = new JPanel();
         registerPanel.setLayout(new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
 
         JLabel registerMessage = new JLabel("Don't have an account? Register now.");
         registerMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton registerButton = new JButton("Register");
+        registerButton = new JButton("Register");
         registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         registerButton.setMaximumSize(new Dimension(90, 27));
 
@@ -119,6 +118,18 @@ public class LoginUI extends JFrame {
 
         return registerPanel;
     }
+
+
+    // initializing component interactivity
+    private void setUpListeners() {
+        registerButton.addActionListener(this::handleRegisterClick);
+    }
+
+    private void handleRegisterClick(ActionEvent e) {
+        mainController.navigateToRegister();
+        dispose();
+    }
+
 
 
 }
