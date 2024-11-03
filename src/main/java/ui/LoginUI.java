@@ -1,5 +1,7 @@
 package ui;
 
+import util.UIComponentFactory;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -34,69 +36,23 @@ public class LoginUI extends JFrame {
         setVisible(true);
     }
 
-    private void placeComponents(JPanel panel) {
+    private void placeComponents(JPanel mainPanel) {
         // role selection
-        JPanel rolePanel = getRoleSelectionPanel();
+        JPanel rolePanel = UIComponentFactory.getRoleSelectionPanel();
 
         // create the login form (username, password, login)
         JPanel loginFormPanel = getLoginFormPanel();
+        loginFormPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
+        // option to register a new account
+        JPanel registerOptionPanel = getRegisterPanel();
 
         // placing the components
-        panel.add(Box.createVerticalGlue());
-        panel.add(rolePanel);
-        panel.add(loginFormPanel);
-        panel.add(Box.createVerticalGlue());
-    }
-
-    private JPanel getRoleSelectionPanel() {
-        JPanel roleSelectionPanel = new JPanel();
-        roleSelectionPanel.setLayout(new BoxLayout(roleSelectionPanel, BoxLayout.Y_AXIS));
-
-        // role selection subtitle
-        JPanel roleLabelPanel = new JPanel();
-        roleLabelPanel.setLayout(new BoxLayout(roleLabelPanel, BoxLayout.X_AXIS));
-        JLabel roleLabel = new JLabel("Choose your role");
-
-        roleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        roleLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align
-
-        roleLabelPanel.add(roleLabel);
-
-        // radio buttons
-        JPanel radioButtonPanel = getRadioButtonPanel();
-
-        roleSelectionPanel.add(roleLabelPanel);
-        roleSelectionPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        roleSelectionPanel.add(radioButtonPanel);
-        roleSelectionPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        return roleSelectionPanel;
-    }
-
-    private JPanel getRadioButtonPanel() {
-        JPanel radioButtonPanel = new JPanel();
-        radioButtonPanel.setLayout(new BoxLayout(radioButtonPanel, BoxLayout.X_AXIS));
-
-        // create radio buttons
-        JRadioButton organizerRadioButton = new JRadioButton("Organizer");
-        JRadioButton attendeeRadioButton = new JRadioButton("Attendee");
-        JRadioButton speakerRadioButton = new JRadioButton("Speaker");
-
-        // remove the focus indicator around the buttons
-        organizerRadioButton.setFocusPainted(false);
-        attendeeRadioButton.setFocusPainted(false);
-        speakerRadioButton.setFocusPainted(false);
-
-        // group the radio buttons
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(organizerRadioButton);
-        buttonGroup.add(attendeeRadioButton);
-        buttonGroup.add(speakerRadioButton);
-
-        radioButtonPanel.add(organizerRadioButton);
-        radioButtonPanel.add(attendeeRadioButton);
-        radioButtonPanel.add(speakerRadioButton);
-        return radioButtonPanel;
+        mainPanel.add(Box.createVerticalGlue());
+        mainPanel.add(rolePanel);
+        mainPanel.add(loginFormPanel);
+        mainPanel.add(registerOptionPanel);
+        mainPanel.add(Box.createVerticalGlue());
     }
 
     private JPanel getLoginFormPanel() {
@@ -104,7 +60,7 @@ public class LoginUI extends JFrame {
         JPanel loginPanel = new JPanel();
         loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
 
-        // username field
+        // user id field
         JPanel usernamePanel = new JPanel();
         usernamePanel.setLayout(new BoxLayout(usernamePanel, BoxLayout.X_AXIS));
 
@@ -129,28 +85,24 @@ public class LoginUI extends JFrame {
         passwordPanel.add(passwordField);
 
         // login button
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        JPanel loginButtonPanel = new JPanel();
+        loginButtonPanel.setLayout(new BoxLayout(loginButtonPanel, BoxLayout.X_AXIS));
 
         JButton loginButton = new JButton("Login");
         loginButton.setMaximumSize(new Dimension(new Dimension(100, 40)));
-        buttonPanel.add(loginButton);
-
-        // option to register a new account
-        JPanel registrationPanel = getRegistrationPanel();
+        loginButton.setFocusPainted(false);
+        loginButtonPanel.add(loginButton);
 
         loginPanel.add(usernamePanel);
         loginPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         loginPanel.add(passwordPanel);
-        loginPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        loginPanel.add(buttonPanel);
-        loginPanel.add(Box.createRigidArea(new Dimension(0, 30)));
-        loginPanel.add(registrationPanel);
+        loginPanel.add(Box.createRigidArea(new Dimension(0, 13)));
+        loginPanel.add(loginButtonPanel);
 
         return loginPanel;
     }
 
-    private JPanel getRegistrationPanel() {
+    private JPanel getRegisterPanel() {
         JPanel registerPanel = new JPanel();
         registerPanel.setLayout(new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
 
