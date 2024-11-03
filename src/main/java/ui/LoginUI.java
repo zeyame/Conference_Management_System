@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 
 public class LoginUI extends JFrame {
     private final MainController mainController;
+    private UIComponentFactory.RoleSelectionPanel roleSelectionPanel;
+
     private JButton loginButton;
     private JButton registerButton;
 
@@ -46,8 +48,8 @@ public class LoginUI extends JFrame {
     // creating the UI components
     private void placeComponents(JPanel mainPanel) {
         // role selection
-        JPanel rolePanel = UIComponentFactory.createRoleSelectionPanel();
-        rolePanel.setBorder(BorderFactory.createEmptyBorder(90, 0, 0, 0));
+        roleSelectionPanel = new UIComponentFactory.RoleSelectionPanel();
+        roleSelectionPanel.setBorder(BorderFactory.createEmptyBorder(90, 0, 0, 0));
 
         // create the login form (username, password, login)
         JPanel loginFormPanel = createLoginFormPanel();
@@ -56,7 +58,7 @@ public class LoginUI extends JFrame {
         JPanel registerOptionPanel = createRegisterOptionPanel();
 
         // placing the components
-        mainPanel.add(rolePanel);
+        mainPanel.add(roleSelectionPanel);
         mainPanel.add(loginFormPanel);
         mainPanel.add(registerOptionPanel);
     }
@@ -126,7 +128,7 @@ public class LoginUI extends JFrame {
     }
 
     private void handleRegisterClick(ActionEvent e) {
-        mainController.navigateToRegister();
+        mainController.navigateToRegistrationPage();
         dispose();
     }
 

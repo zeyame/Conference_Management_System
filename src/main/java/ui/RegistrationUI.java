@@ -8,9 +8,25 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class RegistrationUI extends JFrame {
+    // controller to process UI input
     private final MainController mainController;
+    private UIComponentFactory.RoleSelectionPanel roleSelectionPanel;
+
+    // buttons
     private JButton loginButton;
     private JButton registerButton;
+
+    // fields
+    JTextField nameField;
+    JTextField emailField;
+    JPasswordField passwordField;
+    JPasswordField confirmPasswordField;
+
+    // radio buttons representing user roles
+    JRadioButton organizerRole;
+    JRadioButton attendeeRole;
+    JRadioButton speakerRole;
+    String selectedRole;
 
     public RegistrationUI(MainController mainController) {
         this.mainController = mainController;
@@ -44,8 +60,8 @@ public class RegistrationUI extends JFrame {
     // creating the UI components
     private void placeComponents(JPanel mainPanel) {
         // role selection
-        JPanel rolePanel = UIComponentFactory.createRoleSelectionPanel();
-        rolePanel.setBorder(BorderFactory.createEmptyBorder(60, 0, 0, 0));
+        roleSelectionPanel = new UIComponentFactory.RoleSelectionPanel();
+        roleSelectionPanel.setBorder(BorderFactory.createEmptyBorder(60, 0, 0, 0));
 
         // registration form
         JPanel registrationFormPanel = createRegistrationFormPanel();
@@ -54,7 +70,7 @@ public class RegistrationUI extends JFrame {
         // login option
         JPanel loginOptionPanel = createLoginOptionPanel();
 
-        mainPanel.add(rolePanel);
+        mainPanel.add(roleSelectionPanel);
         mainPanel.add(registrationFormPanel);
         mainPanel.add(loginOptionPanel);
     }
@@ -72,23 +88,23 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(new JLabel("Name"), gbc);
 
         gbc.gridx = 1;
-        JTextField nameTextField = new JTextField(FIELD_COLUMN_SIZE);
-        registrationPanel.add(nameTextField, gbc);
+        nameField = new JTextField(FIELD_COLUMN_SIZE);
+        registrationPanel.add(nameField, gbc);
 
         // Email label and field
         gbc.gridx = 0; gbc.gridy = 1;
         registrationPanel.add(new JLabel("Email"), gbc);
 
         gbc.gridx = 1;
-        JTextField emailTextField = new JTextField(FIELD_COLUMN_SIZE);
-        registrationPanel.add(emailTextField, gbc);
+        emailField = new JTextField(FIELD_COLUMN_SIZE);
+        registrationPanel.add(emailField, gbc);
 
         // Password label and field
         gbc.gridx = 0; gbc.gridy = 2;
         registrationPanel.add(new JLabel("Password"), gbc);
 
         gbc.gridx = 1;
-        JPasswordField passwordField = new JPasswordField(FIELD_COLUMN_SIZE);
+        passwordField = new JPasswordField(FIELD_COLUMN_SIZE);
         registrationPanel.add(passwordField, gbc);
 
         // Confirm Password label and field
@@ -96,7 +112,7 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(new JLabel("Confirm Password"), gbc);
 
         gbc.gridx = 1;
-        JPasswordField confirmPasswordField = new JPasswordField(FIELD_COLUMN_SIZE);
+        confirmPasswordField = new JPasswordField(FIELD_COLUMN_SIZE);
         registrationPanel.add(confirmPasswordField, gbc);
 
         // Register button
@@ -140,11 +156,20 @@ public class RegistrationUI extends JFrame {
     // initializing component interactivity
     private void setUpListeners() {
         loginButton.addActionListener(this::handleLoginClick);
+        registerButton.addActionListener(this::handleRegisterClick);
     }
 
     private void handleLoginClick(ActionEvent e) {
-        mainController.navigateToLogin();
+        mainController.navigateToLoginPage();
         dispose();
+    }
+
+    private void handleRegisterClick(ActionEvent e) {
+        System.out.println(nameField.getText());
+        System.out.println(emailField.getText());
+        System.out.println(passwordField.getPassword());
+        System.out.println(confirmPasswordField.getPassword());
+        System.out.println(roleSelectionPanel.getSelectedRole());
     }
 
 }

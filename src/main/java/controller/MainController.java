@@ -5,11 +5,11 @@ import ui.RegistrationUI;
 
 public class MainController {
 
-    public void navigateToLogin() {
+    public void navigateToLoginPage() {
         new LoginUI(this);
     }
 
-    public void navigateToRegister() {
+    public void navigateToRegistrationPage() {
         new RegistrationUI(this);
     }
 }

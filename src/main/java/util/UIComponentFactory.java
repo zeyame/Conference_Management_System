@@ -13,31 +13,6 @@ public class UIComponentFactory {
         return mainPanel;
     }
 
-    public static JPanel createRoleSelectionPanel() {
-        JPanel roleSelectionPanel = new JPanel();
-        roleSelectionPanel.setLayout(new BoxLayout(roleSelectionPanel, BoxLayout.Y_AXIS));
-
-        // role selection subtitle
-        JPanel roleLabelPanel = new JPanel();
-        roleLabelPanel.setLayout(new BoxLayout(roleLabelPanel, BoxLayout.X_AXIS));
-        JLabel roleLabel = new JLabel("Choose your role");
-
-        roleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        roleLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align
-
-        roleLabelPanel.add(roleLabel);
-
-        // radio buttons
-        JPanel radioButtonPanel = createRadioButtonPanel();
-
-        roleSelectionPanel.add(roleLabelPanel);
-        roleSelectionPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        roleSelectionPanel.add(radioButtonPanel);
-        roleSelectionPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        return roleSelectionPanel;
-    }
-
     public static JPanel createTitlePanel() {
         JPanel titlePanel = new JPanel();
         titlePanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
@@ -50,30 +25,59 @@ public class UIComponentFactory {
         return titleLabel;
     }
 
-    private static JPanel createRadioButtonPanel() {
-        JPanel radioButtonPanel = new JPanel();
-        radioButtonPanel.setLayout(new BoxLayout(radioButtonPanel, BoxLayout.X_AXIS));
+    // nested static class to create and manage the role selection panel
+    public static class RoleSelectionPanel extends JPanel {
+        JRadioButton organizerRole;
+        JRadioButton attendeeRole;
+        JRadioButton speakerRole;
 
-        // create radio buttons
-        JRadioButton organizerRadioButton = new JRadioButton("Organizer");
-        JRadioButton attendeeRadioButton = new JRadioButton("Attendee");
-        JRadioButton speakerRadioButton = new JRadioButton("Speaker");
+        public RoleSelectionPanel() {
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        // remove the focus indicator around the buttons
-        organizerRadioButton.setFocusPainted(false);
-        attendeeRadioButton.setFocusPainted(false);
-        speakerRadioButton.setFocusPainted(false);
+            // Create and add the role selection label
+            JLabel roleLabel = new JLabel("Choose your role");
+            roleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+            roleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            add(roleLabel);
 
-        // group the radio buttons
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(organizerRadioButton);
-        buttonGroup.add(attendeeRadioButton);
-        buttonGroup.add(speakerRadioButton);
+            // Add some space below the label
+            add(Box.createRigidArea(new Dimension(0, 10)));
 
-        radioButtonPanel.add(organizerRadioButton);
-        radioButtonPanel.add(attendeeRadioButton);
-        radioButtonPanel.add(speakerRadioButton);
-        return radioButtonPanel;
+            // Create and add the radio buttons
+            organizerRole = new JRadioButton("Organizer");
+            attendeeRole = new JRadioButton("Attendee");
+            speakerRole = new JRadioButton("Speaker");
+
+            // Remove the focus indicator
+            organizerRole.setFocusPainted(false);
+            attendeeRole.setFocusPainted(false);
+            speakerRole.setFocusPainted(false);
+
+            // Group the radio buttons
+            ButtonGroup roleGroup = new ButtonGroup();
+            roleGroup.add(organizerRole);
+            roleGroup.add(attendeeRole);
+            roleGroup.add(speakerRole);
+
+            // Create a panel for the radio buttons and add them
+            JPanel radioButtonPanel = new JPanel();
+            radioButtonPanel.setLayout(new BoxLayout(radioButtonPanel, BoxLayout.X_AXIS));
+            radioButtonPanel.add(organizerRole);
+            radioButtonPanel.add(attendeeRole);
+            radioButtonPanel.add(speakerRole);
+
+            // Add the radio button panel to the main panel
+            add(radioButtonPanel);
+
+            // Add some space below the radio buttons
+            add(Box.createRigidArea(new Dimension(0, 20)));
+        }
+
+        public String getSelectedRole() {
+            if (organizerRole.isSelected()) return  "organizer";
+            else if (attendeeRole.isSelected()) return  "attendee";
+            else if (speakerRole.isSelected()) return "speaker";
+            else return "No role selected";
+        }
     }
-
 }
