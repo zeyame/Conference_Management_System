@@ -6,8 +6,6 @@ import service.UserService;
 import ui.LoginUI;
 import ui.RegistrationUI;
 
-import java.util.EnumMap;
-
 public class MainController {
     private final AuthenticationService authService;
     private final UserService userService;

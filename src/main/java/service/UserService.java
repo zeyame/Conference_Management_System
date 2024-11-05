@@ -13,8 +13,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void registerUser(RegistrationDTO registrationDTO) {
-        User user = UserFactory.createUser(registrationDTO);
+    public void registerUser(RegistrationDTO validatedDTO) {
+        User user = UserFactory.createUser(validatedDTO);
         userRepository.save(user);
     }
 
