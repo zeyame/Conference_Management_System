@@ -6,6 +6,7 @@ import exception.UserRegistrationException;
 import util.JsonFileHandler;
 import util.LoggerUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,10 +40,19 @@ public class UserFileRepository implements UserRepository {
     }
 
     private void saveUsersToFile() {
+        File file = new File(FILE_PATH);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                LoggerUtil.getInstance().logError("Error occurred when creating a new empty file with path '" + FILE_PATH + "' in the saveUsersToFile method of the UserFileRepository class.");
+                throw UserRegistrationException.savingData();
+            }
+        }
         try {
             JsonFileHandler.saveData(FILE_PATH, users);
         } catch (IOException e) {
-            LoggerUtil.getInstance().logError("Error occurred when attempting to write to file with path '" + FILE_PATH + "' in the saveData method of the JsonFileHandler class.");
+            LoggerUtil.getInstance().logError("Error occurred when attempting to write to file with path '" + FILE_PATH + "' in the saveUsersToFile method of the UserFileRepository class.");
             throw UserRegistrationException.savingData();
         }
     }
