@@ -1,5 +1,8 @@
 package util;
 
+import domain.model.UserRole;
+import exception.RoleNotSelectedException;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -25,7 +28,7 @@ public class UIComponentFactory {
         return titleLabel;
     }
 
-    // nested static class to create and manage the role selection panel
+    // nested static class to create and manage the role selection panel used in LoginUI and RegistrationUI
     public static class RoleSelectionPanel extends JPanel {
         JRadioButton organizerRole;
         JRadioButton attendeeRole;
@@ -73,11 +76,11 @@ public class UIComponentFactory {
             add(Box.createRigidArea(new Dimension(0, 20)));
         }
 
-        public String getSelectedRole() {
-            if (organizerRole.isSelected()) return  "organizer";
-            else if (attendeeRole.isSelected()) return  "attendee";
-            else if (speakerRole.isSelected()) return "speaker";
-            else return "No role selected";
+        public UserRole getSelectedRole() {
+            if (organizerRole.isSelected()) return UserRole.ORGANIZER;
+            else if (attendeeRole.isSelected()) return UserRole.ATTENDEE;
+            else if (speakerRole.isSelected()) return UserRole.SPEAKER;
+            else return null;
         }
     }
 }

@@ -1,15 +1,24 @@
 package ui;
 
 import controller.MainController;
+import domain.model.UserRole;
+import dto.RegistrationDTO;
+import exception.FormValidationException;
+import exception.UserRegistrationException;
 import util.UIComponentFactory;
 
+import javax.mail.internet.AddressException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import javax.mail.internet.InternetAddress;
 
 public class RegistrationUI extends JFrame {
     // controller to process UI input
     private final MainController mainController;
+
+    // role selection panel to handle the user role
     private UIComponentFactory.RoleSelectionPanel roleSelectionPanel;
 
     // buttons
@@ -165,11 +174,57 @@ public class RegistrationUI extends JFrame {
     }
 
     private void handleRegisterClick(ActionEvent e) {
-        System.out.println(nameField.getText());
-        System.out.println(emailField.getText());
-        System.out.println(passwordField.getPassword());
-        System.out.println(confirmPasswordField.getPassword());
-        System.out.println(roleSelectionPanel.getSelectedRole());
+        String email = emailField.getText();
+        String name = nameField.getText();
+        char[] password = passwordField.getPassword();
+        char[] confirmPassword = confirmPasswordField.getPassword();
+        UserRole userRole = roleSelectionPanel.getSelectedRole();
+
+        // validate user input
+        try {
+            validateFormData(email, name, password, confirmPassword, userRole);
+        } catch (FormValidationException exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // register user
+        RegistrationDTO registrationDTO = new RegistrationDTO(email, name, password, userRole);
+        try {
+            mainController.registerUser(registrationDTO);
+        } catch (UserRegistrationException exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void validateFormData(String email, String name, char[] password, char[] confirmPassword, UserRole userRole) {
+        // validating selected role
+        if (userRole == null) {
+            throw new FormValidationException("A role must be selected");
+        }
+
+        // validating that all remaining fields are not empty
+        if (email.isEmpty() || name.isEmpty() || password.length == 0 || confirmPassword.length == 0) {
+            throw new FormValidationException("ALl fields must be filled out.");
+        }
+
+        // validating email format
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+        } catch (AddressException e) {
+            throw new FormValidationException("Invalid email format.");
+        }
+
+        // validating password length
+        if (password.length < 6) {
+            throw new FormValidationException("Password must be atleast 6 characters.");
+        }
+
+        // validating passwords matching
+        if (!Arrays.equals(password, confirmPassword)) {
+            throw new FormValidationException("Entered passwords must match");
+        }
     }
 
 }
