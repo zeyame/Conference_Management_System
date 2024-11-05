@@ -19,20 +19,8 @@ public class JsonFileHandler {
         }
     }
 
-    public static <T> void saveData(String filePath, T data) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                LoggerUtil.getInstance().logError("Error creating a new empty file with path '" + filePath + "' in saveData method of the JsonFileHandler class.");
-            }
-        }
-        try {
-            objectMapper.writeValue(file, data);
-        } catch (IOException e) {
-            LoggerUtil.getInstance().logError("Error occurred when attempting to write to file with path '" + filePath + "' in the saveData method of the JsonFileHandler class.");
-        }
+    public static <T> void saveData(String filePath, T data) throws IOException {
+        objectMapper.writeValue(new File(filePath), data);
     }
 
 

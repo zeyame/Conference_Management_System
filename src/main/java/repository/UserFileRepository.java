@@ -2,7 +2,11 @@ package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.User;
+import exception.UserRegistrationException;
 import util.JsonFileHandler;
+import util.LoggerUtil;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,12 +33,18 @@ public class UserFileRepository implements UserRepository {
         return Optional.ofNullable(users.get(email));
     }
 
-    private void saveUsersToFile() {
-        JsonFileHandler.saveData(FILE_PATH, users);
-    }
-
     private void loadUsersFromFile() {
         JsonFileHandler.loadData(FILE_PATH, new TypeReference<Map<String, User>>() {})
                 .ifPresent(users::putAll);
     }
+
+    private void saveUsersToFile() {
+        try {
+            JsonFileHandler.saveData(FILE_PATH, users);
+        } catch (IOException e) {
+            LoggerUtil.getInstance().logError("Error occurred when attempting to write to file with path '" + FILE_PATH + "' in the saveData method of the JsonFileHandler class.");
+            throw UserRegistrationException.savingData();
+        }
+    }
+
 }

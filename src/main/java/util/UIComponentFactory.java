@@ -1,8 +1,6 @@
 package util;
 
 import domain.model.UserRole;
-import exception.RoleNotSelectedException;
-
 import javax.swing.*;
 import java.awt.*;
 

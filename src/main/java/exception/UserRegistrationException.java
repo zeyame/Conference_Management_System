@@ -14,7 +14,11 @@ public class UserRegistrationException extends RuntimeException {
         throw new UserRegistrationException("An account with this email already exists.");
     }
 
+    public static UserRegistrationException savingData() {
+        throw new UserRegistrationException("Failed to save user data. Please try again later.");
+    }
+
     public static UserRegistrationException unexpectedError() {
-        throw new UserRegistrationException("An unexpected error occurred during registration.");
+        throw new UserRegistrationException("An unexpected error occurred during registration. Please try again later.");
     }
 }

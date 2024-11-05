@@ -10,7 +10,7 @@ public class AuthenticationService {
     public AuthenticationService(UserService userService) {
         this.userService = userService;
     }
-    public void validateRegistration(RegistrationDTO registrationDTO) {
+    public RegistrationDTO validateRegistration(RegistrationDTO registrationDTO) {
         // check if email is not already registered
         String email = registrationDTO.getEmail();
         if (userService.isEmailRegistered(email)) {
@@ -25,7 +25,6 @@ public class AuthenticationService {
         char[] hashedPasswordChars = hashedPassword.toCharArray();
         registrationDTO.setPassword(hashedPasswordChars);
 
-        // creating the user
-        userService.createUser(registrationDTO);
+        return registrationDTO;
     }
 }
