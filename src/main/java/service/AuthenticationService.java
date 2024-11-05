@@ -27,6 +27,5 @@ public class AuthenticationService {
 
         // creating the user
         userService.createUser(registrationDTO);
-
     }
 }

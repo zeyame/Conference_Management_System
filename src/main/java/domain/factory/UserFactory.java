@@ -2,9 +2,7 @@ package domain.factory;
 
 import domain.model.*;
 import dto.RegistrationDTO;
-import exception.UserRegistrationException;
 import util.IdGenerator;
-import util.LoggerUtil;
 
 public class UserFactory {
     public static User createUser(RegistrationDTO registrationDTO) {
@@ -18,10 +16,6 @@ public class UserFactory {
             case ORGANIZER -> new Organizer(id, email, name, hashedPassword, role);
             case ATTENDEE -> new Attendee(id, email, name, hashedPassword, role);
             case SPEAKER -> new Speaker(id, email, name, hashedPassword, role);
-            default -> {
-                LoggerUtil.getInstance().logError("Invalid role '" + role + "' found in the registrationDTO passed to createUser in UserFactory.");
-                throw UserRegistrationException.invalidRole();
-            }
         };
     }
 }
