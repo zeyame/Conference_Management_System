@@ -6,10 +6,6 @@ public class UserRegistrationException extends RuntimeException {
         super(message);
     }
 
-    public static UserRegistrationException invalidRole() {
-        throw new UserRegistrationException("Invalid role selected.");
-    }
-
     public static UserRegistrationException emailExists() {
         throw new UserRegistrationException("An account with this email already exists.");
     }

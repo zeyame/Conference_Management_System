@@ -28,6 +28,7 @@ public class UIComponentFactory {
 
     // nested static class to create and manage the role selection panel used in LoginUI and RegistrationUI
     public static class RoleSelectionPanel extends JPanel {
+        ButtonGroup roleGroup;
         JRadioButton organizerRole;
         JRadioButton attendeeRole;
         JRadioButton speakerRole;
@@ -55,7 +56,7 @@ public class UIComponentFactory {
             speakerRole.setFocusPainted(false);
 
             // Group the radio buttons
-            ButtonGroup roleGroup = new ButtonGroup();
+            roleGroup = new ButtonGroup();
             roleGroup.add(organizerRole);
             roleGroup.add(attendeeRole);
             roleGroup.add(speakerRole);
@@ -79,6 +80,10 @@ public class UIComponentFactory {
             else if (attendeeRole.isSelected()) return UserRole.ATTENDEE;
             else if (speakerRole.isSelected()) return UserRole.SPEAKER;
             else return null;
+        }
+
+        public void clearSelection() {
+            roleGroup.clearSelection();
         }
     }
 }

@@ -188,10 +188,12 @@ public class RegistrationUI extends JFrame {
             return;
         }
 
-        // register user
+        // once form is validated, register user to the system
         RegistrationDTO registrationDTO = new RegistrationDTO(email, name, password, userRole);
         try {
             mainController.registerUser(registrationDTO);
+            clearFormData();
+            JOptionPane.showMessageDialog(this, "Registration successful. You can now login.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (UserRegistrationException exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -225,6 +227,14 @@ public class RegistrationUI extends JFrame {
         if (!Arrays.equals(password, confirmPassword)) {
             throw new FormValidationException("Entered passwords must match");
         }
+    }
+
+    private void clearFormData() {
+        roleSelectionPanel.clearSelection();
+        nameField.setText("");
+        emailField.setText("");
+        passwordField.setText("");
+        confirmPasswordField.setText("");
     }
 
 }
