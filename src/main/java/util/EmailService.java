@@ -6,6 +6,7 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.CompletableFuture;
 
 public class EmailService {
     private final Session session;
@@ -21,7 +22,11 @@ public class EmailService {
         return instance;
     }
 
-    public void sendWelcomeEmail(String toAddress, String userName) {
+    public void sendWelcomeEmail(String toAddress, String userNam) {
+        CompletableFuture.runAsync(() -> sendWelcomeEmailSync(toAddress, userNam));
+    }
+
+    private void sendWelcomeEmailSync(String toAddress, String userName) {
         final String WELCOME_SUBJECT = "Welcome to UH Scientific Conferences";
         final String WELCOME_MESSAGE_TEMPLATE = "Hello %s,\n\n"
                 + "Welcome to our platform! We are excited that you took interest in the scientific conferences "
