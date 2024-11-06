@@ -11,7 +11,7 @@ public class UserRegistrationException extends RuntimeException {
     }
 
     public static UserRegistrationException savingData() {
-        throw new UserRegistrationException("Failed to save user data. Please try again later.");
+        throw new UserRegistrationException("We are having trouble saving your data. Please try again later.");
     }
 
     public static UserRegistrationException unexpectedError() {

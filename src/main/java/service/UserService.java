@@ -3,7 +3,9 @@ package service;
 import domain.factory.UserFactory;
 import domain.model.User;
 import dto.RegistrationDTO;
+import exception.UserRegistrationException;
 import repository.UserRepository;
+import util.LoggerUtil;
 
 import java.util.Optional;
 
@@ -14,8 +16,36 @@ public class UserService {
     }
 
     public void registerUser(RegistrationDTO validatedDTO) {
+        boolean isSavedToFile = false;
+        int retryCount = 0;
+        int maxRetries = 3;
+
+        // creating user instance
         User user = UserFactory.createUser(validatedDTO);
-        userRepository.save(user);
+
+        while (retryCount < maxRetries && !isSavedToFile) {
+            isSavedToFile = userRepository.save(user);
+            if (!isSavedToFile) {
+                retryCount++;
+                LoggerUtil.getInstance().logError("Attempt " + retryCount + " to save user to file failed.");
+
+                // waiting for some time before retrying again
+                try {
+                    Thread.sleep((long) Math.pow(2, retryCount) * 100);
+                } catch (InterruptedException e) {
+                    // if thread is interrupted during retries
+                    Thread.currentThread().interrupt();
+                    LoggerUtil.getInstance().logError("Retry operation to save user to file storage was interrupted.");
+                    throw UserRegistrationException.savingData();
+                }
+            }
+        }
+
+        if (!isSavedToFile) {
+            userRepository.removeFromMemory(user);
+            LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage after " + retryCount + " attempts.");
+            throw UserRegistrationException.savingData();
+        }
     }
 
     public boolean isEmailRegistered(String email) {
