@@ -1,19 +1,21 @@
 package domain.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "role")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "role", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Organizer.class, name = "Organizer"),
         @JsonSubTypes.Type(value = Attendee.class, name = "Attendee"),
         @JsonSubTypes.Type(value = Speaker.class, name = "Speaker")
 })
-public class User {
+public abstract class User {
     private String id;
     private String email;
     private String name;
     private String hashedPassword;
+    @JsonProperty("role")
     private UserRole role;
 
     public User() {}
@@ -65,4 +67,15 @@ public class User {
     public void setRole(UserRole role) {
         this.role = role;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", role='" + role + '\'' +
+                '}';
+    }
+
 }

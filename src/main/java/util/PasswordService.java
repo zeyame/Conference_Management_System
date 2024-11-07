@@ -1,4 +1,5 @@
 package util;
+import exception.UserLoginException;
 import exception.UserRegistrationException;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -30,11 +31,22 @@ public class PasswordService {
         return hashedPassword;
     }
 
-    public static boolean verifyPassword(String plainPassword, String hashedPassword) {
+    public static boolean verifyPassword(char[] plainPassword, String hashedPassword) {
         if (plainPassword == null || hashedPassword == null) {
             LoggerUtil.getInstance().logError("Either the plain password or the hashed password or both were null when passed to the verifyPassword method of the PasswordService class.");
             throw new IllegalArgumentException("Neither plain password nor hashed password can be null.");
         }
-        return BCrypt.checkpw(plainPassword, hashedPassword);
+
+        String password = new String(plainPassword);
+        try {
+            return BCrypt.checkpw(password, hashedPassword);
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError("An unexpected error occurred during the password verification operation in the verifyPassword method of the PasswordService class. " + e.getMessage());
+            throw UserLoginException.unexpectedError();
+        } finally {
+            // removing traces of the plain text password from memory
+            Arrays.fill(plainPassword, '0');
+            password = null;
+        }
     }
 }

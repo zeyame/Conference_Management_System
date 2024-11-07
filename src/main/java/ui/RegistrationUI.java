@@ -182,7 +182,7 @@ public class RegistrationUI extends JFrame {
 
         // validate user input
         try {
-            validateFormData(email, name, password, confirmPassword, userRole);
+            validateRegistrationForm(email, name, password, confirmPassword, userRole);
         } catch (FormValidationException exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -190,16 +190,31 @@ public class RegistrationUI extends JFrame {
 
         // once form is validated, register user to the system
         RegistrationDTO registrationDTO = new RegistrationDTO(email, name, password, userRole);
+
+        // check if email already exists
+        boolean isRegistrationValid;
+        try {
+            isRegistrationValid = mainController.validateRegistration(registrationDTO);
+        } catch (UserRegistrationException exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!isRegistrationValid) {
+            JOptionPane.showMessageDialog(this, "An account with this email already exists. Please use a different email.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try {
             mainController.registerUser(registrationDTO);
             clearFormData();
             JOptionPane.showMessageDialog(this, "Registration successful. You can now login.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (UserRegistrationException exception) {
-            JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void validateFormData(String email, String name, char[] password, char[] confirmPassword, UserRole userRole) {
+    private void validateRegistrationForm(String email, String name, char[] password, char[] confirmPassword, UserRole userRole) {
         // validating selected role
         if (userRole == null) {
             throw new FormValidationException("A role must be selected");

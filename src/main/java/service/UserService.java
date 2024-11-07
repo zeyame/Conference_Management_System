@@ -2,6 +2,8 @@ package service;
 
 import domain.factory.UserFactory;
 import domain.model.User;
+import domain.model.UserRole;
+import dto.AuthenticatedUserDTO;
 import dto.RegistrationDTO;
 import exception.UserRegistrationException;
 import repository.UserRepository;
@@ -13,6 +15,11 @@ public class UserService {
     private final UserRepository userRepository;
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public Optional<AuthenticatedUserDTO> findAuthenticatedByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.flatMap(this::mapToAuthenticatedDTO);
     }
 
     public void registerUser(RegistrationDTO validatedDTO) {
@@ -51,5 +58,15 @@ public class UserService {
     public boolean isEmailRegistered(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         return user.isPresent();
+    }
+
+    private Optional<AuthenticatedUserDTO> mapToAuthenticatedDTO(User user) {
+        if (user == null) return Optional.empty();
+
+        String id = user.getId();
+        String email = user.getEmail();
+        String hashedPassword = user.getHashedPassword();
+
+        return Optional.of(new AuthenticatedUserDTO(id, email, hashedPassword));
     }
 }

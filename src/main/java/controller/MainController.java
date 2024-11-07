@@ -18,10 +18,17 @@ public class MainController {
         this.emailService = emailService;
     }
 
-    public void registerUser(RegistrationDTO registrationDTO) {
-        RegistrationDTO validatedDTO = authService.validateRegistration(registrationDTO);
+    public boolean validateRegistration(RegistrationDTO registrationDTO) {
+        return authService.validateRegistration(registrationDTO);
+    }
+
+    public void registerUser(RegistrationDTO validatedDTO) {
         userService.registerUser(validatedDTO);
-        emailService.sendWelcomeEmail(registrationDTO.getEmail(), registrationDTO.getName());
+        emailService.sendWelcomeEmail(validatedDTO.getEmail(), validatedDTO.getName());
+    }
+
+    public void loginUser(String email, char[] password) {
+        boolean isLoginValid = authService.validateLogin(email, password);
     }
     public void navigateToLoginPage() {
         new LoginUI(this);

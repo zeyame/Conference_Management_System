@@ -1,7 +1,8 @@
 package ui;
 
-import com.sun.tools.javac.Main;
 import controller.MainController;
+import exception.FormValidationException;
+import exception.UserLoginException;
 import util.UIComponentFactory;
 
 import javax.swing.*;
@@ -9,11 +10,20 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class LoginUI extends JFrame {
+    // controller to process UI input
     private final MainController mainController;
+
+    // role selection panel to handle the user role
     private UIComponentFactory.RoleSelectionPanel roleSelectionPanel;
 
+    // buttons
     private JButton loginButton;
     private JButton registerButton;
+
+    // fields
+    private JTextField emailField;
+    private JPasswordField passwordField;
+
 
     public LoginUI(MainController mainController) {
         this.mainController = mainController;
@@ -47,18 +57,21 @@ public class LoginUI extends JFrame {
 
     // creating the UI components
     private void placeComponents(JPanel mainPanel) {
-        // role selection
-        roleSelectionPanel = new UIComponentFactory.RoleSelectionPanel();
-        roleSelectionPanel.setBorder(BorderFactory.createEmptyBorder(90, 0, 0, 0));
+        // create the login title label
+        JLabel loginTitleLabel = new JLabel("Login to your account");
+        loginTitleLabel.setFont(new Font("Sans serif", Font.BOLD, 18));
+        loginTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loginTitleLabel.setBorder(BorderFactory.createEmptyBorder(80, 0, 0, 0));
 
-        // create the login form (username, password, login)
+        // create the login form
         JPanel loginFormPanel = createLoginFormPanel();
 
-        // option to register a new account
+        // option to register for a new account
         JPanel registerOptionPanel = createRegisterOptionPanel();
+        registerOptionPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 0));
 
         // placing the components
-        mainPanel.add(roleSelectionPanel);
+        mainPanel.add(loginTitleLabel);
         mainPanel.add(loginFormPanel);
         mainPanel.add(registerOptionPanel);
     }
@@ -74,15 +87,15 @@ public class LoginUI extends JFrame {
         loginFormPanel.add(new JLabel("Email"), gbc);
 
         gbc.gridx = 1;
-        JTextField emailTextField = new JTextField(17);
-        loginFormPanel.add(emailTextField, gbc);
+        emailField = new JTextField(17);
+        loginFormPanel.add(emailField, gbc);
 
         // Password label and field
         gbc.gridx = 0; gbc.gridy = 2;
         loginFormPanel.add(new JLabel("Password"), gbc);
 
         gbc.gridx = 1;
-        JPasswordField passwordField = new JPasswordField(17);
+        passwordField = new JPasswordField(17);
         loginFormPanel.add(passwordField, gbc);
 
         // Login button
@@ -115,7 +128,7 @@ public class LoginUI extends JFrame {
         registerButton.setMaximumSize(new Dimension(90, 27));
 
         registerPanel.add(registerMessage);
-        registerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        registerPanel.add(Box.createRigidArea(new Dimension(0, 12)));
         registerPanel.add(registerButton);
 
         return registerPanel;
@@ -125,11 +138,37 @@ public class LoginUI extends JFrame {
     // initializing component interactivity
     private void setUpListeners() {
         registerButton.addActionListener(this::handleRegisterClick);
+        loginButton.addActionListener(this::handleLoginClick);
     }
 
     private void handleRegisterClick(ActionEvent e) {
         mainController.navigateToRegistrationPage();
         dispose();
+    }
+
+    private void handleLoginClick(ActionEvent e) {
+        String email = emailField.getText();
+        char[] password = passwordField.getPassword();
+
+        try {
+            validateLoginForm(email, password);
+        } catch (FormValidationException exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            mainController.loginUser(email, password);
+        } catch (UserLoginException exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    private void validateLoginForm(String email, char[] password) {
+        if (email.isEmpty() || password.length == 0) {
+            throw new FormValidationException("All fields must be filled out.");
+        }
     }
 
 
