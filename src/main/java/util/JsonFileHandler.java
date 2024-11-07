@@ -22,7 +22,7 @@ public class JsonFileHandler {
             // if file exists and contains data, attempt to load
             return Optional.of(objectMapper.readValue(new File(filePath), typeReference));
         } catch (IOException e) {
-            LoggerUtil.getInstance().logError("Error loading data from file with path '" + filePath + "' in the loadData method of the JsonFileHandler class.");
+            LoggerUtil.getInstance().logError("Error loading data from file with path '" + filePath + "' in the loadData method of the JsonFileHandler class. " + e.getMessage());
             return Optional.empty();
         }
     }

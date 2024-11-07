@@ -1,5 +1,14 @@
 package domain.model;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "role")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Organizer.class, name = "Organizer"),
+        @JsonSubTypes.Type(value = Attendee.class, name = "Attendee"),
+        @JsonSubTypes.Type(value = Speaker.class, name = "Speaker")
+})
 public class User {
     private String id;
     private String email;

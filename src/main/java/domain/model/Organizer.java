@@ -6,6 +6,12 @@ import java.util.Set;
 public class Organizer extends User {
 
     private final Set<String> managedConferences;
+
+    public Organizer() {
+        super(null, null, null, null, null);
+        this.managedConferences = new HashSet<>();
+    }
+
     public Organizer(String id, String email, String name, String hashedPassword, UserRole role) {
         super(id, email, name, hashedPassword, role);
         this.managedConferences = new HashSet<>();
