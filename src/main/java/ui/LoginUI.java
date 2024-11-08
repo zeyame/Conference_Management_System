@@ -157,12 +157,21 @@ public class LoginUI extends JFrame {
             return;
         }
 
+        boolean isLoginValid;
         try {
-            mainController.loginUser(email, password);
+            isLoginValid = mainController.validateLogin(email, password);
         } catch (UserLoginException exception) {
-            JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, exception.getMessage(), "Login Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
+        if (!isLoginValid) {
+            JOptionPane.showMessageDialog(this, "Email or password incorrect.", "Login Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        mainController.loginUser(email);
+        dispose();
     }
 
     private void validateLoginForm(String email, char[] password) {

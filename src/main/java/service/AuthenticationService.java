@@ -1,10 +1,7 @@
 package service;
 
-import domain.model.UserRole;
-import dto.AuthenticatedUserDTO;
 import dto.RegistrationDTO;
-import exception.UserLoginException;
-import exception.UserRegistrationException;
+import dto.UserDTO;
 import util.PasswordService;
 
 import java.util.Optional;
@@ -34,13 +31,14 @@ public class AuthenticationService {
     }
 
     public boolean validateLogin(String email, char[] password) {
+        // if email does not exist
         if (!userService.isEmailRegistered(email)) {
             return false;
         }
 
-        Optional<AuthenticatedUserDTO> authenticatedUserDTO = userService.findAuthenticatedByEmail(email);
+        Optional<UserDTO> authenticatedUserDTO = userService.findAuthenticatedByEmail(email);
         if (authenticatedUserDTO.isPresent()) {
-            AuthenticatedUserDTO authenticatedUser = authenticatedUserDTO.get();
+            UserDTO authenticatedUser = authenticatedUserDTO.get();
 
             String hashedPassword = authenticatedUser.getHashedPassword();
             return PasswordService.verifyPassword(password, hashedPassword);

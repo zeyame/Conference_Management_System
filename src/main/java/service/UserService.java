@@ -3,8 +3,8 @@ package service;
 import domain.factory.UserFactory;
 import domain.model.User;
 import domain.model.UserRole;
-import dto.AuthenticatedUserDTO;
 import dto.RegistrationDTO;
+import dto.UserDTO;
 import exception.UserRegistrationException;
 import repository.UserRepository;
 import util.LoggerUtil;
@@ -17,9 +17,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Optional<AuthenticatedUserDTO> findAuthenticatedByEmail(String email) {
+    public Optional<UserDTO> findByEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        return userOptional.map(this::mapToDTO);
+    }
+
+    public Optional<UserDTO> findAuthenticatedByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
-        return user.flatMap(this::mapToAuthenticatedDTO);
+        return user.map(this::mapToAuthenticatedDTO);
     }
 
     public void registerUser(RegistrationDTO validatedDTO) {
@@ -60,13 +65,23 @@ public class UserService {
         return user.isPresent();
     }
 
-    private Optional<AuthenticatedUserDTO> mapToAuthenticatedDTO(User user) {
-        if (user == null) return Optional.empty();
-
-        String id = user.getId();
-        String email = user.getEmail();
-        String hashedPassword = user.getHashedPassword();
-
-        return Optional.of(new AuthenticatedUserDTO(id, email, hashedPassword));
+    private UserDTO mapToDTO(User user) {
+        return UserDTO.withoutPassword(
+            user.getId(),
+            user.getEmail(),
+            user.getName(),
+            user.getRole()
+        );
     }
+
+    private UserDTO mapToAuthenticatedDTO(User user) {
+        return UserDTO.withPassword(
+            user.getId(),
+            user.getEmail(),
+            user.getName(),
+            user.getHashedPassword(),
+            user.getRole()
+        );
+    }
+
 }
