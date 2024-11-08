@@ -1,6 +1,7 @@
-package ui;
+package ui.speaker;
 
 import dto.UserDTO;
+import ui.UserUI;
 
 import javax.swing.*;
 

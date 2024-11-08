@@ -6,9 +6,9 @@ import repository.ConferenceFileRepository;
 import repository.UserFileRepository;
 import service.ConferenceService;
 import service.UserService;
-import ui.AttendeeUI;
-import ui.OrganizerUI;
-import ui.SpeakerUI;
+import ui.attendee.AttendeeUI;
+import ui.organizer.OrganizerUI;
+import ui.speaker.SpeakerUI;
 import ui.UserUI;
 
 public class UIFactory {

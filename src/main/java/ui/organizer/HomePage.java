@@ -1,90 +1,64 @@
-package ui;
+package ui.organizer;
 
 import controller.OrganizerController;
 import dto.ConferenceDTO;
 import dto.UserDTO;
-import util.UIComponentFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class OrganizerUI extends JFrame implements UserUI {
-    private final OrganizerController organizerController;
+public class HomePage {
     private final UserDTO userDTO;
-    private final JPanel contentPanel;
-    private final CardLayout cardLayout;
+    private final OrganizerController organizerController;
 
-    public OrganizerUI(OrganizerController organizerController, UserDTO userDTO) {
-        this.organizerController = organizerController;
+    public HomePage(UserDTO userDTO, OrganizerController organizerController) {
         this.userDTO = userDTO;
-
-        // frame configuration
-        setTitle("Organizer Landing Page");
-        setSize(new Dimension(1400, 800));
-        setResizable(false);
-        setLayout(new BorderLayout());
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // centering the UI
-        setLocationRelativeTo(null);
-
-        // welcome message
-        JPanel welcomePanel = UIComponentFactory.createWelcomePanel(userDTO.getName());
-
-        add(welcomePanel, BorderLayout.NORTH);
-
-        // hiding the welcome message after three seconds
-        new Timer(3000, e -> welcomePanel.setVisible(false)).start();
-
-        // main content panel of the frame
-        cardLayout = new CardLayout();
-        contentPanel = new JPanel(cardLayout);
-        add(contentPanel, BorderLayout.CENTER);
-
-        contentPanel.add(createHomePage(), "Home Page");
-
-        cardLayout.show(contentPanel, "Home Page");
+        this.organizerController = organizerController;
     }
 
-    @Override
-    public void display() {
-        setVisible(true);
-        toFront();
-    }
-
-    private JPanel createHomePage() {
+    public JPanel createPageContent() {
         JPanel homePanel = new JPanel();
         homePanel.setLayout(new BoxLayout(homePanel, BoxLayout.Y_AXIS));
 
-        // title for home page
+        // add header
+        homePanel.add(createHomePageHeader());
+        homePanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // add scrollable container with conferences
+        JScrollPane scrollPane = createConferenceScrollPane();
+        homePanel.add(scrollPane);
+
+        return homePanel;
+    }
+
+    private JPanel createHomePageHeader() {
         JLabel headerLabel = new JLabel("Your Managed Conferences");
         headerLabel.setFont(new Font("Sans serif", Font.BOLD, 20));
         headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        homePanel.add(headerLabel);
-        homePanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        return new JPanel() {{
+            add(headerLabel);
+        }};
+    }
 
-        // scrollable container for the conferences panels
+    private JScrollPane createConferenceScrollPane() {
         JPanel conferencesPanel = new JPanel();
         conferencesPanel.setLayout(new BoxLayout(conferencesPanel, BoxLayout.Y_AXIS));
         conferencesPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
 
-        // displaying all managed conferences for organizer
+        // creating a jpanel for every conference
         List<ConferenceDTO> conferences = organizerController.getManagedConferences(userDTO.getEmail());
-        for (ConferenceDTO conference: conferences) {
-            JPanel conferencePanel = createConferencePanel(conference);
-            conferencesPanel.add(conferencePanel);
+        for (ConferenceDTO conference : conferences) {
+            conferencesPanel.add(createConferencePanel(conference));
             conferencesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
 
         JScrollPane scrollPane = new JScrollPane(conferencesPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getVerticalScrollBar().setUnitIncrement(7);
-
-        homePanel.add(scrollPane);
-        return homePanel;
+        return scrollPane;
     }
 
     private JPanel createConferencePanel(ConferenceDTO conference) {
@@ -116,5 +90,6 @@ public class OrganizerUI extends JFrame implements UserUI {
     private void handleManageConferenceButton(ActionEvent e) {
         JButton sourceButton = (JButton) e.getSource();
         String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
+        // You can implement what happens when this button is clicked, like showing the conference details.
     }
 }
