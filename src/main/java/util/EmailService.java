@@ -48,6 +48,8 @@ public class EmailService {
                 message.setText(content);
 
                 Transport.send(message);
+
+                LoggerUtil.getInstance().logInfo("A welcome email to '" + toAddress + "' has successfully been sent.");
                 return;
             } catch (MessagingException | UnsupportedEncodingException e) {
                 attempt++;

@@ -2,6 +2,7 @@ package service;
 
 import dto.RegistrationDTO;
 import dto.UserDTO;
+import util.LoggerUtil;
 import util.PasswordService;
 
 import java.util.Optional;
@@ -27,6 +28,7 @@ public class AuthenticationService {
         char[] hashedPasswordChars = hashedPassword.toCharArray();
         registrationDTO.setPassword(hashedPasswordChars);
 
+        LoggerUtil.getInstance().logInfo("Registration info has been successfully validated for user:\n" + registrationDTO);
         return true;
     }
 
@@ -41,7 +43,10 @@ public class AuthenticationService {
             UserDTO authenticatedUser = authenticatedUserDTO.get();
 
             String hashedPassword = authenticatedUser.getHashedPassword();
-            return PasswordService.verifyPassword(password, hashedPassword);
+            if (PasswordService.verifyPassword(password, hashedPassword)) {
+                LoggerUtil.getInstance().logInfo("Login info successfully validated for user with email: '" + email + "'.");
+                return true;
+            }
         }
 
         return false;

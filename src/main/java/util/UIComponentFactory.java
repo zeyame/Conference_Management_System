@@ -26,6 +26,17 @@ public class UIComponentFactory {
         return titleLabel;
     }
 
+    public static JPanel createWelcomePanel(String userName) {
+        JPanel welcomePanel = new JPanel();
+        welcomePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+        JLabel welcomeLabel = new JLabel("Welcome, " + userName + "!");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        welcomePanel.add(welcomeLabel);
+
+        return welcomePanel;
+    }
+
     // nested static class to create and manage the role selection panel used in LoginUI and RegistrationUI
     public static class RoleSelectionPanel extends JPanel {
         ButtonGroup roleGroup;

@@ -48,4 +48,13 @@ public class RegistrationDTO {
     public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
     }
+
+    @Override
+    public String toString() {
+        return "RegistrationDTO{" +
+                "email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", userRole=" + userRole +
+                '}';
+    }
 }

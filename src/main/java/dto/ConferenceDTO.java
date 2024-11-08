@@ -1,10 +1,10 @@
-package domain.model;
+package dto;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Conference {
+public class ConferenceDTO {
     String id;
     String organizerId;
     String name;
@@ -15,9 +15,9 @@ public class Conference {
     Set<String> attendees;
     Set<String> speakers;
 
-    public Conference() {}
+    public ConferenceDTO() {}
 
-    public Conference(String id, String organizerId, String name, String description, LocalDate startDate, LocalDate endDate) {
+    public ConferenceDTO(String id, String organizerId, String name, String description, LocalDate startDate, LocalDate endDate) {
         this.id = id;
         this.organizerId = organizerId;
         this.name = name;
@@ -28,6 +28,7 @@ public class Conference {
         this.attendees = new HashSet<>();
         this.speakers = new HashSet<>();
     }
+
 
     public String getId() {
         return id;

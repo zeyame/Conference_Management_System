@@ -1,15 +1,19 @@
 package service;
 
 import domain.factory.UserFactory;
+import domain.model.Organizer;
 import domain.model.User;
 import domain.model.UserRole;
 import dto.RegistrationDTO;
 import dto.UserDTO;
+import exception.InvalidUserRoleException;
+import exception.UserNotFoundException;
 import exception.UserRegistrationException;
 import repository.UserRepository;
 import util.LoggerUtil;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class UserService {
     private final UserRepository userRepository;
@@ -26,6 +30,27 @@ public class UserService {
         Optional<User> user = userRepository.findByEmail(email);
         return user.map(this::mapToAuthenticatedDTO);
     }
+
+    public Set<String> findManagedConferencesForOrganizer(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (user.getRole() != UserRole.ORGANIZER) {
+                LoggerUtil.getInstance().logError("Email provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
+                throw new InvalidUserRoleException("User with email '" + email + "' does not have organizer permissions.");
+            }
+            Organizer organizer = (Organizer) user;
+            return organizer.getManagedConferences();
+        } else {
+            throw new UserNotFoundException("User with email '" + email + "' could not be found.");
+        }
+    }
+
+    public boolean isEmailRegistered(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.isPresent();
+    }
+
 
     public void registerUser(RegistrationDTO validatedDTO) {
         boolean isSavedToFile = false;
@@ -58,11 +83,8 @@ public class UserService {
             LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage after " + retryCount + " attempts.");
             throw UserRegistrationException.savingData();
         }
-    }
 
-    public boolean isEmailRegistered(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        return user.isPresent();
+        LoggerUtil.getInstance().logInfo("User with email '" + validatedDTO.getEmail() + "' has successfully been registered.");
     }
 
     private UserDTO mapToDTO(User user) {

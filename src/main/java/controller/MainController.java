@@ -7,6 +7,7 @@ import service.AuthenticationService;
 import service.UserService;
 import ui.*;
 import util.EmailService;
+import util.LoggerUtil;
 import util.UIFactory;
 
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class MainController {
     public void registerUser(RegistrationDTO validatedDTO) {
         userService.registerUser(validatedDTO);
         emailService.sendWelcomeEmail(validatedDTO.getEmail(), validatedDTO.getName());
+        LoggerUtil.getInstance().logInfo("Registration is successful for user: \n" + validatedDTO);
     }
 
     public void loginUser(String email) {
@@ -41,6 +43,8 @@ public class MainController {
 
             UserUI userUI = UIFactory.createUserUI(userDTO);
             userUI.display();
+
+            LoggerUtil.getInstance().logInfo("User with email '" + email + "' has been successfully logged in.");
         }
     }
 
