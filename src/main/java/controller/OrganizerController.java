@@ -30,4 +30,6 @@ public class OrganizerController {
             return Collections.emptyList();
         }
     }
+
+    public void createConference(ConferenceDTO conferenceDTO) {}
 }

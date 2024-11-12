@@ -1,14 +1,15 @@
 package ui.organizer;
 
 import controller.OrganizerController;
+import dto.ConferenceDTO;
 import dto.UserDTO;
 import ui.UserUI;
 import util.UIComponentFactory;
-
+import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 
-public class OrganizerUI extends JFrame implements UserUI {
+public class OrganizerUI extends JFrame implements UserUI, OrganizerCallback {
     private final OrganizerController organizerController;
     private final UserDTO userDTO;
     private final JPanel contentPanel;
@@ -41,7 +42,7 @@ public class OrganizerUI extends JFrame implements UserUI {
         add(contentPanel, BorderLayout.CENTER);
 
         // add home page to the card layout
-        HomePage homePage = new HomePage(userDTO, organizerController);
+        HomePage homePage = new HomePage(userDTO, this);
         contentPanel.add(homePage.createPageContent(), "Home Page");
         cardLayout.show(contentPanel, "Home Page");
     }
@@ -51,4 +52,19 @@ public class OrganizerUI extends JFrame implements UserUI {
         setVisible(true);
         toFront();
     }
+
+    @Override
+    public List<ConferenceDTO> onGetManagedConferencesRequest(String email) {
+        return organizerController.getManagedConferences(email);
+    }
+
+    @Override
+    public void onAddConferenceRequest() {
+        AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
+        contentPanel.add(addConferencePage.createPageContent(), "Add Conference Page");
+
+        // navigate to the add conference page
+        cardLayout.show(contentPanel, "Add Conference Page");
+    }
+
 }

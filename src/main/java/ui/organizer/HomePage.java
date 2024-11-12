@@ -11,11 +11,13 @@ import java.util.List;
 
 public class HomePage {
     private final UserDTO userDTO;
-    private final OrganizerController organizerController;
+    private final OrganizerCallback organizerCallback;
+    private final JButton addConferenceButton = new JButton("Add Conference");
 
-    public HomePage(UserDTO userDTO, OrganizerController organizerController) {
+    public HomePage(UserDTO userDTO, OrganizerCallback organizerCallback) {
         this.userDTO = userDTO;
-        this.organizerController = organizerController;
+        this.organizerCallback = organizerCallback;
+        setUpListeners();
     }
 
     public JPanel createPageContent() {
@@ -28,7 +30,11 @@ public class HomePage {
 
         // add scrollable container with conferences
         JScrollPane scrollPane = createConferenceScrollPane();
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         homePanel.add(scrollPane);
+
+        JPanel buttonPanel = createAddConferencePanel();
+        homePanel.add(buttonPanel);  // Add button panel to the main home panel
 
         return homePanel;
     }
@@ -49,7 +55,7 @@ public class HomePage {
         conferencesPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
 
         // creating a jpanel for every conference
-        List<ConferenceDTO> conferences = organizerController.getManagedConferences(userDTO.getEmail());
+        List<ConferenceDTO> conferences = organizerCallback.onGetManagedConferencesRequest(userDTO.getEmail());
         for (ConferenceDTO conference : conferences) {
             conferencesPanel.add(createConferencePanel(conference));
             conferencesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -85,6 +91,26 @@ public class HomePage {
         conferencePanel.add(manageButton);
 
         return conferencePanel;
+    }
+
+    private JPanel createAddConferencePanel() {
+        // Bottom panel for the Add Conference button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); // Add padding above and below
+
+        addConferenceButton.setPreferredSize(new Dimension(180, 35));
+        addConferenceButton.setFocusPainted(false);
+        buttonPanel.add(addConferenceButton);
+
+        return buttonPanel;
+    }
+
+    private void setUpListeners() {
+        addConferenceButton.addActionListener(this::handleAddConferenceButton);
+    }
+
+    private void handleAddConferenceButton(ActionEvent e) {
+        organizerCallback.onAddConferenceRequest();
     }
 
     private void handleManageConferenceButton(ActionEvent e) {

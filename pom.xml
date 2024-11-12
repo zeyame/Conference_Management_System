@@ -50,6 +50,11 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.13.0</version> <!-- Use a compatible version with your Jackson core library -->
         </dependency>
+        <dependency>
+            <groupId>com.toedter</groupId>
+            <artifactId>jcalendar</artifactId>
+            <version>1.4</version>
+        </dependency>
     </dependencies>
 
 </project>
