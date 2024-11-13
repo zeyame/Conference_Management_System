@@ -1,8 +1,9 @@
-package ui.organizer;
+package ui.organizer.pages;
 
 import controller.OrganizerController;
 import dto.ConferenceDTO;
 import dto.UserDTO;
+import ui.organizer.OrganizerObserver;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,12 +12,12 @@ import java.util.List;
 
 public class HomePage {
     private final UserDTO userDTO;
-    private final OrganizerCallback organizerCallback;
+    private final OrganizerObserver organizerObserver;
     private final JButton addConferenceButton = new JButton("Add Conference");
 
-    public HomePage(UserDTO userDTO, OrganizerCallback organizerCallback) {
+    public HomePage(UserDTO userDTO, OrganizerObserver organizerObserver) {
         this.userDTO = userDTO;
-        this.organizerCallback = organizerCallback;
+        this.organizerObserver = organizerObserver;
         setUpListeners();
     }
 
@@ -55,7 +56,7 @@ public class HomePage {
         conferencesPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
 
         // creating a jpanel for every conference
-        List<ConferenceDTO> conferences = organizerCallback.onGetManagedConferencesRequest(userDTO.getEmail());
+        List<ConferenceDTO> conferences = organizerObserver.onGetManagedConferencesRequest(userDTO.getEmail());
         for (ConferenceDTO conference : conferences) {
             conferencesPanel.add(createConferencePanel(conference));
             conferencesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -110,7 +111,7 @@ public class HomePage {
     }
 
     private void handleAddConferenceButton(ActionEvent e) {
-        organizerCallback.onAddConferenceRequest();
+        organizerObserver.onAddConferenceRequest();
     }
 
     private void handleManageConferenceButton(ActionEvent e) {

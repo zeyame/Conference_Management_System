@@ -3,9 +3,9 @@ package ui.organizer;
 import dto.ConferenceDTO;
 
 import java.util.List;
-import java.util.Map;
 
-public interface OrganizerCallback {
+
+public interface OrganizerObserver {
     List<ConferenceDTO> onGetManagedConferencesRequest(String email);
     void onAddConferenceRequest();
 

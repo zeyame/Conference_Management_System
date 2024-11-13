@@ -1,7 +1,8 @@
-package ui.organizer;
+package ui.organizer.pages;
 
 import dto.UserDTO;
 import exception.FormValidationException;
+import ui.organizer.OrganizerObserver;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +11,7 @@ import java.util.Date;
 
 public class AddConferencePage {
     private final UserDTO userDTO;
-    private final OrganizerCallback organizerCallback;
+    private final OrganizerObserver organizerObserver;
 
     // main panel
     private final JPanel mainContentPanel = new JPanel();
@@ -24,9 +25,9 @@ public class AddConferencePage {
     // conference form button
     JButton submitButton = new JButton("Submit");;
 
-    public AddConferencePage(UserDTO userDTO, OrganizerCallback organizerCallback) {
+    public AddConferencePage(UserDTO userDTO, OrganizerObserver organizerObserver) {
         this.userDTO = userDTO;
-        this.organizerCallback = organizerCallback;
+        this.organizerObserver = organizerObserver;
         setUpListeners();
     }
 
