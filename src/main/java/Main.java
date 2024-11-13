@@ -11,3 +11,4 @@ public class Main {
         new LoginUI(new MainController(new AuthenticationService(new UserService(new UserFileRepository())), new UserService(new UserFileRepository()), EmailService.getInstance()));
     }
 }
+

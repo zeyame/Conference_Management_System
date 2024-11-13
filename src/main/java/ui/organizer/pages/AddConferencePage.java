@@ -34,16 +34,12 @@ public class AddConferencePage {
     public JPanel createPageContent() {
         mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
 
-        // header label
-        JLabel headerLabel = new JLabel("Add a New Conference");
-        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 20));
-        headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        headerLabel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
-        mainContentPanel.add(headerLabel);
-        mainContentPanel.add(Box.createRigidArea(new Dimension(0, 12)));
+        // Add the conference form directly, no need for additional header
+        JPanel conferenceForm = createConferenceForm();
+        mainContentPanel.add(conferenceForm);
 
-        // form fields for creating a conference
-        mainContentPanel.add(createConferenceForm());
+        // Optionally, add space at the bottom if needed to create separation from the next section
+        mainContentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         return mainContentPanel;
     }
@@ -52,7 +48,19 @@ public class AddConferencePage {
         JPanel conferenceFormPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 20, 10);  // Add spacing between fields
+
+        // header label centered
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        JLabel headerLabel = new JLabel("Add a New Conference");
+        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 20));
+        conferenceFormPanel.add(headerLabel, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
 
         // name label and field
         gbc.gridx = 0; gbc.gridy = 1;
@@ -87,12 +95,20 @@ public class AddConferencePage {
         conferenceFormPanel.add(endDateTimeSpinner, gbc);
 
         // submit button
-        gbc.gridx = 1; gbc.gridy = 5;
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
+        submitButton.setFocusPainted(false);
         conferenceFormPanel.add(submitButton, gbc);
+
+        // Make the form taller by setting preferred size
+        conferenceFormPanel.setPreferredSize(new Dimension(300, 800));  // Adjust height and width
+        conferenceFormPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 150, 0));
 
         return conferenceFormPanel;
     }
+
 
     private JSpinner createDateTimeSpinner() {
         JSpinner dateTimeSpinner = new JSpinner(new SpinnerDateModel());
