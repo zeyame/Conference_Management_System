@@ -2,6 +2,7 @@ package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.User;
+import exception.SavingDataException;
 import exception.UserRegistrationException;
 import util.JsonFileHandler;
 import util.LoggerUtil;
@@ -21,25 +22,30 @@ public class UserFileRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findById(String id) {
+        return userCache.values()
+                .stream()
+                .filter(user -> id.equals(user.getId()))
+                .findAny();
+    }
+
+    @Override
     public boolean save(User user) {
         // save user in memory first
         boolean savedToMemory = saveInMemory(user);
         if (!savedToMemory) return false;
 
         // save user to file storage
-        try {
-            saveUsersToFile();
-            return true;
-        } catch (UserRegistrationException e) {
-            LoggerUtil.getInstance().logError("Failed to save user with email '" + user.getEmail() + "' to file storage.");
+        boolean isSavedToFile = JsonFileHandler.saveDataWithRetry(userCache, FILE_PATH, 3);
+        if (!isSavedToFile) {
+            LoggerUtil.getInstance().logWarning("Failed to save user with email '" + user.getEmail() + "' to file storage. Rolling back in-memory save.");
+            removeFromMemory(user);
             return false;
         }
+
+        return true;
     }
 
-    @Override
-    public void removeFromMemory(User user) {
-        userCache.remove(user.getEmail());
-    }
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -62,22 +68,9 @@ public class UserFileRepository implements UserRepository {
         }
     }
 
-    private void saveUsersToFile() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                LoggerUtil.getInstance().logError("Error occurred when creating a new empty file with path '" + FILE_PATH + "' in the saveUsersToFile method of the UserFileRepository class.");
-                throw UserRegistrationException.savingData();
-            }
-        }
-        try {
-            JsonFileHandler.saveData(FILE_PATH, userCache);
-        } catch (IOException e) {
-            LoggerUtil.getInstance().logError("Error occurred when attempting to write to file with path '" + FILE_PATH + "' in the saveUsersToFile method of the UserFileRepository class.");
-            throw UserRegistrationException.savingData();
-        }
+    private void removeFromMemory(User user) {
+        userCache.remove(user.getEmail());
     }
+
 
 }

@@ -4,6 +4,7 @@ import dto.ConferenceDTO;
 import dto.ConferenceFormDTO;
 import exception.ConferenceCreationException;
 import exception.InvalidUserRoleException;
+import exception.SavingDataException;
 import exception.UserNotFoundException;
 import service.ConferenceService;
 import service.UserService;
@@ -34,7 +35,7 @@ public class OrganizerController {
         }
     }
 
-    public boolean validateConferenceData(ConferenceFormDTO conferenceFormDTO) throws ConferenceCreationException {
+    public void validateConferenceData(ConferenceFormDTO conferenceFormDTO) {
         // implement validation logic
         String name = conferenceFormDTO.getName();
         Date startDate = conferenceFormDTO.getStartDate(), endDate = conferenceFormDTO.getEndDate();
@@ -50,10 +51,18 @@ public class OrganizerController {
         }
 
         LoggerUtil.getInstance().logInfo("Validation successful for conference: " + name + " with dates: " + startDate + " - " + endDate);
-        return true;
     }
 
     public void createConference(ConferenceFormDTO conferenceFormDTO) {
-        conferenceService.create(conferenceFormDTO);
+        String conferenceId = conferenceService.create(conferenceFormDTO);
+        try {
+            userService.addNewManagedConferenceForOrganizer(conferenceFormDTO.getOrganizerId(), conferenceId);
+        } catch (Exception e) {
+            // rolling back conference creation if adding the conference to the organizer's managed conferences failed
+            conferenceService.deleteById(conferenceId);
+
+            // propagate saving data exception upwards for user friendly error
+            if (e instanceof SavingDataException) throw e;
+        }
     }
 }

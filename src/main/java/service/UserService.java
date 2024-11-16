@@ -7,11 +7,11 @@ import domain.model.UserRole;
 import dto.RegistrationDTO;
 import dto.UserDTO;
 import exception.InvalidUserRoleException;
+import exception.SavingDataException;
 import exception.UserNotFoundException;
-import exception.UserRegistrationException;
 import repository.UserRepository;
+import util.JsonFileHandler;
 import util.LoggerUtil;
-import util.PersistenceService;
 
 import java.util.Optional;
 import java.util.Set;
@@ -20,6 +20,27 @@ public class UserService {
     private final UserRepository userRepository;
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public void addNewManagedConferenceForOrganizer(String organizerId, String conferenceId) {
+        Optional<User> userOptional = userRepository.findById(organizerId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (user.getRole() != UserRole.ORGANIZER) {
+                LoggerUtil.getInstance().logWarning("Id provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
+                throw new InvalidUserRoleException("User with id '" + organizerId + "' does not have organizer permissions");
+            }
+            Organizer organizer = (Organizer) user;
+            organizer.addConference(conferenceId);
+
+            boolean isUserUpdated = userRepository.save(organizer);
+            if (!isUserUpdated) {
+                throw new SavingDataException("Failed to save conference to your managed conferences. Please try again later.");
+            }
+        } else {
+            LoggerUtil.getInstance().logWarning("Id provided '" + organizerId + "' does not belong to any registered user.");
+            throw new UserNotFoundException("User with id '" + organizerId + "' does not exist.");
+        }
     }
 
     public Optional<UserDTO> findByEmail(String email) {
@@ -33,16 +54,17 @@ public class UserService {
     }
 
     public Set<String> findManagedConferencesForOrganizer(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+        Optional<User> organizerOptional = userRepository.findByEmail(email);
+        if (organizerOptional.isPresent()) {
+            User user = organizerOptional.get();
             if (user.getRole() != UserRole.ORGANIZER) {
-                LoggerUtil.getInstance().logError("Email provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
+                LoggerUtil.getInstance().logWarning("Email provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
                 throw new InvalidUserRoleException("User with email '" + email + "' does not have organizer permissions.");
             }
             Organizer organizer = (Organizer) user;
             return organizer.getManagedConferences();
         } else {
+            LoggerUtil.getInstance().logWarning("Email provided '" + email + "' does not belong to any registered user.");
             throw new UserNotFoundException("User with email '" + email + "' could not be found.");
         }
     }
@@ -58,11 +80,10 @@ public class UserService {
         User user = UserFactory.createUser(validatedDTO);
 
         // attempting to save validated user to file storage with retries if necessary
-        boolean isSavedToFile = PersistenceService.saveWithRetry(user, userRepository::save, 3);
+        boolean isSavedToFile = userRepository.save(user);
         if (!isSavedToFile) {
-            userRepository.removeFromMemory(user);
             LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
-            throw UserRegistrationException.savingData();
+            throw new SavingDataException("An unexpected error occurred while saving your data. Please try again later.");
         }
         LoggerUtil.getInstance().logInfo("User with email '" + validatedDTO.getEmail() + "' has successfully been registered.");
     }

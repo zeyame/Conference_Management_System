@@ -5,6 +5,7 @@ import dto.ConferenceDTO;
 import dto.ConferenceFormDTO;
 import dto.UserDTO;
 import exception.ConferenceCreationException;
+import exception.SavingDataException;
 import ui.UserUI;
 import ui.organizer.pages.AddConferencePage;
 import ui.organizer.pages.HomePage;
@@ -23,6 +24,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final JPanel contentPanel;
     private final CardLayout cardLayout;
 
+    // constants for subpage names
     private final String HOME_PAGE = "Home Page";
     private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
 
@@ -66,20 +68,28 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     @Override
     public List<ConferenceDTO> onGetManagedConferencesRequest(String email) {
+        LoggerUtil.getInstance().logInfo("Request to get managed conferences for user with email '" + email + "' received.");
         return organizerController.getManagedConferences(email);
     }
 
     @Override
     public void onAddConferenceRequest() {
-        // check if the "Add Conference Page" is already in the subpages map
-        if (!subpages.containsKey("Add Conference Page")) {
-            AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
-            subpages.put("Add Conference Page", addConferencePage.createPageContent());
-            contentPanel.add(addConferencePage.createPageContent(), "Add Conference Page");
+        LoggerUtil.getInstance().logInfo("Request to add a new conference received.");
+
+        // check if the "Add Conference Page" already exists in the subpages map
+        if (subpages.containsKey(ADD_CONFERENCE_PAGE)) {
+            // Remove the existing Add Conference Page from the contentPanel
+            contentPanel.remove(subpages.get(ADD_CONFERENCE_PAGE));
+            subpages.remove(ADD_CONFERENCE_PAGE); // Remove it from the map as well
         }
 
-        // navigate to the add conference page
-        cardLayout.show(contentPanel, "Add Conference Page");
+        // create and add the new Add Conference Page
+        AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
+        subpages.put(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent());
+        contentPanel.add(addConferencePage.createPageContent(), ADD_CONFERENCE_PAGE);
+
+        // navigate to the Add Conference Page
+        cardLayout.show(contentPanel, ADD_CONFERENCE_PAGE);
     }
 
 
@@ -90,7 +100,17 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
             LoggerUtil.getInstance().logInfo("Request to create conference received. Proceeding with validation.");
             organizerController.validateConferenceData(conferenceFormDTO);
             organizerController.createConference(conferenceFormDTO);
-        } catch (ConferenceCreationException e) {
+
+            // remove the old home page
+            contentPanel.remove(subpages.get(HOME_PAGE));
+
+            // create a new and updated home page
+            HomePage homePage = new HomePage(userDTO, this);
+            subpages.put(HOME_PAGE, homePage.createPageContent());
+
+            contentPanel.add(homePage.createPageContent(), HOME_PAGE);
+            cardLayout.show(contentPanel, HOME_PAGE);
+        } catch (ConferenceCreationException | SavingDataException e) {
             JOptionPane.showMessageDialog(
                     subpages.get(ADD_CONFERENCE_PAGE),
                     e.getMessage(),

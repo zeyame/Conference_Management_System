@@ -14,7 +14,4 @@ public class ConferenceCreationException extends RuntimeException {
         throw new ConferenceCreationException("Another conference is already registered to take place within the time period provided.");
     }
 
-    public static ConferenceCreationException savingData() {
-        throw new ConferenceCreationException("Error occurred while saving conference data. Please try again later");
-    }
 }

@@ -1,20 +1,15 @@
 package service;
 
 import domain.factory.ConferenceFactory;
-import domain.factory.UserFactory;
 import domain.model.Conference;
-import domain.model.User;
 import dto.ConferenceDTO;
 import dto.ConferenceFormDTO;
-import exception.ConferenceCreationException;
-import exception.UserRegistrationException;
+import exception.SavingDataException;
 import repository.ConferenceRepository;
 import util.LoggerUtil;
-import util.PersistenceService;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,19 +20,23 @@ public class ConferenceService {
         this.conferenceRepository = conferenceRepository;
     }
 
-    public void create(ConferenceFormDTO conferenceFormDTO) {
+    public String create(ConferenceFormDTO conferenceFormDTO) {
         // creating conference instance
         Conference conference = ConferenceFactory.createConference(conferenceFormDTO);
 
         // attempting to save validated conference to file storage with retries if necessary
-        boolean isSavedToFile = PersistenceService.saveWithRetry(conference, conferenceRepository::save, 3);
+        boolean isSavedToFile = conferenceRepository.save(conference);
         if (!isSavedToFile) {
-            conferenceRepository.removeFromMemory(conference);
             LoggerUtil.getInstance().logError("Conference creation failed. Could not save conference to file storage.");
-            throw ConferenceCreationException.savingData();
+            throw new SavingDataException("An unexpected error occurred while saving conference data. Please try again later.");
         }
 
         LoggerUtil.getInstance().logInfo("Conference with name '" + conference.getName() + "' has successfully been created.");
+        return conference.getId();
+    }
+
+    public void deleteById(String conferenceId) {
+        conferenceRepository.deleteById(conferenceId);
     }
 
     public List<ConferenceDTO> findByIds(Set<String> ids) {

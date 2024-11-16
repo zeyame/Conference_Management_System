@@ -4,6 +4,7 @@ import controller.MainController;
 import domain.model.UserRole;
 import dto.RegistrationDTO;
 import exception.FormValidationException;
+import exception.SavingDataException;
 import exception.UserRegistrationException;
 import util.UIComponentFactory;
 
@@ -209,7 +210,7 @@ public class RegistrationUI extends JFrame {
             mainController.registerUser(registrationDTO);
             clearFormData();
             JOptionPane.showMessageDialog(this, "Registration successful. You can now login.", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (UserRegistrationException exception) {
+        } catch (UserRegistrationException | SavingDataException exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE);
         }
     }

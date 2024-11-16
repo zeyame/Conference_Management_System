@@ -55,7 +55,7 @@ public class HomePage {
         conferencesPanel.setLayout(new BoxLayout(conferencesPanel, BoxLayout.Y_AXIS));
         conferencesPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
 
-        // creating a jpanel for every conference
+        // publishing an event to organizer observer to fetch managed conferences for organizer
         List<ConferenceDTO> conferences = organizerObserver.onGetManagedConferencesRequest(userDTO.getEmail());
         for (ConferenceDTO conference : conferences) {
             conferencesPanel.add(createConferencePanel(conference));

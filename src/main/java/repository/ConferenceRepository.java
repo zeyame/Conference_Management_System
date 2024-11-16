@@ -11,5 +11,5 @@ public interface ConferenceRepository {
     public Optional<Conference> findByName(String name);
     public List<Conference> findAll();
     public List<Conference> findByIds(Set<String> ids);
-    public void removeFromMemory(Conference conference);
+    public void deleteById(String id);
 }

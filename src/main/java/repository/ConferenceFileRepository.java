@@ -3,6 +3,7 @@ package repository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.Conference;
 import exception.ConferenceCreationException;
+import exception.SavingDataException;
 import util.JsonFileHandler;
 import util.LoggerUtil;
 
@@ -22,19 +23,20 @@ public class ConferenceFileRepository implements ConferenceRepository {
 
     @Override
     public boolean save(Conference conference) {
-        // save user in memory first
+        // save conference in memory first
         boolean savedToMemory = saveInMemory(conference);
         if (!savedToMemory) return false;
 
-        // save user to file storage
-        try {
-            saveConferencesToFile();
-            return true;
-        } catch (ConferenceCreationException e) {
-            LoggerUtil.getInstance().logError("Failed to save conference with name '" + conference.getName() + "' to file storage.");
+        // save conference to file storage
+        boolean isSavedToFile = JsonFileHandler.saveDataWithRetry(conferenceCache, FILE_PATH, 3);
+        if (!isSavedToFile) {
+            // rolling back conference creation so that in-memory storage is synced up to file storage
+            removeFromMemory(conference.getId());
             return false;
         }
+        return true;
     }
+
     @Override
     public Optional<Conference> findByName(String name) {
         return conferenceCache.values()
@@ -56,8 +58,15 @@ public class ConferenceFileRepository implements ConferenceRepository {
     }
 
     @Override
-    public void removeFromMemory(Conference conference) {
-        conferenceCache.remove(conference.getId());
+    public void deleteById(String id) {
+        Conference conference = conferenceCache.get(id);
+        removeFromMemory(id);
+        boolean isSavedToFile = JsonFileHandler.saveDataWithRetry(conferenceCache, FILE_PATH, 3);
+        if (!isSavedToFile) {
+            // rolling back the delete so that in-memory storage is synced up with file storage
+            saveInMemory(conference);
+            LoggerUtil.getInstance().logWarning("Failed to delete conference with name: " + conference.getName());
+        }
     }
 
     private boolean saveInMemory(Conference conference) {
@@ -66,31 +75,17 @@ public class ConferenceFileRepository implements ConferenceRepository {
             conferenceCache.put(conference.getId(), conference);
             return true;
         } catch (Exception e) {
-            LoggerUtil.getInstance().logError("Failed to save conference with name '" + conference.getName() + "' to in-memory storage.");
+            LoggerUtil.getInstance().logWarning("Failed to save conference with name '" + conference.getName() + "' to in-memory storage.");
             return false;
         }
+    }
+
+    private void removeFromMemory(String id) {
+        conferenceCache.remove(id);
     }
 
     private void loadConferencesFromFile() {
         JsonFileHandler.loadData(FILE_PATH, new TypeReference<Map<String, Conference>>() {})
                 .ifPresent(conferenceCache::putAll);
-    }
-
-    private void saveConferencesToFile() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                LoggerUtil.getInstance().logError("Error occurred when creating a new empty file with path '" + FILE_PATH + "' in the saveConferencesToFile method of the ConferencesFileRepository class.");
-                throw ConferenceCreationException.savingData();
-            }
-        }
-        try {
-            JsonFileHandler.saveData(FILE_PATH, conferenceCache);
-        } catch (IOException e) {
-            LoggerUtil.getInstance().logError("Error occurred when attempting to write to file with path '" + FILE_PATH + "' in the saveConferences method of the ConferenceFileRepository class.");
-            throw ConferenceCreationException.savingData();
-        }
     }
 }
