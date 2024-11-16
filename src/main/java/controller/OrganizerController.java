@@ -1,6 +1,8 @@
 package controller;
 
 import dto.ConferenceDTO;
+import dto.ConferenceFormDTO;
+import exception.ConferenceCreationException;
 import exception.InvalidUserRoleException;
 import exception.UserNotFoundException;
 import service.ConferenceService;
@@ -8,6 +10,7 @@ import service.UserService;
 import util.LoggerUtil;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -31,5 +34,26 @@ public class OrganizerController {
         }
     }
 
-    public void createConference(ConferenceDTO conferenceDTO) {}
+    public boolean validateConferenceData(ConferenceFormDTO conferenceFormDTO) throws ConferenceCreationException {
+        // implement validation logic
+        String name = conferenceFormDTO.getName();
+        Date startDate = conferenceFormDTO.getStartDate(), endDate = conferenceFormDTO.getEndDate();
+
+        if (conferenceService.isNameTaken(name)) {
+            LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Conference name '" + name + "' is already taken.");
+            throw ConferenceCreationException.nameTaken();
+        }
+
+        if (!conferenceService.isTimePeriodAvailable(startDate, endDate)) {
+            LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Dates provided for the conference are not available..");
+            throw ConferenceCreationException.dateUnavailable();
+        }
+
+        LoggerUtil.getInstance().logInfo("Validation successful for conference: " + name + " with dates: " + startDate + " - " + endDate);
+        return true;
+    }
+
+    public void createConference(ConferenceFormDTO conferenceFormDTO) {
+        conferenceService.create(conferenceFormDTO);
+    }
 }

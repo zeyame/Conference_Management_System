@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class UserFileRepository implements UserRepository {
     private static final String FILE_PATH = "src/main/resources/data/users.json";
-    private static final Map<String, User> userCache = new HashMap<>();
+    private static final Map<String, User> userCache = new HashMap<>();         // K: User Email, V: User Object
 
     public UserFileRepository() {
         loadUsersFromFile();

@@ -2,20 +2,32 @@ package ui.organizer;
 
 import controller.OrganizerController;
 import dto.ConferenceDTO;
+import dto.ConferenceFormDTO;
 import dto.UserDTO;
+import exception.ConferenceCreationException;
 import ui.UserUI;
 import ui.organizer.pages.AddConferencePage;
 import ui.organizer.pages.HomePage;
+import util.LoggerUtil;
 import util.UIComponentFactory;
+
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final OrganizerController organizerController;
     private final UserDTO userDTO;
     private final JPanel contentPanel;
     private final CardLayout cardLayout;
+
+    private final String HOME_PAGE = "Home Page";
+    private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
+
+    // map used for quick retrieval of organizer subpages need for routing
+    Map<String, Component> subpages = new HashMap<>();
 
     public OrganizerUI(OrganizerController organizerController, UserDTO userDTO) {
         this.organizerController = organizerController;
@@ -43,10 +55,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         contentPanel = new JPanel(cardLayout);
         add(contentPanel, BorderLayout.CENTER);
 
-        // add home page to the card layout
-        HomePage homePage = new HomePage(userDTO, this);
-        contentPanel.add(homePage.createPageContent(), "Home Page");
-        cardLayout.show(contentPanel, "Home Page");
+        initializePages();
     }
 
     @Override
@@ -62,11 +71,51 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     @Override
     public void onAddConferenceRequest() {
-        AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
-        contentPanel.add(addConferencePage.createPageContent(), "Add Conference Page");
+        // check if the "Add Conference Page" is already in the subpages map
+        if (!subpages.containsKey("Add Conference Page")) {
+            AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
+            subpages.put("Add Conference Page", addConferencePage.createPageContent());
+            contentPanel.add(addConferencePage.createPageContent(), "Add Conference Page");
+        }
 
         // navigate to the add conference page
         cardLayout.show(contentPanel, "Add Conference Page");
     }
+
+
+    @Override
+    public void onSubmitConferenceFormRequest(ConferenceFormDTO conferenceFormDTO) {
+        // call organizer controller to valid conference (check name and date availability)
+        try {
+            LoggerUtil.getInstance().logInfo("Request to create conference received. Proceeding with validation.");
+            organizerController.validateConferenceData(conferenceFormDTO);
+            organizerController.createConference(conferenceFormDTO);
+        } catch (ConferenceCreationException e) {
+            JOptionPane.showMessageDialog(
+                    subpages.get(ADD_CONFERENCE_PAGE),
+                    e.getMessage(),
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void initializePages() {
+        // initialize home page
+        HomePage homePage = new HomePage(userDTO, this);
+        JPanel homeContent = homePage.createPageContent();
+        subpages.put(HOME_PAGE, homeContent);
+        contentPanel.add(homeContent, HOME_PAGE);
+
+        // initialize add conference page
+        AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
+        JPanel addConferenceContent = addConferencePage.createPageContent();
+        subpages.put(ADD_CONFERENCE_PAGE, addConferenceContent);
+        contentPanel.add(addConferenceContent, ADD_CONFERENCE_PAGE);
+
+        // show home page by default
+        cardLayout.show(contentPanel, HOME_PAGE);
+    }
+
 
 }

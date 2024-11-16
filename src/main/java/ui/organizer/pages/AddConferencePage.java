@@ -1,5 +1,6 @@
 package ui.organizer.pages;
 
+import dto.ConferenceFormDTO;
 import dto.UserDTO;
 import exception.FormValidationException;
 import ui.organizer.OrganizerObserver;
@@ -14,24 +15,33 @@ public class AddConferencePage {
     private final OrganizerObserver organizerObserver;
 
     // main panel
-    private final JPanel mainContentPanel = new JPanel();
+    private final JPanel mainContentPanel;
 
     // conference form fields
-    private JTextField nameField;
-    private JTextField descriptionField;
-    private JSpinner startDateTimeSpinner;
-    private JSpinner endDateTimeSpinner;
-
-    // conference form button
-    JButton submitButton = new JButton("Submit");;
+    private final JTextField nameField;
+    private final JTextField descriptionField;
+    private final JSpinner startDateTimeSpinner;
+    private final JSpinner endDateTimeSpinner;
+    private final JButton submitButton;
 
     public AddConferencePage(UserDTO userDTO, OrganizerObserver organizerObserver) {
         this.userDTO = userDTO;
         this.organizerObserver = organizerObserver;
+
+        // initialize the components
+        this.mainContentPanel = new JPanel();
+        this.nameField = new JTextField(17);
+        this.descriptionField = new JTextField(17);
+        this.startDateTimeSpinner = createDateTimeSpinner();
+        this.endDateTimeSpinner = createDateTimeSpinner();
+        this.submitButton = new JButton("Submit");
+
+        // set up event listeners for the page
         setUpListeners();
     }
 
     public JPanel createPageContent() {
+        mainContentPanel.removeAll();
         mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
 
         // Add the conference form directly, no need for additional header
@@ -67,7 +77,6 @@ public class AddConferencePage {
         conferenceFormPanel.add(new JLabel("Name"), gbc);
 
         gbc.gridx = 1;
-        nameField = new JTextField(17);
         conferenceFormPanel.add(nameField, gbc);
 
         // description label and field
@@ -75,7 +84,6 @@ public class AddConferencePage {
         conferenceFormPanel.add(new JLabel("Description"), gbc);
 
         gbc.gridx = 1;
-        descriptionField = new JTextField(17);
         conferenceFormPanel.add(descriptionField, gbc);
 
         // start date-time label and field
@@ -83,7 +91,6 @@ public class AddConferencePage {
         conferenceFormPanel.add(new JLabel("Start Date and Time"), gbc);
 
         gbc.gridx = 1;
-        startDateTimeSpinner = createDateTimeSpinner();
         conferenceFormPanel.add(startDateTimeSpinner, gbc);
 
         // end date-time label and field
@@ -91,7 +98,6 @@ public class AddConferencePage {
         conferenceFormPanel.add(new JLabel("End Date and Time"), gbc);
 
         gbc.gridx = 1;
-        endDateTimeSpinner = createDateTimeSpinner();
         conferenceFormPanel.add(endDateTimeSpinner, gbc);
 
         // submit button
@@ -123,26 +129,31 @@ public class AddConferencePage {
     }
 
     private void handleSubmitConferenceDetails(ActionEvent e) {
-        try {
-            validateConferenceForm();
-
-            // continue with logic
-        } catch (FormValidationException ex) {
-            JOptionPane.showMessageDialog(mainContentPanel, ex.getMessage(), "Form Validation Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void validateConferenceForm() throws FormValidationException {
         String conferenceName = nameField.getText();
         String conferenceDescription = descriptionField.getText();
         Date startDate = (Date) startDateTimeSpinner.getValue();
         Date endDate = (Date) endDateTimeSpinner.getValue();
 
+        try {
+            validateConferenceForm(conferenceName, conferenceDescription, startDate, endDate);
+        } catch (FormValidationException ex) {
+            JOptionPane.showMessageDialog(mainContentPanel, ex.getMessage(), "Form Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        ConferenceFormDTO conferenceFormDTO = new ConferenceFormDTO(userDTO.getId(), conferenceName, conferenceDescription, startDate, endDate);
+
+        // publish event to organizer ui that user wants to submit the conference form
+        organizerObserver.onSubmitConferenceFormRequest(conferenceFormDTO);
+    }
+
+    private void validateConferenceForm(String conferenceName, String conferenceDescription, Date startDate, Date endDate) throws FormValidationException {
+
         if (conferenceName.isEmpty() || conferenceDescription.isEmpty() || startDate == null || endDate == null) {
             throw new FormValidationException("All fields must be filled out.");
         }
 
-        if (startDate.after(endDate)) {
+        if (startDate.equals(endDate) || startDate.after(endDate)) {
             throw new FormValidationException("Start date and time must be before end date and time.");
         }
     }

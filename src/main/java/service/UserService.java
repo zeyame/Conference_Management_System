@@ -11,6 +11,7 @@ import exception.UserNotFoundException;
 import exception.UserRegistrationException;
 import repository.UserRepository;
 import util.LoggerUtil;
+import util.PersistenceService;
 
 import java.util.Optional;
 import java.util.Set;
@@ -53,37 +54,16 @@ public class UserService {
 
 
     public void registerUser(RegistrationDTO validatedDTO) {
-        boolean isSavedToFile = false;
-        int retryCount = 0;
-        int maxRetries = 3;
-
         // creating user instance
         User user = UserFactory.createUser(validatedDTO);
 
-        while (retryCount < maxRetries && !isSavedToFile) {
-            isSavedToFile = userRepository.save(user);
-            if (!isSavedToFile) {
-                retryCount++;
-                LoggerUtil.getInstance().logError("Attempt " + retryCount + " to save user to file failed.");
-
-                // waiting for some time before retrying again
-                try {
-                    Thread.sleep((long) Math.pow(2, retryCount) * 100);
-                } catch (InterruptedException e) {
-                    // if thread is interrupted during retries
-                    Thread.currentThread().interrupt();
-                    LoggerUtil.getInstance().logError("Retry operation to save user to file storage was interrupted.");
-                    throw UserRegistrationException.savingData();
-                }
-            }
-        }
-
+        // attempting to save validated user to file storage with retries if necessary
+        boolean isSavedToFile = PersistenceService.saveWithRetry(user, userRepository::save, 3);
         if (!isSavedToFile) {
             userRepository.removeFromMemory(user);
-            LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage after " + retryCount + " attempts.");
+            LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
             throw UserRegistrationException.savingData();
         }
-
         LoggerUtil.getInstance().logInfo("User with email '" + validatedDTO.getEmail() + "' has successfully been registered.");
     }
 
