@@ -78,7 +78,7 @@ public class HomePage {
         nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
 
         // start date of conference
-        JLabel dateLabel = new JLabel("Date: " + conference.getStartDate());
+        JLabel dateLabel = new JLabel("Date: " + conference.getStartDate().toString());
         dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
 
         // manage conference button
@@ -117,6 +117,8 @@ public class HomePage {
     private void handleManageConferenceButton(ActionEvent e) {
         JButton sourceButton = (JButton) e.getSource();
         String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
-        // You can implement what happens when this button is clicked, like showing the conference details.
+
+        // publish event to organizer observer for manage conference click
+        organizerObserver.onManageConferenceRequest(conferenceId);
     }
 }

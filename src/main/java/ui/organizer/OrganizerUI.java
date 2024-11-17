@@ -9,6 +9,7 @@ import exception.SavingDataException;
 import ui.UserUI;
 import ui.organizer.pages.AddConferencePage;
 import ui.organizer.pages.HomePage;
+import ui.organizer.pages.ManageConferencePage;
 import util.LoggerUtil;
 import util.UIComponentFactory;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
+import java.util.Optional;
 
 public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final OrganizerController organizerController;
@@ -27,6 +29,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     // constants for subpage names
     private final String HOME_PAGE = "Home Page";
     private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
+    private final String MANAGE_CONFERENCE_PAGE = "Manage Conference Page";
 
     // map used for quick retrieval of organizer subpages need for routing
     Map<String, Component> subpages = new HashMap<>();
@@ -73,14 +76,46 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
+    public void onManageConferenceRequest(String conferenceId) {
+        LoggerUtil.getInstance().logInfo("Request to manage a conference with id '" + conferenceId + "' received");
+
+        Optional<ConferenceDTO> conferenceDTOOptional = organizerController.getManagedConference(conferenceId);
+        if (conferenceDTOOptional.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    subpages.get(MANAGE_CONFERENCE_PAGE),
+                    "Conference with the provided ID could not be found",
+                    "Invalid Data Provided",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        // check if the "Manage Conference Page" already exists in the subpages map
+        if (subpages.containsKey(MANAGE_CONFERENCE_PAGE)) {
+            // Remove the existing Manage Conference Page from the contentPanel and subpages map
+            contentPanel.remove(subpages.get(MANAGE_CONFERENCE_PAGE));
+            subpages.remove(MANAGE_CONFERENCE_PAGE);
+        }
+
+        // create and add a new "Manage Conference Page" with the requested conference data
+        ConferenceDTO conferenceDTO = conferenceDTOOptional.get();
+        ManageConferencePage manageConferencePage = new ManageConferencePage(conferenceDTO, userDTO, this);
+        subpages.put(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent());
+        contentPanel.add(manageConferencePage.createPageContent(), MANAGE_CONFERENCE_PAGE);
+
+        // navigate to the "Manage Conference Page"
+        cardLayout.show(contentPanel, MANAGE_CONFERENCE_PAGE);
+    }
+
+    @Override
     public void onAddConferenceRequest() {
         LoggerUtil.getInstance().logInfo("Request to add a new conference received.");
 
         // check if the "Add Conference Page" already exists in the subpages map
         if (subpages.containsKey(ADD_CONFERENCE_PAGE)) {
-            // Remove the existing Add Conference Page from the contentPanel
+            // Remove the existing Add Conference Page from the contentPanel and subpages map
             contentPanel.remove(subpages.get(ADD_CONFERENCE_PAGE));
-            subpages.remove(ADD_CONFERENCE_PAGE); // Remove it from the map as well
+            subpages.remove(ADD_CONFERENCE_PAGE);
         }
 
         // create and add the new Add Conference Page
@@ -118,6 +153,36 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
                     JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    @Override
+    public void onEditConferenceRequest() {
+
+    }
+
+    @Override
+    public void onDeleteConferenceRequest() {
+
+    }
+
+    @Override
+    public void onViewAttendeesRequest() {
+
+    }
+
+    @Override
+    public void onViewSessionsRequest() {
+
+    }
+
+    @Override
+    public void onViewSpeakersRequest() {
+
+    }
+
+    @Override
+    public void onViewFeedbackRequest() {
+
     }
 
     private void initializePages() {

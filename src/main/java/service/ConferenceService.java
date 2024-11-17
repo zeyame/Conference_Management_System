@@ -4,12 +4,14 @@ import domain.factory.ConferenceFactory;
 import domain.model.Conference;
 import dto.ConferenceDTO;
 import dto.ConferenceFormDTO;
+import exception.ConferenceNotFoundException;
 import exception.SavingDataException;
 import repository.ConferenceRepository;
 import util.LoggerUtil;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,13 @@ public class ConferenceService {
 
     public void deleteById(String conferenceId) {
         conferenceRepository.deleteById(conferenceId);
+    }
+
+    public ConferenceDTO findById(String id) {
+        return conferenceRepository
+                .findById(id)
+                .map(this::mapToDTO)
+                .orElseThrow(() -> new ConferenceNotFoundException("Conference with id '" + id + "' could not be found"));
     }
 
     public List<ConferenceDTO> findByIds(Set<String> ids) {

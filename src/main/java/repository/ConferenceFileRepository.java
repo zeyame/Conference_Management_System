@@ -38,6 +38,11 @@ public class ConferenceFileRepository implements ConferenceRepository {
     }
 
     @Override
+    public Optional<Conference> findById(String id) {
+        return Optional.ofNullable(conferenceCache.get(id));
+    }
+
+    @Override
     public Optional<Conference> findByName(String name) {
         return conferenceCache.values()
                 .stream()
