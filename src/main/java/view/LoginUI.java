@@ -1,8 +1,7 @@
-package ui;
+package view;
 
 import controller.MainController;
 import exception.FormValidationException;
-import exception.UserLoginException;
 import response.ResponseEntity;
 import util.UIComponentFactory;
 

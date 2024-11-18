@@ -1,15 +1,14 @@
-package ui.organizer;
+package view.organizer;
 
 import controller.OrganizerController;
 import dto.ConferenceDTO;
 import dto.ConferenceFormDTO;
 import dto.UserDTO;
-import exception.SavingDataException;
 import response.ResponseEntity;
-import ui.UserUI;
-import ui.organizer.pages.AddConferencePage;
-import ui.organizer.pages.HomePage;
-import ui.organizer.pages.ManageConferencePage;
+import view.UserUI;
+import view.organizer.pages.AddConferencePage;
+import view.organizer.pages.HomePage;
+import view.organizer.pages.ManageConferencePage;
 import util.LoggerUtil;
 import util.UIComponentFactory;
 

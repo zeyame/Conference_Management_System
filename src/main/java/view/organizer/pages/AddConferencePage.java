@@ -1,9 +1,9 @@
-package ui.organizer.pages;
+package view.organizer.pages;
 
 import dto.ConferenceFormDTO;
 import dto.UserDTO;
 import exception.FormValidationException;
-import ui.organizer.OrganizerObserver;
+import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
 import java.awt.*;

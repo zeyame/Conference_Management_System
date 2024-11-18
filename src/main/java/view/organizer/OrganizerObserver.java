@@ -1,4 +1,4 @@
-package ui.organizer;
+package view.organizer;
 
 import dto.ConferenceDTO;
 import dto.ConferenceFormDTO;

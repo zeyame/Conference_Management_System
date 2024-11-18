@@ -6,10 +6,10 @@ import repository.ConferenceFileRepository;
 import repository.UserFileRepository;
 import service.ConferenceService;
 import service.UserService;
-import ui.attendee.AttendeeUI;
-import ui.organizer.OrganizerUI;
-import ui.speaker.SpeakerUI;
-import ui.UserUI;
+import view.attendee.AttendeeUI;
+import view.organizer.OrganizerUI;
+import view.speaker.SpeakerUI;
+import view.UserUI;
 
 public class UIFactory {
     public static UserUI createUserUI(UserDTO userDTO) {

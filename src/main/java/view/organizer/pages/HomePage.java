@@ -1,9 +1,8 @@
-package ui.organizer.pages;
+package view.organizer.pages;
 
-import controller.OrganizerController;
 import dto.ConferenceDTO;
 import dto.UserDTO;
-import ui.organizer.OrganizerObserver;
+import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
 import java.awt.*;

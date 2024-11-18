@@ -1,6 +1,4 @@
-package ui;
-
-import dto.UserDTO;
+package view;
 
 public interface UserUI {
     public void display();

@@ -1,7 +1,7 @@
-package ui.attendee;
+package view.attendee;
 
 import dto.UserDTO;
-import ui.UserUI;
+import view.UserUI;
 
 import javax.swing.*;
 

@@ -1,8 +1,7 @@
 import controller.MainController;
 import repository.UserFileRepository;
-import service.AuthenticationService;
 import service.UserService;
-import ui.LoginUI;
+import view.LoginUI;
 import util.EmailService;
 
 public class Main {
@@ -10,4 +9,5 @@ public class Main {
         new LoginUI(new MainController(new UserService(new UserFileRepository()), EmailService.getInstance()));
     }
 }
+
 

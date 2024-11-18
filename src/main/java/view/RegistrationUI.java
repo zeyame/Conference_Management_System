@@ -1,11 +1,9 @@
-package ui;
+package view;
 
 import controller.MainController;
 import domain.model.UserRole;
 import dto.RegistrationDTO;
 import exception.FormValidationException;
-import exception.SavingDataException;
-import exception.UserRegistrationException;
 import response.ResponseEntity;
 import util.UIComponentFactory;
 

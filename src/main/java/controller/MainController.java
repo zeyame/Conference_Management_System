@@ -1,22 +1,17 @@
 package controller;
 
-import domain.model.UserRole;
 import dto.RegistrationDTO;
 import dto.UserDTO;
 import exception.SavingDataException;
 import exception.UserLoginException;
 import exception.UserNotFoundException;
 import response.ResponseEntity;
-import service.AuthenticationService;
 import service.UserService;
-import ui.*;
+import view.*;
 import util.EmailService;
 import util.LoggerUtil;
 import util.PasswordService;
 import util.UIFactory;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 public class MainController {
     private final UserService userService;
