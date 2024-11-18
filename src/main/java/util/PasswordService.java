@@ -49,4 +49,20 @@ public class PasswordService {
             password = null;
         }
     }
+
+    public static String checkPasswordComplexity(String password) {
+        if (!password.matches(".*[A-Z].*")) {
+            return "Password must contain at least one uppercase letter.";
+        }
+        if (!password.matches(".*[a-z].*")) {
+            return "Password must contain at least one lowercase letter.";
+        }
+        if (!password.matches(".*\\d.*")) {
+            return "Password must contain at least one number.";
+        }
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            return "Password must contain at least one special character (e.g., !, @, #, $, etc.).";
+        }
+        return null; // all checks passed, password is strong
+    }
 }

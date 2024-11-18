@@ -147,7 +147,7 @@ public class AddConferencePage {
         organizerObserver.onSubmitConferenceFormRequest(conferenceFormDTO);
     }
 
-    private void validateConferenceForm(String conferenceName, String conferenceDescription, Date startDate, Date endDate) throws FormValidationException {
+    private void validateConferenceForm(String conferenceName, String conferenceDescription, Date startDate, Date endDate) {
 
         if (conferenceName.isEmpty() || conferenceDescription.isEmpty() || startDate == null || endDate == null) {
             throw new FormValidationException("All fields must be filled out.");

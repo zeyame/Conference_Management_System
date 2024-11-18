@@ -2,13 +2,9 @@ package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.Conference;
-import exception.ConferenceCreationException;
-import exception.SavingDataException;
 import util.JsonFileHandler;
 import util.LoggerUtil;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 

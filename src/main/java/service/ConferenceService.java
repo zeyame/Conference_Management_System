@@ -29,8 +29,8 @@ public class ConferenceService {
         // attempting to save validated conference to file storage with retries if necessary
         boolean isSavedToFile = conferenceRepository.save(conference);
         if (!isSavedToFile) {
-            LoggerUtil.getInstance().logError("Conference creation failed. Could not save conference to file storage.");
-            throw new SavingDataException("An unexpected error occurred while saving conference data. Please try again later.");
+            LoggerUtil.getInstance().logError("Conference creation failed. Could not save new conference to file storage.");
+            throw new SavingDataException("An unexpected error occurred while saving conference data.");
         }
 
         LoggerUtil.getInstance().logInfo("Conference with name '" + conference.getName() + "' has successfully been created.");

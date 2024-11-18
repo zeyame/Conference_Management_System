@@ -4,8 +4,8 @@ import controller.OrganizerController;
 import dto.ConferenceDTO;
 import dto.ConferenceFormDTO;
 import dto.UserDTO;
-import exception.ConferenceCreationException;
 import exception.SavingDataException;
+import response.ResponseEntity;
 import ui.UserUI;
 import ui.organizer.pages.AddConferencePage;
 import ui.organizer.pages.HomePage;
@@ -13,12 +13,12 @@ import ui.organizer.pages.ManageConferencePage;
 import util.LoggerUtil;
 import util.UIComponentFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
-import java.util.Optional;
 
 public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final OrganizerController organizerController;
@@ -72,87 +72,63 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     @Override
     public List<ConferenceDTO> onGetManagedConferencesRequest(String email) {
         LoggerUtil.getInstance().logInfo("Request to get managed conferences for user with email '" + email + "' received.");
-        return organizerController.getManagedConferences(email);
+
+        ResponseEntity<List<ConferenceDTO>> managedConferencesResponse = organizerController.getManagedConferences(email);
+        if (!managedConferencesResponse.isSuccess()) {
+            showError(HOME_PAGE, managedConferencesResponse.getErrorMessage());
+            return Collections.emptyList();
+        }
+
+        return managedConferencesResponse.getData();
     }
 
     @Override
     public void onManageConferenceRequest(String conferenceId) {
-        LoggerUtil.getInstance().logInfo("Request to manage a conference with id '" + conferenceId + "' received");
+        LoggerUtil.getInstance().logInfo("Request to manage a conference with id '" + conferenceId + "' received.");
 
-        Optional<ConferenceDTO> conferenceDTOOptional = organizerController.getManagedConference(conferenceId);
-        if (conferenceDTOOptional.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    subpages.get(MANAGE_CONFERENCE_PAGE),
-                    "Conference with the provided ID could not be found",
-                    "Invalid Data Provided",
-                    JOptionPane.ERROR_MESSAGE
-            );
+        ResponseEntity<ConferenceDTO> managedConferenceResponse = organizerController.getManagedConference(conferenceId);
+        if (!managedConferenceResponse.isSuccess()) {
+            showError(HOME_PAGE, managedConferenceResponse.getErrorMessage());
             return;
         }
 
-        // check if the "Manage Conference Page" already exists in the subpages map
-        if (subpages.containsKey(MANAGE_CONFERENCE_PAGE)) {
-            // Remove the existing Manage Conference Page from the contentPanel and subpages map
-            contentPanel.remove(subpages.get(MANAGE_CONFERENCE_PAGE));
-            subpages.remove(MANAGE_CONFERENCE_PAGE);
-        }
-
-        // create and add a new "Manage Conference Page" with the requested conference data
-        ConferenceDTO conferenceDTO = conferenceDTOOptional.get();
+        // navigating from the "Home Page" to the "Manage Conference Page" of the requested conference
+        ConferenceDTO conferenceDTO = managedConferenceResponse.getData();
         ManageConferencePage manageConferencePage = new ManageConferencePage(conferenceDTO, userDTO, this);
-        subpages.put(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent());
-        contentPanel.add(manageConferencePage.createPageContent(), MANAGE_CONFERENCE_PAGE);
-
-        // navigate to the "Manage Conference Page"
-        cardLayout.show(contentPanel, MANAGE_CONFERENCE_PAGE);
+        replacePage(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent());
     }
+
 
     @Override
     public void onAddConferenceRequest() {
         LoggerUtil.getInstance().logInfo("Request to add a new conference received.");
 
-        // check if the "Add Conference Page" already exists in the subpages map
-        if (subpages.containsKey(ADD_CONFERENCE_PAGE)) {
-            // Remove the existing Add Conference Page from the contentPanel and subpages map
-            contentPanel.remove(subpages.get(ADD_CONFERENCE_PAGE));
-            subpages.remove(ADD_CONFERENCE_PAGE);
-        }
-
-        // create and add the new Add Conference Page
+        // add and navigate to the new Add Conference Page
         AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
-        subpages.put(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent());
-        contentPanel.add(addConferencePage.createPageContent(), ADD_CONFERENCE_PAGE);
-
-        // navigate to the Add Conference Page
-        cardLayout.show(contentPanel, ADD_CONFERENCE_PAGE);
+        replacePage(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent());
     }
 
 
     @Override
     public void onSubmitConferenceFormRequest(ConferenceFormDTO conferenceFormDTO) {
-        // call organizer controller to valid conference (check name and date availability)
-        try {
-            LoggerUtil.getInstance().logInfo("Request to create conference received. Proceeding with validation.");
-            organizerController.validateConferenceData(conferenceFormDTO);
-            organizerController.createConference(conferenceFormDTO);
+        LoggerUtil.getInstance().logInfo("Request to create conference received. Proceeding with validation.");
 
-            // remove the old home page
-            contentPanel.remove(subpages.get(HOME_PAGE));
-
-            // create a new and updated home page
-            HomePage homePage = new HomePage(userDTO, this);
-            subpages.put(HOME_PAGE, homePage.createPageContent());
-
-            contentPanel.add(homePage.createPageContent(), HOME_PAGE);
-            cardLayout.show(contentPanel, HOME_PAGE);
-        } catch (ConferenceCreationException | SavingDataException e) {
-            JOptionPane.showMessageDialog(
-                    subpages.get(ADD_CONFERENCE_PAGE),
-                    e.getMessage(),
-                    "Validation Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+        ResponseEntity<Void> validationResponse = organizerController.validateConferenceData(conferenceFormDTO);
+        if (!validationResponse.isSuccess()) {
+            showError(ADD_CONFERENCE_PAGE, validationResponse.getErrorMessage());
+            return;
         }
+
+        ResponseEntity<Void> createConferenceResponse = organizerController.createConference(conferenceFormDTO);
+        if (!createConferenceResponse.isSuccess()) {
+            showError(ADD_CONFERENCE_PAGE, createConferenceResponse.getErrorMessage());
+            return;
+        }
+
+        // navigate back to an updated home page with the new conference added
+        HomePage homePage = new HomePage(userDTO, this);
+        replacePage(HOME_PAGE, homePage.createPageContent());
+        showSuccess(HOME_PAGE, "The '" + conferenceFormDTO.getName() + "' conference has successfully been added to your managed conferences.");
     }
 
     @Override
@@ -202,5 +178,32 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         cardLayout.show(contentPanel, HOME_PAGE);
     }
 
+    private void replacePage(String pageId, Component newPageContent) {
+        if (subpages.containsKey(pageId)) {
+            contentPanel.remove(subpages.get(pageId));
+            subpages.remove(pageId);
+        }
+        subpages.put(pageId, newPageContent);
+        contentPanel.add(newPageContent, pageId);
+        cardLayout.show(contentPanel, pageId);
+    }
+
+    private void showSuccess(String pageId, String message) {
+        JOptionPane.showMessageDialog(
+                subpages.get(pageId),
+                message,
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    private void showError(String pageId, String message) {
+        JOptionPane.showMessageDialog(
+                subpages.get(pageId),
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
 
 }

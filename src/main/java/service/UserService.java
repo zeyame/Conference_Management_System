@@ -43,14 +43,18 @@ public class UserService {
         }
     }
 
-    public Optional<UserDTO> findByEmail(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        return userOptional.map(this::mapToDTO);
+    public UserDTO findByEmail(String email) {
+        return userRepository
+                .findByEmail(email)
+                .map(this::mapToDTO)
+                .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' could not be found."));
     }
 
-    public Optional<UserDTO> findAuthenticatedByEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        return user.map(this::mapToAuthenticatedDTO);
+    public UserDTO findAuthenticatedByEmail(String email) {
+        return userRepository
+                .findByEmail(email)
+                .map(this::mapToAuthenticatedDTO)
+                .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' could not be found."));
     }
 
     public Set<String> findManagedConferencesForOrganizer(String email) {
@@ -83,7 +87,7 @@ public class UserService {
         boolean isSavedToFile = userRepository.save(user);
         if (!isSavedToFile) {
             LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
-            throw new SavingDataException("An unexpected error occurred while saving your data. Please try again later.");
+            throw new SavingDataException("An unexpected error occurred while saving data for user with email '" + validatedDTO.getEmail() + "'.");
         }
         LoggerUtil.getInstance().logInfo("User with email '" + validatedDTO.getEmail() + "' has successfully been registered.");
     }

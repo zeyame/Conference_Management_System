@@ -1,7 +1,5 @@
 package util;
 
-import exception.UserRegistrationException;
-
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -22,8 +20,8 @@ public class EmailService {
         return instance;
     }
 
-    public void sendWelcomeEmail(String toAddress, String userNam) {
-        CompletableFuture.runAsync(() -> sendWelcomeEmailSync(toAddress, userNam));
+    public void sendWelcomeEmail(String toAddress, String userName) {
+        CompletableFuture.runAsync(() -> sendWelcomeEmailSync(toAddress, userName));
     }
 
     private void sendWelcomeEmailSync(String toAddress, String userName) {

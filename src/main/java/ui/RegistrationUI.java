@@ -6,6 +6,7 @@ import dto.RegistrationDTO;
 import exception.FormValidationException;
 import exception.SavingDataException;
 import exception.UserRegistrationException;
+import response.ResponseEntity;
 import util.UIComponentFactory;
 
 import javax.mail.internet.AddressException;
@@ -31,12 +32,6 @@ public class RegistrationUI extends JFrame {
     JTextField emailField;
     JPasswordField passwordField;
     JPasswordField confirmPasswordField;
-
-    // radio buttons representing user roles
-    JRadioButton organizerRole;
-    JRadioButton attendeeRole;
-    JRadioButton speakerRole;
-    String selectedRole;
 
     public RegistrationUI(MainController mainController) {
         this.mainController = mainController;
@@ -192,27 +187,20 @@ public class RegistrationUI extends JFrame {
         // once form is validated, register user to the system
         RegistrationDTO registrationDTO = new RegistrationDTO(email, name, password, userRole);
 
-        // check if email already exists
-        boolean isRegistrationValid;
-        try {
-            isRegistrationValid = mainController.validateRegistration(registrationDTO);
-        } catch (UserRegistrationException exception) {
-            JOptionPane.showMessageDialog(this, exception.getMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE);
+        ResponseEntity<Boolean> validationResponse = mainController.validateRegistration(registrationDTO);
+        if (!validationResponse.isSuccess()) {
+            JOptionPane.showMessageDialog(this, validationResponse.getErrorMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (!isRegistrationValid) {
-            JOptionPane.showMessageDialog(this, "An account with this email already exists. Please use a different email.", "Registration Error", JOptionPane.ERROR_MESSAGE);
+        ResponseEntity<Void> registrationResponse = mainController.registerUser(registrationDTO);
+        if (!registrationResponse.isSuccess()) {
+            JOptionPane.showMessageDialog(this, registrationResponse.getErrorMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        try {
-            mainController.registerUser(registrationDTO);
-            clearFormData();
-            JOptionPane.showMessageDialog(this, "Registration successful. You can now login.", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (UserRegistrationException | SavingDataException exception) {
-            JOptionPane.showMessageDialog(this, exception.getMessage(), "Registration Error", JOptionPane.ERROR_MESSAGE);
-        }
+        clearFormData();
+        JOptionPane.showMessageDialog(this, "Registration successful. You can now login.", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void validateRegistrationForm(String email, String name, char[] password, char[] confirmPassword, UserRole userRole) {

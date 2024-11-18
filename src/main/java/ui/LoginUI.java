@@ -3,6 +3,7 @@ package ui;
 import controller.MainController;
 import exception.FormValidationException;
 import exception.UserLoginException;
+import response.ResponseEntity;
 import util.UIComponentFactory;
 
 import javax.swing.*;
@@ -157,20 +158,24 @@ public class LoginUI extends JFrame {
             return;
         }
 
-        boolean isLoginValid;
-        try {
-            isLoginValid = mainController.validateLogin(email, password);
-        } catch (UserLoginException exception) {
-            JOptionPane.showMessageDialog(this, exception.getMessage(), "Login Error", JOptionPane.ERROR_MESSAGE);
+        ResponseEntity<Boolean> validateLoginResponse = mainController.validateLogin(email, password);
+        if (!validateLoginResponse.isSuccess()) {
+            JOptionPane.showMessageDialog(this, validateLoginResponse.getErrorMessage(), "Login Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        boolean isLoginValid = validateLoginResponse.getData();
         if (!isLoginValid) {
             JOptionPane.showMessageDialog(this, "Email or password incorrect.", "Login Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        mainController.loginUser(email);
+        ResponseEntity<Void> loginResponse = mainController.loginUser(email);
+        if (!loginResponse.isSuccess()) {
+            JOptionPane.showMessageDialog(this, loginResponse.getErrorMessage(), "Login Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         dispose();
     }
 
@@ -179,7 +184,4 @@ public class LoginUI extends JFrame {
             throw new FormValidationException("All fields must be filled out.");
         }
     }
-
-
-
 }

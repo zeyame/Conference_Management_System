@@ -2,6 +2,7 @@ package service;
 
 import dto.RegistrationDTO;
 import dto.UserDTO;
+import exception.UserLoginException;
 import util.LoggerUtil;
 import util.PasswordService;
 
@@ -30,25 +31,5 @@ public class AuthenticationService {
 
         LoggerUtil.getInstance().logInfo("Registration info has been successfully validated for user:\n" + registrationDTO);
         return true;
-    }
-
-    public boolean validateLogin(String email, char[] password) {
-        // if email does not exist
-        if (!userService.isEmailRegistered(email)) {
-            return false;
-        }
-
-        Optional<UserDTO> authenticatedUserDTO = userService.findAuthenticatedByEmail(email);
-        if (authenticatedUserDTO.isPresent()) {
-            UserDTO authenticatedUser = authenticatedUserDTO.get();
-
-            String hashedPassword = authenticatedUser.getHashedPassword();
-            if (PasswordService.verifyPassword(password, hashedPassword)) {
-                LoggerUtil.getInstance().logInfo("Login info successfully validated for user with email: '" + email + "'.");
-                return true;
-            }
-        }
-
-        return false;
     }
 }

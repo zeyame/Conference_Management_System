@@ -16,4 +16,5 @@ public enum EmailConfig {
     public String getValue() {
         return value;
     }
+
 }
