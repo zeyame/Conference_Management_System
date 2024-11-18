@@ -23,4 +23,5 @@ public interface OrganizerObserver {
     void onViewSessionsRequest();
     void onViewSpeakersRequest();
     void onViewFeedbackRequest();
+    void onNavigateBackRequest();
 }

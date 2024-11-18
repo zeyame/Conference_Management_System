@@ -2,6 +2,7 @@ package view.organizer.pages;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;
+import util.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
@@ -12,41 +13,52 @@ import java.util.List;
 public class HomePage {
     private final UserDTO userDTO;
     private final OrganizerObserver organizerObserver;
-    private final JButton addConferenceButton = new JButton("Add Conference");
+    private final JButton backButton;
+    private final JButton addConferenceButton;
 
     public HomePage(UserDTO userDTO, OrganizerObserver organizerObserver) {
         this.userDTO = userDTO;
         this.organizerObserver = organizerObserver;
+
+        // initialize components
+        addConferenceButton = new JButton("Add Conference");
+        backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
+
         setUpListeners();
     }
 
     public JPanel createPageContent() {
-        JPanel homePanel = new JPanel();
-        homePanel.setLayout(new BoxLayout(homePanel, BoxLayout.Y_AXIS));
+        JPanel homePanel = new JPanel(new BorderLayout());
 
-        // add header
-        homePanel.add(createHomePageHeader());
-        homePanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        // add header with back button
+        homePanel.add(createHomePageHeader(), BorderLayout.NORTH);
 
         // add scrollable container with conferences
         JScrollPane scrollPane = createConferenceScrollPane();
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        homePanel.add(scrollPane);
+        homePanel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = createAddConferencePanel();
-        homePanel.add(buttonPanel);  // Add button panel to the main home panel
+        // "add conference" button
+        homePanel.add(createAddConferencePanel(), BorderLayout.SOUTH);
 
         return homePanel;
     }
 
     private JPanel createHomePageHeader() {
+        // header panel using BorderLayout to position back button and title
+        JPanel headerPanel = new JPanel(new BorderLayout());
+
+        // back button placed on the left side of the header
+        headerPanel.add(backButton, BorderLayout.WEST);
+
+        // page title in the center
         JLabel headerLabel = new JLabel("Your Managed Conferences");
         headerLabel.setFont(new Font("Sans serif", Font.BOLD, 20));
         headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-        headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return new JPanel() {{
-            add(headerLabel);
-        }};
+        headerLabel.setHorizontalAlignment(SwingConstants.CENTER);  // Ensure it's centered
+        headerPanel.add(headerLabel, BorderLayout.CENTER);
+
+        return headerPanel;
     }
 
     private JScrollPane createConferenceScrollPane() {

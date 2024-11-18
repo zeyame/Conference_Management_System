@@ -2,12 +2,11 @@ package view.organizer.pages;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;
+import util.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.Date;
 
 public class ManageConferencePage {
     // Dependencies
@@ -19,18 +18,29 @@ public class ManageConferencePage {
     private final JPanel mainContentPanel;
 
     // Buttons
-    private final JButton editConferenceButton = createStyledButton("Edit Conference");
-    private final JButton deleteConferenceButton = createStyledButton("Delete Conference");
-    private final JButton viewAttendeesButton = createStyledButton("View Attendees");
-    private final JButton viewSessionsButton = createStyledButton("View Sessions");
-    private final JButton viewSpeakersButton = createStyledButton("View Speakers");
-    private final JButton viewFeedbackButton = createStyledButton("View Feedback");
+    private final JButton backButton;
+    private final JButton editConferenceButton = UIComponentFactory.createStyledButton("Edit Conference");
+    private final JButton deleteConferenceButton = UIComponentFactory.createStyledButton("Delete Conference");
+    private final JButton viewAttendeesButton = UIComponentFactory.createStyledButton("View Attendees");
+    private final JButton viewSessionsButton = UIComponentFactory.createStyledButton("View Sessions");
+    private final JButton viewSpeakersButton = UIComponentFactory.createStyledButton("View Speakers");
+    private final JButton viewFeedbackButton = UIComponentFactory.createStyledButton("View Feedback");
 
     public ManageConferencePage(ConferenceDTO conferenceDTO, UserDTO userDTO, OrganizerObserver organizerObserver) {
         this.conferenceDTO = conferenceDTO;
         this.userDTO = userDTO;
         this.organizerObserver = organizerObserver;
         this.mainContentPanel = new JPanel(new BorderLayout());
+
+        // Create back button
+        backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
+
+        // Adjust back button size
+        Dimension smallerSize = new Dimension(25, 25);
+        backButton.setPreferredSize(smallerSize);
+        backButton.setMinimumSize(smallerSize);
+        backButton.setMaximumSize(smallerSize);
+        backButton.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 
         setUpListeners();
     }
@@ -45,41 +55,47 @@ public class ManageConferencePage {
 
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout());
-        JLabel titleLabel = createStyledLabel(conferenceDTO.getName(), new Font("Sans serif", Font.BOLD, 24));
-        titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
+        // Title label with fixed width
+        JLabel titleLabel = UIComponentFactory.createStyledLabel(conferenceDTO.getName(), new Font("Sans serif", Font.BOLD, 24));
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Panel for the buttons (edit and delete)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(editConferenceButton);
         buttonPanel.add(deleteConferenceButton);
 
-        headerPanel.add(titleLabel, BorderLayout.NORTH);
+        // Add the components to header
+        headerPanel.add(backButton, BorderLayout.WEST);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
         headerPanel.add(buttonPanel, BorderLayout.EAST);
+
         return headerPanel;
     }
 
     private JPanel createDetailsPanel() {
         JPanel detailsPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = createDefaultGridBagConstraints();
+        GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
 
         // adding header
-        addLabelToPanel(detailsPanel, "Conference Details", new Font("Arial", Font.BOLD, 20), gbc, 0, 0, 2);
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Conference Details", new Font("Arial", Font.BOLD, 20), gbc, 0, 0, 2);
 
         // adding organizer
-        addLabelToPanel(detailsPanel, "Organized by: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 1, 1);
-        addLabelToPanel(detailsPanel, userDTO.getName(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 1, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Organized by: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 1, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, userDTO.getName(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 1, 1);
 
         // adding description
-        addLabelToPanel(detailsPanel, "Description:", new Font("Arial", Font.PLAIN, 18), gbc, 0, 2, 1);
-        addTextAreaToPanel(detailsPanel, conferenceDTO.getDescription(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 2, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Description:", new Font("Arial", Font.PLAIN, 18), gbc, 0, 2, 1);
+        UIComponentFactory.addTextAreaToPanel(detailsPanel, conferenceDTO.getDescription(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 2, 1);
 
         // adding start date
-        addLabelToPanel(detailsPanel, "Start Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 3, 1);
-        addLabelToPanel(detailsPanel, conferenceDTO.getStartDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 3, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Start Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 3, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, conferenceDTO.getStartDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 3, 1);
 
         // adding end date
-        addLabelToPanel(detailsPanel, "End Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 4, 1);
-        addLabelToPanel(detailsPanel, conferenceDTO.getEndDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, "End Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 4, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, conferenceDTO.getEndDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
 
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 0));
         return detailsPanel;
@@ -103,45 +119,5 @@ public class ManageConferencePage {
         viewSessionsButton.addActionListener(e -> organizerObserver.onViewSessionsRequest());
         viewSpeakersButton.addActionListener(e -> organizerObserver.onViewSpeakersRequest());
         viewFeedbackButton.addActionListener(e -> organizerObserver.onViewFeedbackRequest());
-    }
-
-    // Helper methods for UI components
-    private static JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(150, 40));
-        button.setFocusPainted(false);
-        return button;
-    }
-
-    private static JLabel createStyledLabel(String text, Font font) {
-        JLabel label = new JLabel(text);
-        label.setFont(font);
-        return label;
-    }
-
-    private static void addLabelToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int x, int y, int width) {
-        JLabel label = createStyledLabel(text, font);
-        gbc.gridx = x;
-        gbc.gridy = y;
-        gbc.gridwidth = width;
-        panel.add(label, gbc);
-    }
-
-    private static void addTextAreaToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int x, int y, int width) {
-        JTextArea textArea = new JTextArea(text);
-        textArea.setFont(font);
-        textArea.setEditable(false);
-        textArea.setOpaque(false);
-        gbc.gridx = x;
-        gbc.gridy = y;
-        gbc.gridwidth = width;
-        panel.add(textArea, gbc);
-    }
-
-    private static GridBagConstraints createDefaultGridBagConstraints() {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 20, 15, 20);
-        gbc.anchor = GridBagConstraints.WEST;
-        return gbc;
     }
 }

@@ -12,18 +12,18 @@ import view.organizer.pages.ManageConferencePage;
 import util.LoggerUtil;
 import util.UIComponentFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
-import java.util.Map;
+import java.util.List;
 
 public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final OrganizerController organizerController;
     private final UserDTO userDTO;
     private final JPanel contentPanel;
     private final CardLayout cardLayout;
+    private final Deque<String> navigationStack;
 
     // constants for subpage names
     private final String HOME_PAGE = "Home Page";
@@ -59,7 +59,10 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         contentPanel = new JPanel(cardLayout);
         add(contentPanel, BorderLayout.CENTER);
 
-        initializePages();
+        // initialize the navigation stack
+        navigationStack = new ArrayDeque<>();
+
+        initializeHomePage();
     }
 
     @Override
@@ -94,7 +97,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         // navigating from the "Home Page" to the "Manage Conference Page" of the requested conference
         ConferenceDTO conferenceDTO = managedConferenceResponse.getData();
         ManageConferencePage manageConferencePage = new ManageConferencePage(conferenceDTO, userDTO, this);
-        replacePage(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent());
+        navigateTo(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent());
     }
 
 
@@ -102,9 +105,9 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     public void onAddConferenceRequest() {
         LoggerUtil.getInstance().logInfo("Request to add a new conference received.");
 
-        // add and navigate to the new Add Conference Page
+        // add and navigate to a new Add Conference Page
         AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
-        replacePage(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent());
+        navigateTo(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent());
     }
 
 
@@ -126,7 +129,8 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         // navigate back to an updated home page with the new conference added
         HomePage homePage = new HomePage(userDTO, this);
-        replacePage(HOME_PAGE, homePage.createPageContent());
+        navigateTo(HOME_PAGE, homePage.createPageContent());
+
         showSuccess(HOME_PAGE, "The '" + conferenceFormDTO.getName() + "' conference has successfully been added to your managed conferences.");
     }
 
@@ -160,27 +164,50 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     }
 
-    private void initializePages() {
+    @Override
+    public void onNavigateBackRequest() {
+        navigateBack();
+    }
+
+    private void initializeHomePage() {
         // initialize home page
         HomePage homePage = new HomePage(userDTO, this);
         JPanel homeContent = homePage.createPageContent();
         subpages.put(HOME_PAGE, homeContent);
         contentPanel.add(homeContent, HOME_PAGE);
 
-        // initialize add conference page
-        AddConferencePage addConferencePage = new AddConferencePage(userDTO, this);
-        JPanel addConferenceContent = addConferencePage.createPageContent();
-        subpages.put(ADD_CONFERENCE_PAGE, addConferenceContent);
-        contentPanel.add(addConferenceContent, ADD_CONFERENCE_PAGE);
-
         // show home page by default
         cardLayout.show(contentPanel, HOME_PAGE);
+    }
+
+    private void navigateTo(String pageId, Component newPageContent) {
+        String currentPage = getCurrentPageId();
+        if (currentPage != null) {
+            navigationStack.push(currentPage);
+        }
+
+        replacePage(pageId, newPageContent);
+    }
+
+    private void navigateBack() {
+        if (!navigationStack.isEmpty()) {
+            String lastPageId = navigationStack.pop();
+            cardLayout.show(contentPanel, lastPageId);
+        }
+    }
+
+    private String getCurrentPageId() {
+        for (Map.Entry<String, Component> componentEntry: subpages.entrySet()) {
+            if (componentEntry.getValue().isVisible()) {
+                return componentEntry.getKey();
+            }
+        }
+        return null;
     }
 
     private void replacePage(String pageId, Component newPageContent) {
         if (subpages.containsKey(pageId)) {
             contentPanel.remove(subpages.get(pageId));
-            subpages.remove(pageId);
         }
         subpages.put(pageId, newPageContent);
         contentPanel.add(newPageContent, pageId);

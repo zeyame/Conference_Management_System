@@ -3,6 +3,7 @@ package util;
 import domain.model.UserRole;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class UIComponentFactory {
 
@@ -36,6 +37,69 @@ public class UIComponentFactory {
 
         return welcomePanel;
     }
+
+    public static JButton createBackButton(ActionListener backAction) {
+        JButton backButton = new JButton("←"); // left arrow button
+        backButton.setToolTipText("Go back");
+        backButton.setFocusable(false);
+
+        // Adjust font size to make the button smaller
+        backButton.setFont(backButton.getFont().deriveFont(12f)); // Smaller font size (adjust as needed)
+
+        // Set fixed button size
+        Dimension buttonSize = new Dimension(30, 30); // Adjust width and height as needed
+        backButton.setPreferredSize(buttonSize);
+        backButton.setMinimumSize(buttonSize);
+        backButton.setMaximumSize(buttonSize);
+
+        // Add border for spacing inside button
+        backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+        // Attach action listener
+        backButton.addActionListener(backAction);
+
+        return backButton;
+    }
+
+    public static JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(new Dimension(150, 40));
+        button.setFocusPainted(false);
+        return button;
+    }
+
+    public static JLabel createStyledLabel(String text, Font font) {
+        JLabel label = new JLabel(text);
+        label.setFont(font);
+        return label;
+    }
+
+    public static void addLabelToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int x, int y, int width) {
+        JLabel label = createStyledLabel(text, font);
+        gbc.gridx = x;
+        gbc.gridy = y;
+        gbc.gridwidth = width;
+        panel.add(label, gbc);
+    }
+
+    public static void addTextAreaToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int x, int y, int width) {
+        JTextArea textArea = new JTextArea(text);
+        textArea.setFont(font);
+        textArea.setEditable(false);
+        textArea.setOpaque(false);
+        gbc.gridx = x;
+        gbc.gridy = y;
+        gbc.gridwidth = width;
+        panel.add(textArea, gbc);
+    }
+
+    public static GridBagConstraints createDefaultGridBagConstraints() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 20, 15, 20);
+        gbc.anchor = GridBagConstraints.WEST;
+        return gbc;
+    }
+
 
     // nested static class to create and manage the role selection panel used in LoginUI and RegistrationUI
     public static class RoleSelectionPanel extends JPanel {

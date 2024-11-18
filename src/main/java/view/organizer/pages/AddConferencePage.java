@@ -3,6 +3,7 @@ package view.organizer.pages;
 import dto.ConferenceFormDTO;
 import dto.UserDTO;
 import exception.FormValidationException;
+import util.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
@@ -17,6 +18,9 @@ public class AddConferencePage {
     // main panel
     private final JPanel mainContentPanel;
 
+    // Add back button
+    private final JButton backButton;
+
     // conference form fields
     private final JTextField nameField;
     private final JTextField descriptionField;
@@ -29,27 +33,50 @@ public class AddConferencePage {
         this.organizerObserver = organizerObserver;
 
         // initialize the components
-        this.mainContentPanel = new JPanel();
+        this.mainContentPanel = new JPanel(new BorderLayout()); // Changed to BorderLayout
         this.nameField = new JTextField(17);
         this.descriptionField = new JTextField(17);
         this.startDateTimeSpinner = createDateTimeSpinner();
         this.endDateTimeSpinner = createDateTimeSpinner();
         this.submitButton = new JButton("Submit");
 
+        // Create back button
+        this.backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
+
+        // Adjust back button size if needed
+        Dimension smallerSize = new Dimension(25, 25);
+        backButton.setPreferredSize(smallerSize);
+        backButton.setMinimumSize(smallerSize);
+        backButton.setMaximumSize(smallerSize);
+        backButton.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+
         // set up event listeners for the page
         setUpListeners();
     }
 
+
     public JPanel createPageContent() {
         mainContentPanel.removeAll();
-        mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
 
-        // Add the conference form directly, no need for additional header
+        // Create header panel for back button
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.add(backButton, BorderLayout.WEST);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+
+        // Create center panel for the form
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+        // Add the conference form
         JPanel conferenceForm = createConferenceForm();
-        mainContentPanel.add(conferenceForm);
+        centerPanel.add(conferenceForm);
 
-        // Optionally, add space at the bottom if needed to create separation from the next section
-        mainContentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        // Add space at the bottom
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // Add components to main panel
+        mainContentPanel.add(headerPanel, BorderLayout.NORTH);
+        mainContentPanel.add(centerPanel, BorderLayout.CENTER);
 
         return mainContentPanel;
     }
