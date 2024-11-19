@@ -82,15 +82,15 @@ public class UIComponentFactory {
         panel.add(label, gbc);
     }
 
-    public static void addTextAreaToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int x, int y, int width) {
-        JTextArea textArea = new JTextArea(text);
-        textArea.setFont(font);
-        textArea.setEditable(false);
-        textArea.setOpaque(false);
-        gbc.gridx = x;
-        gbc.gridy = y;
-        gbc.gridwidth = width;
-        panel.add(textArea, gbc);
+    public static void addTextAreaToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int gridx, int gridy, int gridwidth) {
+        JLabel label = new JLabel("<html><div style='width: 300px'>" + text + "</div></html>");
+        label.setFont(font);
+
+        gbc.gridx = gridx;
+        gbc.gridy = gridy;
+        gbc.gridwidth = gridwidth;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(label, gbc);
     }
 
     public static GridBagConstraints createDefaultGridBagConstraints() {

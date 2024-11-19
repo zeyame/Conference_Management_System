@@ -9,6 +9,9 @@ import view.organizer.OrganizerObserver;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 
 public class AddConferencePage {
@@ -100,28 +103,32 @@ public class AddConferencePage {
         gbc.anchor = GridBagConstraints.LINE_START;
 
         // name label and field
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         conferenceFormPanel.add(new JLabel("Name"), gbc);
 
         gbc.gridx = 1;
         conferenceFormPanel.add(nameField, gbc);
 
         // description label and field
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         conferenceFormPanel.add(new JLabel("Description"), gbc);
 
         gbc.gridx = 1;
         conferenceFormPanel.add(descriptionField, gbc);
 
         // start date-time label and field
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         conferenceFormPanel.add(new JLabel("Start Date and Time"), gbc);
 
         gbc.gridx = 1;
         conferenceFormPanel.add(startDateTimeSpinner, gbc);
 
         // end date-time label and field
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         conferenceFormPanel.add(new JLabel("End Date and Time"), gbc);
 
         gbc.gridx = 1;
@@ -175,9 +182,27 @@ public class AddConferencePage {
     }
 
     private void validateConferenceForm(String conferenceName, String conferenceDescription, Date startDate, Date endDate) {
-
         if (conferenceName.isEmpty() || conferenceDescription.isEmpty() || startDate == null || endDate == null) {
             throw new FormValidationException("All fields must be filled out.");
+        }
+
+        // get today's date without time component
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        // get start date without time component
+        Calendar startCal = Calendar.getInstance();
+        startCal.setTime(startDate);
+        startCal.set(Calendar.HOUR_OF_DAY, 0);
+        startCal.set(Calendar.MINUTE, 0);
+        startCal.set(Calendar.SECOND, 0);
+        startCal.set(Calendar.MILLISECOND, 0);
+
+        if (startCal.getTime().before(today.getTime())) {
+            throw new FormValidationException("Conference start date cannot be before today's date.");
         }
 
         if (startDate.equals(endDate) || startDate.after(endDate)) {

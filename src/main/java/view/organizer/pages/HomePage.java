@@ -13,7 +13,6 @@ import java.util.List;
 public class HomePage {
     private final UserDTO userDTO;
     private final OrganizerObserver organizerObserver;
-    private final JButton backButton;
     private final JButton addConferenceButton;
 
     public HomePage(UserDTO userDTO, OrganizerObserver organizerObserver) {
@@ -21,8 +20,7 @@ public class HomePage {
         this.organizerObserver = organizerObserver;
 
         // initialize components
-        addConferenceButton = new JButton("Add Conference");
-        backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
+        this.addConferenceButton = new JButton("Add Conference");
 
         setUpListeners();
     }
@@ -47,9 +45,6 @@ public class HomePage {
     private JPanel createHomePageHeader() {
         // header panel using BorderLayout to position back button and title
         JPanel headerPanel = new JPanel(new BorderLayout());
-
-        // back button placed on the left side of the header
-        headerPanel.add(backButton, BorderLayout.WEST);
 
         // page title in the center
         JLabel headerLabel = new JLabel("Your Managed Conferences");

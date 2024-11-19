@@ -78,8 +78,19 @@ public class ManageConferencePage {
         JPanel detailsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
 
-        // adding header
+        // Increase vertical spacing with larger top/bottom insets
+        gbc.insets = new Insets(15, 5, 15, 5);  // Changed from (5,5,5,5) to (15,5,15,5)
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // adding header with extra bottom spacing
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(15, 5, 25, 5);  // Extra bottom padding for header
         UIComponentFactory.addLabelToPanel(detailsPanel, "Conference Details", new Font("Arial", Font.BOLD, 20), gbc, 0, 0, 2);
+
+        // Reset gridwidth and restore normal insets for subsequent rows
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(15, 5, 15, 5);
 
         // adding organizer
         UIComponentFactory.addLabelToPanel(detailsPanel, "Organized by: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 1, 1);
@@ -97,7 +108,7 @@ public class ManageConferencePage {
         UIComponentFactory.addLabelToPanel(detailsPanel, "End Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 4, 1);
         UIComponentFactory.addLabelToPanel(detailsPanel, conferenceDTO.getEndDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
 
-        detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 0));
+        detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 150));
         return detailsPanel;
     }
 
