@@ -1,13 +1,14 @@
 package controller;
 
 import dto.ConferenceDTO;
-import dto.ConferenceFormDTO;
+import dto.UserDTO;
 import exception.*;
 import response.ResponseEntity;
 import service.ConferenceService;
 import service.UserService;
 import util.LoggerUtil;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class OrganizerController {
@@ -40,10 +41,22 @@ public class OrganizerController {
         }
     }
 
-    public ResponseEntity<Void> validateConferenceData(ConferenceFormDTO conferenceFormDTO) {
+    public ResponseEntity<List<UserDTO>> getConferenceAttendees(String conferenceId) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.findById(conferenceId);
+            Set<String> attendeeIds = conferenceDTO.getAttendees();
+            List<UserDTO> attendees = userService.findByIds(attendeeIds);
+            LoggerUtil.getInstance().logInfo("Successfully retrieved attendees for '" + conferenceDTO.getName() + "'.");
+            return ResponseEntity.success(attendees);
+        } catch (ConferenceNotFoundException e) {
+            return ResponseEntity.error("Could not find attendees for the conference with id '" + conferenceId + "' as it does not exist.");
+        }
+    }
+
+    public ResponseEntity<Void> validateConferenceData(ConferenceDTO conferenceDTO) {
         // implement validation logic
-        String name = conferenceFormDTO.getName();
-        Date startDate = conferenceFormDTO.getStartDate(), endDate = conferenceFormDTO.getEndDate();
+        String name = conferenceDTO.getName();
+        LocalDate startDate = conferenceDTO.getStartDate(), endDate = conferenceDTO.getEndDate();
 
         if (conferenceService.isNameTaken(name)) {
             LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Conference name '" + name + "' is already taken.");
@@ -59,11 +72,11 @@ public class OrganizerController {
         return ResponseEntity.success();
     }
 
-    public ResponseEntity<Void> createConference(ConferenceFormDTO conferenceFormDTO) {
+    public ResponseEntity<Void> createConference(ConferenceDTO conferenceDTO) {
         String conferenceId = null;
         try {
-            conferenceId = conferenceService.create(conferenceFormDTO);
-            userService.addNewManagedConferenceForOrganizer(conferenceFormDTO.getOrganizerId(), conferenceId);
+            conferenceId = conferenceService.create(conferenceDTO);
+            userService.addNewManagedConferenceForOrganizer(conferenceDTO.getOrganizerId(), conferenceId);
 
             return ResponseEntity.success();
         } catch (SavingDataException e) {

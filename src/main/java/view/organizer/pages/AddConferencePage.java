@@ -1,6 +1,6 @@
 package view.organizer.pages;
 
-import dto.ConferenceFormDTO;
+import dto.ConferenceDTO;
 import dto.UserDTO;
 import exception.FormValidationException;
 import util.UIComponentFactory;
@@ -11,7 +11,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Calendar;
 import java.util.Date;
 
 public class AddConferencePage {
@@ -165,8 +164,8 @@ public class AddConferencePage {
     private void handleSubmitConferenceDetails(ActionEvent e) {
         String conferenceName = nameField.getText();
         String conferenceDescription = descriptionField.getText();
-        Date startDate = (Date) startDateTimeSpinner.getValue();
-        Date endDate = (Date) endDateTimeSpinner.getValue();
+        LocalDate startDate = extractLocalDate((Date) startDateTimeSpinner.getValue());
+        LocalDate endDate = extractLocalDate((Date) endDateTimeSpinner.getValue());
 
         try {
             validateConferenceForm(conferenceName, conferenceDescription, startDate, endDate);
@@ -175,38 +174,35 @@ public class AddConferencePage {
             return;
         }
 
-        ConferenceFormDTO conferenceFormDTO = new ConferenceFormDTO(userDTO.getId(), conferenceName, conferenceDescription, startDate, endDate);
+        ConferenceDTO conferenceDTO = ConferenceDTO.builder(
+                userDTO.getId(),
+                conferenceName,
+                conferenceDescription,
+                startDate,
+                endDate
+        ).build();
 
         // publish event to organizer ui that user wants to submit the conference form
-        organizerObserver.onSubmitConferenceFormRequest(conferenceFormDTO);
+        organizerObserver.onSubmitConferenceFormRequest(conferenceDTO);
     }
 
-    private void validateConferenceForm(String conferenceName, String conferenceDescription, Date startDate, Date endDate) {
+    private void validateConferenceForm(String conferenceName, String conferenceDescription, LocalDate startDate, LocalDate endDate) {
         if (conferenceName.isEmpty() || conferenceDescription.isEmpty() || startDate == null || endDate == null) {
             throw new FormValidationException("All fields must be filled out.");
         }
 
-        // get today's date without time component
-        Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-
-        // get start date without time component
-        Calendar startCal = Calendar.getInstance();
-        startCal.setTime(startDate);
-        startCal.set(Calendar.HOUR_OF_DAY, 0);
-        startCal.set(Calendar.MINUTE, 0);
-        startCal.set(Calendar.SECOND, 0);
-        startCal.set(Calendar.MILLISECOND, 0);
-
-        if (startCal.getTime().before(today.getTime())) {
+        if (startDate.isBefore(LocalDate.now())) {
             throw new FormValidationException("Conference start date cannot be before today's date.");
         }
 
-        if (startDate.equals(endDate) || startDate.after(endDate)) {
+        if (startDate.equals(endDate) || startDate.isAfter(endDate)) {
             throw new FormValidationException("Start date and time must be before end date and time.");
         }
+    }
+
+    private LocalDate extractLocalDate(Date date) {
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
     }
 }

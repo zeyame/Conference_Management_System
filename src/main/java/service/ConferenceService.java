@@ -3,15 +3,13 @@ package service;
 import domain.factory.ConferenceFactory;
 import domain.model.Conference;
 import dto.ConferenceDTO;
-import dto.ConferenceFormDTO;
 import exception.ConferenceNotFoundException;
 import exception.SavingDataException;
 import repository.ConferenceRepository;
 import util.LoggerUtil;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,9 +20,9 @@ public class ConferenceService {
         this.conferenceRepository = conferenceRepository;
     }
 
-    public String create(ConferenceFormDTO conferenceFormDTO) {
+    public String create(ConferenceDTO conferenceDTO) {
         // creating conference instance
-        Conference conference = ConferenceFactory.createConference(conferenceFormDTO);
+        Conference conference = ConferenceFactory.createConference(conferenceDTO);
 
         // attempting to save validated conference to file storage with retries if necessary
         boolean isSavedToFile = conferenceRepository.save(conference);
@@ -59,24 +57,25 @@ public class ConferenceService {
         return conferenceRepository.findByName(name).isPresent();
     }
 
-    public boolean isTimePeriodAvailable(Date startDate, Date endDate) {
+    public boolean isTimePeriodAvailable(LocalDate startDate, LocalDate endDate) {
         List<Conference> conferences = conferenceRepository.findAll();
         return conferences.stream()
                 .noneMatch(conference ->
-                        (startDate.before(conference.getEndDate()) && endDate.after(conference.getStartDate())) ||
+                        (startDate.isBefore(conference.getEndDate()) && endDate.isAfter(conference.getStartDate())) ||
                         endDate.equals(conference.getStartDate()) ||
                         startDate.equals(conference.getEndDate())
                 );
     }
 
     public ConferenceDTO mapToDTO(Conference conference) {
-        return new ConferenceDTO(
-            conference.getId(),
-            conference.getOrganizerId(),
-            conference.getName(),
-            conference.getDescription(),
-            conference.getStartDate(),
-            conference.getEndDate()
-        );
+        String organizerId = conference.getOrganizerId(), name = conference.getName(), description = conference.getDescription();
+        LocalDate startDate = conference.getStartDate(), endDate = conference.getEndDate();
+
+        return ConferenceDTO.builder(organizerId, name, description, startDate, endDate)
+                .assignId(conference.getId())
+                .sessions(conference.getSessions())
+                .attendees(conference.getAttendees())
+                .speakers(conference.getSpeakers())
+                .build();
     }
 }

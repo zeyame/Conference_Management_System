@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class ConferenceFileRepository implements ConferenceRepository {
 
     private static final String FILE_PATH = "src/main/resources/data/conferences.json";
-    private static final Map<String, Conference> conferenceCache = new HashMap<>();         // K: Conference Id, V: Conference Object
+    private static final Map<String, Conference> conferenceCache = new HashMap<>();         // K: Conference ID, V: Conference Object
 
     public ConferenceFileRepository() {
         loadConferencesFromFile();
@@ -66,7 +66,7 @@ public class ConferenceFileRepository implements ConferenceRepository {
         if (!isSavedToFile) {
             // rolling back the delete so that in-memory storage is synced up with file storage
             saveInMemory(conference);
-            LoggerUtil.getInstance().logWarning("Failed to delete conference with name: " + conference.getName());
+            LoggerUtil.getInstance().logError("Failed to delete conference with name: " + conference.getName());
         }
     }
 
@@ -76,7 +76,7 @@ public class ConferenceFileRepository implements ConferenceRepository {
             conferenceCache.put(conference.getId(), conference);
             return true;
         } catch (Exception e) {
-            LoggerUtil.getInstance().logWarning("Failed to save conference with name '" + conference.getName() + "' to in-memory storage.");
+            LoggerUtil.getInstance().logError("Failed to save conference with name '" + conference.getName() + "' to in-memory storage.");
             return false;
         }
     }

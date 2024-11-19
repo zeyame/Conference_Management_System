@@ -1,7 +1,6 @@
 package view.organizer;
 
 import dto.ConferenceDTO;
-import dto.ConferenceFormDTO;
 
 import java.util.List;
 
@@ -14,12 +13,12 @@ public interface OrganizerObserver {
     void onAddConferenceRequest();
 
     // Add Conference Page events
-    void onSubmitConferenceFormRequest(ConferenceFormDTO conferenceFormDTO);
+    void onSubmitConferenceFormRequest(ConferenceDTO conferenceDTO);
 
     // Manage Conference Page events
     void onEditConferenceRequest();
     void onDeleteConferenceRequest();
-    void onViewAttendeesRequest();
+    void onViewAttendeesRequest(String conferenceId, String conferenceName);
     void onViewSessionsRequest();
     void onViewSpeakersRequest();
     void onViewFeedbackRequest();

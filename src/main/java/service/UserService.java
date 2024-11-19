@@ -13,8 +13,10 @@ import repository.UserRepository;
 import util.JsonFileHandler;
 import util.LoggerUtil;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserService {
     private final UserRepository userRepository;
@@ -41,6 +43,14 @@ public class UserService {
             LoggerUtil.getInstance().logWarning("Id provided '" + organizerId + "' does not belong to any registered user.");
             throw new UserNotFoundException("User with id '" + organizerId + "' does not exist.");
         }
+    }
+
+    public List<UserDTO> findByIds(Set<String> ids) {
+        return ids.stream()
+                .map(userRepository::findById)
+                .flatMap(Optional::stream)
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     public UserDTO findByEmail(String email) {
@@ -74,8 +84,9 @@ public class UserService {
     }
 
     public boolean isEmailRegistered(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        return user.isPresent();
+        return userRepository
+                .findByEmail(email)
+                .isPresent();
     }
 
 

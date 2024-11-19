@@ -1,19 +1,19 @@
 package domain.factory;
 
 import domain.model.Conference;
-import dto.ConferenceFormDTO;
+import dto.ConferenceDTO;
 import util.IdGenerator;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class ConferenceFactory {
-    public static Conference createConference(ConferenceFormDTO conferenceFormDTO) {
+    public static Conference createConference(ConferenceDTO conferenceDTO) {
         String id = IdGenerator.generateUniqueId();
-        String organizerId = conferenceFormDTO.getOrganizerId();
-        String name = conferenceFormDTO.getName();
-        String description = conferenceFormDTO.getDescription();
-        Date startDate = conferenceFormDTO.getStartDate();
-        Date endDate = conferenceFormDTO.getEndDate();
+        String organizerId = conferenceDTO.getOrganizerId();
+        String name = conferenceDTO.getName();
+        String description = conferenceDTO.getDescription();
+        LocalDate startDate = conferenceDTO.getStartDate();
+        LocalDate endDate = conferenceDTO.getEndDate();
 
         return new Conference(id, organizerId, name, description, startDate, endDate);
     }

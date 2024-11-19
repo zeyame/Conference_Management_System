@@ -2,7 +2,6 @@ package view.organizer;
 
 import controller.OrganizerController;
 import dto.ConferenceDTO;
-import dto.ConferenceFormDTO;
 import dto.UserDTO;
 import response.ResponseEntity;
 import view.UserUI;
@@ -11,6 +10,7 @@ import view.organizer.pages.HomePage;
 import view.organizer.pages.ManageConferencePage;
 import util.LoggerUtil;
 import util.UIComponentFactory;
+import view.organizer.pages.ViewAttendeesPage;
 
 import java.util.*;
 import javax.swing.*;
@@ -27,8 +27,9 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     // constants for subpage names
     private final String HOME_PAGE = "Home Page";
-    private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
     private final String MANAGE_CONFERENCE_PAGE = "Manage Conference Page";
+    private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
+    private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
 
     // map used for quick retrieval of organizer subpages need for routing
     Map<String, Component> subpages = new HashMap<>();
@@ -112,16 +113,16 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
 
     @Override
-    public void onSubmitConferenceFormRequest(ConferenceFormDTO conferenceFormDTO) {
+    public void onSubmitConferenceFormRequest(ConferenceDTO conferenceDTO) {
         LoggerUtil.getInstance().logInfo("Request to create conference received. Proceeding with validation.");
 
-        ResponseEntity<Void> validationResponse = organizerController.validateConferenceData(conferenceFormDTO);
+        ResponseEntity<Void> validationResponse = organizerController.validateConferenceData(conferenceDTO);
         if (!validationResponse.isSuccess()) {
             showError(ADD_CONFERENCE_PAGE, validationResponse.getErrorMessage());
             return;
         }
 
-        ResponseEntity<Void> createConferenceResponse = organizerController.createConference(conferenceFormDTO);
+        ResponseEntity<Void> createConferenceResponse = organizerController.createConference(conferenceDTO);
         if (!createConferenceResponse.isSuccess()) {
             showError(ADD_CONFERENCE_PAGE, createConferenceResponse.getErrorMessage());
             return;
@@ -131,7 +132,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         HomePage homePage = new HomePage(userDTO, this);
         navigateTo(HOME_PAGE, homePage.createPageContent());
 
-        showSuccess(HOME_PAGE, "The '" + conferenceFormDTO.getName() + "' conference has successfully been added to your managed conferences.");
+        showSuccess(HOME_PAGE, "The '" + conferenceDTO.getName() + "' conference has successfully been added to your managed conferences.");
     }
 
     @Override
@@ -145,8 +146,19 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onViewAttendeesRequest() {
+    public void onViewAttendeesRequest(String conferenceId, String conferenceName) {
+        LoggerUtil.getInstance().logInfo("Request to view attendees for conference '" + conferenceName + "' received.");
 
+        // get attendees for conference
+        ResponseEntity<List<UserDTO>> conferenceAttendeesResponse = organizerController.getConferenceAttendees(conferenceId);
+        if (!conferenceAttendeesResponse.isSuccess()) {
+            showError(MANAGE_CONFERENCE_PAGE, conferenceAttendeesResponse.getErrorMessage());
+            return;
+        }
+
+        List<UserDTO> conferenceAttendees = conferenceAttendeesResponse.getData();
+        ViewAttendeesPage viewAttendeesPage = new ViewAttendeesPage(this, conferenceAttendees, conferenceName);
+        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent());
     }
 
     @Override

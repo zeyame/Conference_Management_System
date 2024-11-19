@@ -9,15 +9,15 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ManageConferencePage {
-    // Dependencies
+    // dependencies
     private final ConferenceDTO conferenceDTO;
     private final OrganizerObserver organizerObserver;
     private final UserDTO userDTO;
 
-    // Main panel
+    // main panel
     private final JPanel mainContentPanel;
 
-    // Buttons
+    // buttons
     private final JButton backButton;
     private final JButton editConferenceButton = UIComponentFactory.createStyledButton("Edit Conference");
     private final JButton deleteConferenceButton = UIComponentFactory.createStyledButton("Delete Conference");
@@ -109,6 +109,7 @@ public class ManageConferencePage {
         UIComponentFactory.addLabelToPanel(detailsPanel, conferenceDTO.getEndDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
 
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 150));
+
         return detailsPanel;
     }
 
@@ -126,7 +127,7 @@ public class ManageConferencePage {
     private void setUpListeners() {
         editConferenceButton.addActionListener(e -> organizerObserver.onEditConferenceRequest());
         deleteConferenceButton.addActionListener(e -> organizerObserver.onDeleteConferenceRequest());
-        viewAttendeesButton.addActionListener(e -> organizerObserver.onViewAttendeesRequest());
+        viewAttendeesButton.addActionListener(e -> organizerObserver.onViewAttendeesRequest(conferenceDTO.getId(), conferenceDTO.getName()));
         viewSessionsButton.addActionListener(e -> organizerObserver.onViewSessionsRequest());
         viewSpeakersButton.addActionListener(e -> organizerObserver.onViewSpeakersRequest());
         viewFeedbackButton.addActionListener(e -> organizerObserver.onViewFeedbackRequest());

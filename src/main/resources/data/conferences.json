@@ -1,1 +1,23 @@
-{"e49bfa0e-34b3-4dc2-ab34-e3b2981165b4":{"id":"e49bfa0e-34b3-4dc2-ab34-e3b2981165b4","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"UH Scientific Conference","description":"One of a kind conference.","startDate":1731782062473,"endDate":1735509600000,"sessions":[],"attendees":[],"speakers":[]},"f5c3c84c-5442-412a-beeb-4b13ab1e1d75":{"id":"f5c3c84c-5442-412a-beeb-4b13ab1e1d75","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"Devops Conference","description":"Ansible, Terraform, Docker, Kubernetes, etc...","startDate":1768765500000,"endDate":1771443900000,"sessions":[],"attendees":[],"speakers":[]},"b0526cd0-92de-4c59-b7fe-7343078e854a":{"id":"b0526cd0-92de-4c59-b7fe-7343078e854a","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"Hello","description":"yes","startDate":1735670400000,"endDate":1737052800000,"sessions":[],"attendees":[],"speakers":[]},"04ea91fc-16d6-47b0-bbc2-a1199d53cab8":{"id":"04ea91fc-16d6-47b0-bbc2-a1199d53cab8","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"HI ","description":"no","startDate":1744889760000,"endDate":1750156560000,"sessions":[],"attendees":[],"speakers":[]},"86e9a006-e3fb-4600-abf9-ed11461ca33b":{"id":"86e9a006-e3fb-4600-abf9-ed11461ca33b","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"Cloud Computing","description":"The best cloud computing conference in the world.","startDate":1750249860000,"endDate":1752841860000,"sessions":[],"attendees":[],"speakers":[]},"baa78458-c197-439c-bd49-a58bf5b373a4":{"id":"baa78458-c197-439c-bd49-a58bf5b373a4","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"sksksk","description":"mmmm","startDate":1763481120000,"endDate":1766073120000,"sessions":[],"attendees":[],"speakers":[]},"68a4c7dc-82c9-46c2-8a87-51fded289a3a":{"id":"68a4c7dc-82c9-46c2-8a87-51fded289a3a","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"NO","description":"YESSS","startDate":1755520080000,"endDate":1758198480000,"sessions":[],"attendees":[],"speakers":[]},"90e50392-e595-4737-ace9-bdcaa9e01e5c":{"id":"90e50392-e595-4737-ace9-bdcaa9e01e5c","organizerId":"bcd516e3-7f24-46e2-9dd7-4f44f01aa48f","name":"aaa","description":"aaa","startDate":1726734180000,"endDate":1729326180000,"sessions":[],"attendees":[],"speakers":[]}}
+{"ad619b3c-9eae-4479-a08a-c208a3cc76c2":{"id":"ad619b3c-9eae-4479-a08a-c208a3cc76c2","organizerId":"8bf3c1a3-e68b-47bb-9525-1ec5ec8ae8c6","name":"UH Scientific Conference","description":"A scientific conference to discuss technological advances.","startDate":[2024,11,19],"endDate":[2024,12,19],"sessions":[],
+  "attendees":[
+      "ad619b3c-9eae-4479-a08a-c208a3cc76c2",
+      "bc745cb2-6c8d-4411-b5cd-8a1df7fbc8a9",
+      "d1738a5c-6be0-4425-9f24-d3381c6ae8a2",
+      "8be924eb-1e94-4ec9-b4ff-d33579be9837",
+      "f8e23c5d-8c1e-4b88-b126-f91a3a2421f3",
+      "091f6ac7-9b3c-4e8d-a1d8-c5fa27e5c7f1",
+      "6f2d13c7-c69a-4d54-b832-7be40c9a6e91",
+      "82c6f4c7-3ea7-435b-8ab3-8a4a25faeb23",
+      "79b15c8e-d93f-4769-90f2-ec6ea3a73a2b",
+      "2dca7e98-f9c6-4fa4-9c2e-529d7487b4d4",
+      "af98d73b-15a2-421e-b946-41e74512e54f",
+      "d5e2f784-a0f6-48c1-93c6-23df7458b3a9",
+      "7c5e23d4-f45a-4e79-801a-d41b39c6a1f7",
+      "fb43e987-2549-4ef9-b7c2-c9e8f4a63517",
+      "82de09f7-4c2f-4f6e-924c-d98f2ea5c7a8",
+      "59c47fb1-fc69-4c7f-a2b8-425f6e09312f",
+      "934f68b5-24d7-4e8d-82c9-a59b43e098a7",
+      "6b82e109-f9c4-402b-9e83-d79c68ea251f",
+      "a92d47b8-5f6e-4c9f-8ea1-d437fb1029f7",
+      "fb680a92-392d-4c2f-8ea5-d68f4c103b29"
+  ],"speakers":[]}}

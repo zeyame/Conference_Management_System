@@ -10,15 +10,15 @@ public class Conference {
     String organizerId;
     String name;
     String description;
-    Date startDate;
-    Date endDate;
+    LocalDate startDate;
+    LocalDate endDate;
     Set<String> sessions;
     Set<String> attendees;
     Set<String> speakers;
 
     public Conference() {}
 
-    public Conference(String id, String organizerId, String name, String description, Date startDate, Date endDate) {
+    public Conference(String id, String organizerId, String name, String description, LocalDate startDate, LocalDate endDate) {
         this.id = id;
         this.organizerId = organizerId;
         this.name = name;
@@ -62,19 +62,19 @@ public class Conference {
         this.description = description;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

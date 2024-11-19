@@ -22,14 +22,6 @@ public class UserFileRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findById(String id) {
-        return userCache.values()
-                .stream()
-                .filter(user -> id.equals(user.getId()))
-                .findAny();
-    }
-
-    @Override
     public boolean save(User user) {
         // save user in memory first
         boolean savedToMemory = saveInMemory(user);
@@ -46,16 +38,19 @@ public class UserFileRepository implements UserRepository {
         return true;
     }
 
+    @Override
+    public Optional<User> findById(String id) {
+        return userCache.values()
+                .stream()
+                .filter(user -> id.equals(user.getId()))
+                .findAny();
+    }
 
     @Override
     public Optional<User> findByEmail(String email) {
         return Optional.ofNullable(userCache.get(email));
     }
 
-    private void loadUsersFromFile() {
-        JsonFileHandler.loadData(FILE_PATH, new TypeReference<Map<String, User>>() {})
-                .ifPresent(userCache::putAll);
-    }
 
     private boolean saveInMemory(User user) {
         // update in memory storage
@@ -72,5 +67,8 @@ public class UserFileRepository implements UserRepository {
         userCache.remove(user.getEmail());
     }
 
-
+    private void loadUsersFromFile() {
+        JsonFileHandler.loadData(FILE_PATH, new TypeReference<Map<String, User>>() {})
+                .ifPresent(userCache::putAll);
+    }
 }
