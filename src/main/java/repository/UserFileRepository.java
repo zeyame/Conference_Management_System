@@ -9,9 +9,8 @@ import util.LoggerUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class UserFileRepository implements UserRepository {
     private static final String FILE_PATH = "src/main/resources/data/users.json";
@@ -49,6 +48,11 @@ public class UserFileRepository implements UserRepository {
     @Override
     public Optional<User> findByEmail(String email) {
         return Optional.ofNullable(userCache.get(email));
+    }
+
+    @Override
+    public List<User> findAll() {
+        return new ArrayList<>(userCache.values());
     }
 
 

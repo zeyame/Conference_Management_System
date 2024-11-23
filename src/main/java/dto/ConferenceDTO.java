@@ -1,6 +1,7 @@
 package dto;
 
 import exception.InvalidInitializationException;
+import util.ValidationUtils;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -89,25 +90,10 @@ public class ConferenceDTO {
         }
 
         private void validateParameters() {
-            if (this.organizerId == null || this.organizerId.isEmpty()) {
-                throw new InvalidInitializationException("Organizer id is a required parameter for ConferenceDTO and cannot be either null or empty.");
-            }
-
-            if (this.name == null || this.name.isEmpty()) {
-                throw new InvalidInitializationException("Name is a required parameter for ConferenceDTO and cannot be either null or empty.");
-            }
-
-            if (this.description == null || this.description.isEmpty()) {
-                throw new InvalidInitializationException("Description is a required parameter for ConferenceDTO and cannot be either null or empty.");
-            }
-
-            if (this.startDate == null || this.endDate == null) {
-                throw new InvalidInitializationException("Start and end dates are required parameters for ConferenceDTO and cannot be either null or empty.");
-            }
-
-            if (this.startDate.isAfter(this.endDate)) {
-                throw new InvalidInitializationException("Start date cannot be after the end date.");
-            }
+            ValidationUtils.requireNonEmpty(this.organizerId, "Organizer ID");
+            ValidationUtils.requireNonEmpty(this.name, "Name");
+            ValidationUtils.requireNonEmpty(this.description, "Description");
+            ValidationUtils.validateDates(this.startDate, this.endDate);
         }
     }
 
@@ -131,12 +117,12 @@ public class ConferenceDTO {
         return this.endDate;
     }
     public Set<String> getSessions() {
-        return this.sessions;
+        return new HashSet<>(this.sessions);         // defensive copy
     }
     public Set<String> getAttendees() {
-        return this.attendees;
+        return new HashSet<>(this.attendees);       // defensive copy
     }
     public Set<String> getSpeakers() {
-        return this.speakers;
+        return new HashSet<>(this.speakers);        // defensive copy
     }
 }

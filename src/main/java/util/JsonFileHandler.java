@@ -13,6 +13,10 @@ public class JsonFileHandler {
     private static final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
+
+    // private no-arg constructor to suppress instantiability
+    private JsonFileHandler() {}
+
     public static <T> Optional<T> loadData(String filePath, TypeReference<T> typeReference) {
         File file = new File(filePath);
 

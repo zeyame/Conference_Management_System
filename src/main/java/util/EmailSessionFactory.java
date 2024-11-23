@@ -6,6 +6,10 @@ import javax.mail.Session;
 import java.util.Properties;
 
 public class EmailSessionFactory {
+
+    // private no-arg constructor to suppress instantiability
+    private EmailSessionFactory() {}
+
     public static Session createEmailSession() {
         Properties properties = new Properties();
         properties.put("mail.smtp.auth", "true");

@@ -13,9 +13,7 @@ import repository.UserRepository;
 import util.JsonFileHandler;
 import util.LoggerUtil;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserService {
@@ -53,6 +51,17 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public Map<String, String> findNamesByIds(Set<String> ids) {
+        Map<String, String> namesByIds = new HashMap<>();
+
+        for (String id: ids) {
+            Optional<User> userOptional = userRepository.findById(id);
+            userOptional.ifPresent(user -> namesByIds.put(id, user.getName()));
+        }
+
+        return namesByIds;
+    }
+
     public UserDTO findByEmail(String email) {
         return userRepository
                 .findByEmail(email)
@@ -65,6 +74,14 @@ public class UserService {
                 .findByEmail(email)
                 .map(this::mapToAuthenticatedDTO)
                 .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' could not be found."));
+    }
+
+    public List<UserDTO> findAllSpeakers() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRole() == UserRole.SPEAKER)
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     public Set<String> findManagedConferencesForOrganizer(String email) {

@@ -166,5 +166,75 @@
     "hashedPassword": "hashedpassword117",
     "role": "Attendee",
     "schedule": {}
+  },
+  "speaker1@example.com": {
+    "id": "spk-001",
+    "email": "speaker1@example.com",
+    "name": "Dr. Alan Turing",
+    "hashedPassword": "hashedpassword201",
+    "role": "Speaker"
+  },
+  "speaker2@example.com": {
+    "id": "spk-002",
+    "email": "speaker2@example.com",
+    "name": "Dr. Grace Hopper",
+    "hashedPassword": "hashedpassword202",
+    "role": "Speaker"
+  },
+  "speaker3@example.com": {
+    "id": "spk-003",
+    "email": "speaker3@example.com",
+    "name": "Dr. Ada Lovelace",
+    "hashedPassword": "hashedpassword203",
+    "role": "Speaker"
+  },
+  "speaker4@example.com": {
+    "id": "spk-004",
+    "email": "speaker4@example.com",
+    "name": "Dr. Tim Berners-Lee",
+    "hashedPassword": "hashedpassword204",
+    "role": "Speaker"
+  },
+  "speaker5@example.com": {
+    "id": "spk-005",
+    "email": "speaker5@example.com",
+    "name": "Dr. Katherine Johnson",
+    "hashedPassword": "hashedpassword205",
+    "role": "Speaker"
+  },
+  "speaker6@example.com": {
+    "id": "spk-006",
+    "email": "speaker6@example.com",
+    "name": "Dr. John McCarthy",
+    "hashedPassword": "hashedpassword206",
+    "role": "Speaker"
+  },
+  "speaker7@example.com": {
+    "id": "spk-007",
+    "email": "speaker7@example.com",
+    "name": "Dr. Margaret Hamilton",
+    "hashedPassword": "hashedpassword207",
+    "role": "Speaker"
+  },
+  "speaker8@example.com": {
+    "id": "spk-008",
+    "email": "speaker8@example.com",
+    "name": "Dr. Donald Knuth",
+    "hashedPassword": "hashedpassword208",
+    "role": "Speaker"
+  },
+  "speaker9@example.com": {
+    "id": "spk-009",
+    "email": "speaker9@example.com",
+    "name": "Dr. Linus Torvalds",
+    "hashedPassword": "hashedpassword209",
+    "role": "Speaker"
+  },
+  "speaker10@example.com": {
+    "id": "spk-010",
+    "email": "speaker10@example.com",
+    "name": "Dr. Barbara Liskov",
+    "hashedPassword": "hashedpassword210",
+    "role": "Speaker"
   }
 }

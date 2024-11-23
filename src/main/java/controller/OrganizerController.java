@@ -1,10 +1,12 @@
 package controller;
 
 import dto.ConferenceDTO;
+import dto.SessionDTO;
 import dto.UserDTO;
 import exception.*;
 import response.ResponseEntity;
 import service.ConferenceService;
+import service.SessionService;
 import service.UserService;
 import util.LoggerUtil;
 
@@ -14,10 +16,16 @@ import java.util.*;
 public class OrganizerController {
     private final UserService userService;
     private final ConferenceService conferenceService;
+    private final SessionService sessionService;
 
-    public OrganizerController(UserService userService, ConferenceService conferenceService) {
+    public OrganizerController(UserService userService, ConferenceService conferenceService, SessionService sessionService) {
         this.userService = userService;
         this.conferenceService = conferenceService;
+        this.sessionService = sessionService;
+    }
+
+    public ResponseEntity<List<UserDTO>> getRegisteredSpeakers() {
+        return ResponseEntity.success(userService.findAllSpeakers());
     }
 
     public ResponseEntity<ConferenceDTO> getManagedConference(String conferenceId) {
@@ -48,6 +56,18 @@ public class OrganizerController {
             List<UserDTO> attendees = userService.findByIds(attendeeIds);
             LoggerUtil.getInstance().logInfo("Successfully retrieved attendees for '" + conferenceDTO.getName() + "'.");
             return ResponseEntity.success(attendees);
+        } catch (ConferenceNotFoundException e) {
+            return ResponseEntity.error("Could not find attendees for the conference with id '" + conferenceId + "' as it does not exist.");
+        }
+    }
+
+    public ResponseEntity<List<SessionDTO>> getConferenceSessions(String conferenceId) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.findById(conferenceId);
+            Set<String> sessionIds = conferenceDTO.getSessions();
+            List<SessionDTO> sessions = sessionService.findByIds(sessionIds);
+            LoggerUtil.getInstance().logInfo("Successfully retrieved sessions for '" + conferenceDTO.getName() + "'.");
+            return ResponseEntity.success(sessions);
         } catch (ConferenceNotFoundException e) {
             return ResponseEntity.error("Could not find attendees for the conference with id '" + conferenceId + "' as it does not exist.");
         }

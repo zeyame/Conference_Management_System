@@ -46,7 +46,10 @@ public class ManageConferencePage {
     }
 
     public JPanel createPageContent() {
+        // refresh page
         mainContentPanel.removeAll();
+
+        // add main components to the page
         mainContentPanel.add(createHeaderPanel(), BorderLayout.NORTH);
         mainContentPanel.add(createDetailsPanel(), BorderLayout.CENTER);
         mainContentPanel.add(createFooterPanel(), BorderLayout.SOUTH);
@@ -54,24 +57,13 @@ public class ManageConferencePage {
     }
 
     private JPanel createHeaderPanel() {
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(conferenceDTO.getName(), backButton);
+        baseHeaderPanel.add(Box.createRigidArea(new Dimension(350, 0)));
+        baseHeaderPanel.add(editConferenceButton);
+        baseHeaderPanel.add(Box.createRigidArea(new Dimension(15, 0)));
+        baseHeaderPanel.add(deleteConferenceButton);
 
-        // Title label with fixed width
-        JLabel titleLabel = UIComponentFactory.createStyledLabel(conferenceDTO.getName(), new Font("Sans serif", Font.BOLD, 24));
-        titleLabel.setHorizontalAlignment(JLabel.CENTER);
-
-        // Panel for the buttons (edit and delete)
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.add(editConferenceButton);
-        buttonPanel.add(deleteConferenceButton);
-
-        // Add the components to header
-        headerPanel.add(backButton, BorderLayout.WEST);
-        headerPanel.add(titleLabel, BorderLayout.CENTER);
-        headerPanel.add(buttonPanel, BorderLayout.EAST);
-
-        return headerPanel;
+        return baseHeaderPanel;
     }
 
     private JPanel createDetailsPanel() {
@@ -128,7 +120,7 @@ public class ManageConferencePage {
         editConferenceButton.addActionListener(e -> organizerObserver.onEditConferenceRequest());
         deleteConferenceButton.addActionListener(e -> organizerObserver.onDeleteConferenceRequest());
         viewAttendeesButton.addActionListener(e -> organizerObserver.onViewAttendeesRequest(conferenceDTO.getId(), conferenceDTO.getName()));
-        viewSessionsButton.addActionListener(e -> organizerObserver.onViewSessionsRequest());
+        viewSessionsButton.addActionListener(e -> organizerObserver.onViewSessionsRequest(conferenceDTO.getId(), conferenceDTO.getName()));
         viewSpeakersButton.addActionListener(e -> organizerObserver.onViewSpeakersRequest());
         viewFeedbackButton.addActionListener(e -> organizerObserver.onViewFeedbackRequest());
     }

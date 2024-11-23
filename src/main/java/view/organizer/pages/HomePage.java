@@ -22,7 +22,8 @@ public class HomePage {
         // initialize components
         this.addConferenceButton = new JButton("Add Conference");
 
-        setUpListeners();
+        // set up listener
+        this.addConferenceButton.addActionListener(e -> organizerObserver.onAddConferenceRequest(userDTO.getName()));
     }
 
     public JPanel createPageContent() {
@@ -37,7 +38,8 @@ public class HomePage {
         homePanel.add(scrollPane, BorderLayout.CENTER);
 
         // "add conference" button
-        homePanel.add(createAddConferencePanel(), BorderLayout.SOUTH);
+        JPanel addConferenceButtonPanel = UIComponentFactory.createButtonPanel(addConferenceButton);
+        homePanel.add(addConferenceButtonPanel, BorderLayout.SOUTH);
 
         return homePanel;
     }
@@ -48,7 +50,7 @@ public class HomePage {
 
         // page title in the center
         JLabel headerLabel = new JLabel("Your Managed Conferences");
-        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 20));
+        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 24));
         headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);  // Ensure it's centered
         headerPanel.add(headerLabel, BorderLayout.CENTER);
@@ -98,26 +100,6 @@ public class HomePage {
         conferencePanel.add(manageButton);
 
         return conferencePanel;
-    }
-
-    private JPanel createAddConferencePanel() {
-        // Bottom panel for the Add Conference button
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); // Add padding above and below
-
-        addConferenceButton.setPreferredSize(new Dimension(180, 35));
-        addConferenceButton.setFocusPainted(false);
-        buttonPanel.add(addConferenceButton);
-
-        return buttonPanel;
-    }
-
-    private void setUpListeners() {
-        addConferenceButton.addActionListener(this::handleAddConferenceButton);
-    }
-
-    private void handleAddConferenceButton(ActionEvent e) {
-        organizerObserver.onAddConferenceRequest();
     }
 
     private void handleManageConferenceButton(ActionEvent e) {

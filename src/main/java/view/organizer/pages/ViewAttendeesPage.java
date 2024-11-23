@@ -9,8 +9,6 @@ import java.awt.*;
 import java.util.List;
 
 public class ViewAttendeesPage {
-    // dependencies
-    private final OrganizerObserver organizerObserver;
     private final List<UserDTO> attendees;
     private final String conferenceName;
 
@@ -21,7 +19,7 @@ public class ViewAttendeesPage {
     private final JButton backButton;
 
     public ViewAttendeesPage(OrganizerObserver organizerObserver, List<UserDTO> attendees, String conferenceName) {
-        this.organizerObserver = organizerObserver;
+        // dependencies
         this.attendees = attendees;
         this.conferenceName = conferenceName;
 
@@ -31,34 +29,20 @@ public class ViewAttendeesPage {
     }
 
     public JPanel createPageContent() {
-        JPanel headerPanel = createHeaderPanel();
+        // refresh page
+        mainContentPanel.removeAll();
+
+        // creating main components
+        JPanel headerPanel = UIComponentFactory
+                .createHeaderPanel("Attendees registered for conference '" + conferenceName + "'", backButton);
         JScrollPane attendeesScrollPane = createAttendeesScrollPane();
 
+        // adding components to main content panel
         mainContentPanel.add(headerPanel, BorderLayout.NORTH);
         mainContentPanel.add(Box.createRigidArea(new Dimension(40, 0)));
         mainContentPanel.add(attendeesScrollPane, BorderLayout.CENTER);
 
         return mainContentPanel;
-    }
-
-    private JPanel createHeaderPanel() {
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0,0));
-
-        headerPanel.add(backButton);
-
-        // spacing between back button and title
-        headerPanel.add(Box.createRigidArea(new Dimension(390, 0)));
-
-        JLabel headerLabel = new JLabel("Attendees registered for '" + conferenceName + "'");
-        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 24));
-        headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0,0, 0));
-
-        headerPanel.add(headerLabel);
-
-        return headerPanel;
     }
 
     private JScrollPane createAttendeesScrollPane() {

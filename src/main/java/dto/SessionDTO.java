@@ -1,4 +1,4 @@
-package domain.model;
+package dto;
 
 import util.ValidationUtils;
 
@@ -6,11 +6,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-public class Session {
+public class SessionDTO {
 
-    private final String id;
+    private final String id; // optional, can be null
     private final String conferenceId;
     private final String speakerId;
+    private final String speakerName;
     private final String name;
     private final String description;
     private final String room;
@@ -20,11 +21,12 @@ public class Session {
     private final Set<String> registeredAttendees;
     private final Map<String, Boolean> attendanceRecord;
 
-    // no-arg constructor for JSON serialization
-    private Session() {
+    // No-arg constructor for JSON serialization
+    private SessionDTO() {
         this.id = null;
         this.conferenceId = null;
         this.speakerId = null;
+        this.speakerName = null;
         this.name = null;
         this.description = null;
         this.room = null;
@@ -35,10 +37,11 @@ public class Session {
         this.attendanceRecord = Collections.emptyMap();
     }
 
-    private Session(Builder builder) {
+    private SessionDTO(Builder builder) {
         this.id = builder.id;
         this.conferenceId = builder.conferenceId;
-        this.speakerId = builder.conferenceId;
+        this.speakerId = builder.speakerId;
+        this.speakerName = builder.speakerName;
         this.name = builder.name;
         this.description = builder.description;
         this.room = builder.room;
@@ -49,12 +52,15 @@ public class Session {
         this.attendanceRecord = builder.attendanceRecord;
     }
 
+    public static Builder builder(String conferenceId, String speakerId, String speakerName, String name, String description, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return new Builder(conferenceId, speakerId, speakerName, name, description, room, date, startTime, endTime);
+    }
 
     public static class Builder {
         // required parameters
-        private final String id;
         private final String conferenceId;
         private final String speakerId;
+        private final String speakerName;
         private final String name;
         private final String description;
         private final String room;
@@ -63,19 +69,25 @@ public class Session {
         private final LocalTime endTime;
 
         // optional parameters
-        private Set<String> registeredAttendees;
-        private Map<String, Boolean> attendanceRecord;
+        private String id;
+        private Set<String> registeredAttendees = new HashSet<>();
+        private Map<String, Boolean> attendanceRecord = new HashMap<>();
 
-        private Builder(String id, String conferenceId, String speakerId, String name, String description, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
-            this.id = id;
+        public Builder(String conferenceId, String speakerId, String speakerName, String name, String description, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.conferenceId = conferenceId;
             this.speakerId = speakerId;
+            this.speakerName = speakerName;
             this.name = name;
             this.description = description;
             this.room = room;
             this.date = date;
             this.startTime = startTime;
             this.endTime = endTime;
+        }
+
+        public Builder setId(String id) {
+            this.id = id;
+            return this;
         }
 
         public Builder setRegisteredAttendees(Set<String> registeredAttendees) {
@@ -88,15 +100,15 @@ public class Session {
             return this;
         }
 
-        public Session build() {
+        public SessionDTO build() {
             validateParameters();
-            return new Session(this);
+            return new SessionDTO(this);
         }
 
         private void validateParameters() {
-            ValidationUtils.requireNonEmpty(this.id, "Session ID");
             ValidationUtils.requireNonEmpty(this.conferenceId, "Conference ID");
             ValidationUtils.requireNonEmpty(this.speakerId, "Speaker ID");
+            ValidationUtils.requireNonEmpty(this.speakerName, "Speaker name");
             ValidationUtils.requireNonEmpty(this.name, "Session name");
             ValidationUtils.requireNonEmpty(this.description, "Session description");
             ValidationUtils.requireNonEmpty(this.room, "Session room");
@@ -115,6 +127,10 @@ public class Session {
 
     public String getSpeakerId() {
         return this.speakerId;
+    }
+
+    public String getSpeakerName() {
+        return this.speakerName;
     }
 
     public String getName() {
@@ -156,6 +172,6 @@ public class Session {
     }
 
     public Map<String, Boolean> getAttendanceRecord() {
-        return new HashMap<>(this.attendanceRecord);            // defensive copy
+        return new HashMap<>(this.attendanceRecord);           // defensive copy
     }
 }

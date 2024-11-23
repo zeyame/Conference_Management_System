@@ -7,6 +7,9 @@ import java.awt.event.ActionListener;
 
 public class UIComponentFactory {
 
+    // private no-arg constructor to suppress instantiability
+    private UIComponentFactory() {}
+
     public static JPanel createMainPanel() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -38,6 +41,26 @@ public class UIComponentFactory {
         return welcomePanel;
     }
 
+    public static JPanel createHeaderPanel(String title, JButton backButton) {
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0,0));
+
+        headerPanel.add(backButton);
+
+        // spacing between back button and title
+        headerPanel.add(Box.createRigidArea(new Dimension(390, 0)));
+
+        JLabel headerLabel = new JLabel(title);
+        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 24));
+        headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0,0, 0));
+
+        headerPanel.add(headerLabel);
+
+        return headerPanel;
+    }
+
     public static JButton createBackButton(ActionListener backAction) {
         JButton backButton = new JButton("←"); // left arrow button
         backButton.setToolTipText("Go back");
@@ -61,11 +84,39 @@ public class UIComponentFactory {
         return backButton;
     }
 
+    public static JSpinner createDateSpinner() {
+        JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "MM/dd/yyyy");
+        dateSpinner.setEditor(dateEditor);
+        dateSpinner.setPreferredSize(new Dimension(150, 30));
+        return dateSpinner;
+    }
+
+    public static JSpinner createTimeSpinner() {
+        JSpinner timeSpinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm");
+        timeSpinner.setEditor(timeEditor);
+        timeSpinner.setPreferredSize(new Dimension(150, 30));
+        return timeSpinner;
+    }
+
     public static JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(150, 40));
         button.setFocusPainted(false);
         return button;
+    }
+
+    public static JPanel createButtonPanel(JButton button) {
+        // Bottom panel for the Add Conference button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); // Add padding above and below
+
+        button.setPreferredSize(new Dimension(180, 35));
+        button.setFocusPainted(false);
+        buttonPanel.add(button);
+
+        return buttonPanel;
     }
 
     public static JLabel createStyledLabel(String text, Font font) {

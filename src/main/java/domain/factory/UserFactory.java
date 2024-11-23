@@ -5,6 +5,10 @@ import dto.RegistrationDTO;
 import util.IdGenerator;
 
 public class UserFactory {
+
+    // private no-arg constructor to suppress instantiability
+    private UserFactory() {}
+
     public static User createUser(RegistrationDTO registrationDTO) {
         String id = IdGenerator.generateUniqueId();
         String email = registrationDTO.getEmail();

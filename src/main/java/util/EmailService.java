@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class EmailService {
     private final Session session;
-    private final int MAX_ATTEMPTS = 3;
     private static EmailService instance;
 
     private EmailService() {
@@ -32,6 +31,7 @@ public class EmailService {
                 + "Please feel free to browse through the upcoming conferences and register for any that interest you.\n\n"
                 + "Kind regards,\n\n" + "The UH Team";
 
+        final int MAX_ATTEMPTS = 3;
         int attempt = 0;
         while (attempt < MAX_ATTEMPTS) {
             try {

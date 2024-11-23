@@ -3,6 +3,7 @@ package view.organizer.pages;
 import dto.ConferenceDTO;
 import dto.UserDTO;
 import exception.FormValidationException;
+import util.FormBuilder;
 import util.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
@@ -30,9 +31,9 @@ public class AddConferencePage {
     private final JSpinner endDateTimeSpinner;
     private final JButton submitButton;
 
-    public AddConferencePage(UserDTO userDTO, OrganizerObserver organizerObserver) {
-        this.userDTO = userDTO;
+    public AddConferencePage(OrganizerObserver organizerObserver, UserDTO userDTO) {
         this.organizerObserver = organizerObserver;
+        this.userDTO = userDTO;
 
         // initialize the components
         this.mainContentPanel = new JPanel(new BorderLayout()); // Changed to BorderLayout
@@ -61,9 +62,7 @@ public class AddConferencePage {
         mainContentPanel.removeAll();
 
         // Create header panel for back button
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.add(backButton, BorderLayout.WEST);
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel("", backButton);
 
         // Create center panel for the form
         JPanel centerPanel = new JPanel();
@@ -84,68 +83,32 @@ public class AddConferencePage {
     }
 
     private JPanel createConferenceForm() {
-        JPanel conferenceFormPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 20, 10);  // Add spacing between fields
+        FormBuilder formBuilder = new FormBuilder(10);
 
-        // header label centered
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        JLabel headerLabel = new JLabel("Add a New Conference");
-        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 20));
-        conferenceFormPanel.add(headerLabel, gbc);
+        formBuilder.addFullWidthComponent(createHeaderLabel(), 0)
+                .addLabel("Name", 1, 0)
+                .addComponent(nameField, 1, 1)
+                .addLabel("Description", 2, 0)
+                .addComponent(descriptionField, 2, 1)
+                .addLabel("Start Date and Time", 3, 0)
+                .addComponent(startDateTimeSpinner, 3, 1)
+                .addLabel("End Date and Time", 4, 0)
+                .addComponent(endDateTimeSpinner, 4, 1)
+                .addFullWidthComponent(submitButton, 5);
 
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.LINE_START;
+        JPanel conferenceFormPanel = formBuilder.build();
 
-        // name label and field
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        conferenceFormPanel.add(new JLabel("Name"), gbc);
-
-        gbc.gridx = 1;
-        conferenceFormPanel.add(nameField, gbc);
-
-        // description label and field
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        conferenceFormPanel.add(new JLabel("Description"), gbc);
-
-        gbc.gridx = 1;
-        conferenceFormPanel.add(descriptionField, gbc);
-
-        // start date-time label and field
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        conferenceFormPanel.add(new JLabel("Start Date and Time"), gbc);
-
-        gbc.gridx = 1;
-        conferenceFormPanel.add(startDateTimeSpinner, gbc);
-
-        // end date-time label and field
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        conferenceFormPanel.add(new JLabel("End Date and Time"), gbc);
-
-        gbc.gridx = 1;
-        conferenceFormPanel.add(endDateTimeSpinner, gbc);
-
-        // submit button
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        submitButton.setFocusPainted(false);
-        conferenceFormPanel.add(submitButton, gbc);
-
-        // Make the form taller by setting preferred size
-        conferenceFormPanel.setPreferredSize(new Dimension(300, 800));  // Adjust height and width
+        // adjust form size
+        conferenceFormPanel.setPreferredSize(new Dimension(300, 900));
         conferenceFormPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 150, 0));
 
-        return conferenceFormPanel;
+        return formBuilder.build();
+    }
+
+    private JLabel createHeaderLabel() {
+        JLabel headerLabel = new JLabel("Add a New Conference");
+        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 24));
+        return headerLabel;
     }
 
 
@@ -192,7 +155,7 @@ public class AddConferencePage {
         }
 
         if (startDate.isBefore(LocalDate.now())) {
-            throw new FormValidationException("Conference start date cannot be before today's date.");
+            throw new FormValidationException("Start date cannot be in the past.");
         }
 
         if (startDate.equals(endDate) || startDate.isAfter(endDate)) {

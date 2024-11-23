@@ -7,6 +7,10 @@ import util.IdGenerator;
 import java.time.LocalDate;
 
 public class ConferenceFactory {
+
+    // private no-arg constructor to suppress instantiability
+    private ConferenceFactory() {}
+
     public static Conference createConference(ConferenceDTO conferenceDTO) {
         String id = IdGenerator.generateUniqueId();
         String organizerId = conferenceDTO.getOrganizerId();
@@ -15,6 +19,6 @@ public class ConferenceFactory {
         LocalDate startDate = conferenceDTO.getStartDate();
         LocalDate endDate = conferenceDTO.getEndDate();
 
-        return new Conference(id, organizerId, name, description, startDate, endDate);
+        return Conference.builder(id, organizerId, name, description, startDate, endDate).build();
     }
 }
