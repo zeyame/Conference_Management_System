@@ -5,10 +5,10 @@ import exception.InvalidInitializationException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class ValidationUtils {
+public class ValidationUtil {
 
     // suppress default constructor for non-instantiability
-    private ValidationUtils() {}
+    private ValidationUtil() {}
 
     public static void requireNonEmpty(String value, String fieldName) {
         if (value == null || value.isEmpty()) {

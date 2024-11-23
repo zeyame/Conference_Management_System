@@ -2,7 +2,7 @@ package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.Conference;
-import util.JsonFileHandler;
+import util.file.JsonFileHandler;
 import util.LoggerUtil;
 
 import java.util.*;

@@ -1,10 +1,8 @@
 package dto;
 
-import exception.InvalidInitializationException;
-import util.ValidationUtils;
+import util.ValidationUtil;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -90,10 +88,10 @@ public class ConferenceDTO {
         }
 
         private void validateParameters() {
-            ValidationUtils.requireNonEmpty(this.organizerId, "Organizer ID");
-            ValidationUtils.requireNonEmpty(this.name, "Name");
-            ValidationUtils.requireNonEmpty(this.description, "Description");
-            ValidationUtils.validateDates(this.startDate, this.endDate);
+            ValidationUtil.requireNonEmpty(this.organizerId, "Organizer ID");
+            ValidationUtil.requireNonEmpty(this.name, "Name");
+            ValidationUtil.requireNonEmpty(this.description, "Description");
+            ValidationUtil.validateDates(this.startDate, this.endDate);
         }
     }
 

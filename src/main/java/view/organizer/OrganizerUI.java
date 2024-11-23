@@ -1,7 +1,6 @@
 package view.organizer;
 
 import controller.OrganizerController;
-import domain.model.Session;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
@@ -9,7 +8,7 @@ import response.ResponseEntity;
 import view.UserUI;
 import view.organizer.pages.*;
 import util.LoggerUtil;
-import util.UIComponentFactory;
+import util.ui.UIComponentFactory;
 
 import java.util.*;
 import javax.swing.*;

@@ -1,7 +1,7 @@
 package view.organizer.pages;
 
 import dto.UserDTO;
-import util.UIComponentFactory;
+import util.ui.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;

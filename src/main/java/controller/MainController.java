@@ -8,10 +8,10 @@ import exception.UserNotFoundException;
 import response.ResponseEntity;
 import service.UserService;
 import view.*;
-import util.EmailService;
+import util.email.EmailService;
 import util.LoggerUtil;
-import util.PasswordService;
-import util.UIFactory;
+import util.PasswordUtil;
+import util.ui.UIFactory;
 
 public class MainController {
     private final UserService userService;
@@ -31,7 +31,7 @@ public class MainController {
 
         // password complexity check
         String password = new String(registrationDTO.getPassword());
-        String errorMessage = PasswordService.checkPasswordComplexity(password);
+        String errorMessage = PasswordUtil.checkPasswordComplexity(password);
         if (errorMessage != null) {
             return ResponseEntity.error(errorMessage);
         }
@@ -46,7 +46,7 @@ public class MainController {
 
             // verify the password
             String hashedPassword = authenticatedUser.getHashedPassword();
-            boolean isPasswordValid = PasswordService.verifyPassword(password, hashedPassword);
+            boolean isPasswordValid = PasswordUtil.verifyPassword(password, hashedPassword);
 
             // log success if no exceptions thrown and return response
             LoggerUtil.getInstance().logInfo("Login check carried out for user with email: '" + email + "'.");
@@ -65,7 +65,7 @@ public class MainController {
         // hash the password before saving user data to storage
         char[] plainPassword = registrationDTO.getPassword();
         try {
-            String hashedPassword = PasswordService.hashPassword(plainPassword);
+            String hashedPassword = PasswordUtil.hashPassword(plainPassword);
 
             // store the hashed password in the registration dto
             char[] hashedPasswordChars = hashedPassword.toCharArray();

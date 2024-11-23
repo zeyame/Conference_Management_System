@@ -1,7 +1,6 @@
 package domain.model;
 
-import exception.InvalidInitializationException;
-import util.ValidationUtils;
+import util.ValidationUtil;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -97,11 +96,11 @@ public class Conference {
         }
 
         private void validateParameters() {
-            ValidationUtils.requireNonEmpty(this.id,  "Conference ID");
-            ValidationUtils.requireNonEmpty(this.organizerId, "Organizer ID");
-            ValidationUtils.requireNonEmpty(this.name, "Name");
-            ValidationUtils.requireNonEmpty(this.description, "Description");
-            ValidationUtils.validateDates(this.startDate, this.endDate);
+            ValidationUtil.requireNonEmpty(this.id,  "Conference ID");
+            ValidationUtil.requireNonEmpty(this.organizerId, "Organizer ID");
+            ValidationUtil.requireNonEmpty(this.name, "Name");
+            ValidationUtil.requireNonEmpty(this.description, "Description");
+            ValidationUtil.validateDates(this.startDate, this.endDate);
         }
     }
 

@@ -1,4 +1,4 @@
-package util;
+package util.email;
 
 public enum EmailConfig {
     SMTP_HOST("smtp.gmail.com"),

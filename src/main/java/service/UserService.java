@@ -10,7 +10,6 @@ import exception.InvalidUserRoleException;
 import exception.SavingDataException;
 import exception.UserNotFoundException;
 import repository.UserRepository;
-import util.JsonFileHandler;
 import util.LoggerUtil;
 
 import java.util.*;

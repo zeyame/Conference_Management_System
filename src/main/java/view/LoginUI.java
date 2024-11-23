@@ -3,7 +3,7 @@ package view;
 import controller.MainController;
 import exception.FormValidationException;
 import response.ResponseEntity;
-import util.UIComponentFactory;
+import util.ui.UIComponentFactory;
 
 import javax.swing.*;
 import java.awt.*;

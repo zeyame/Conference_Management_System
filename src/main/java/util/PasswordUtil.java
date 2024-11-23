@@ -5,10 +5,10 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Arrays;
 
-public class PasswordService {
+public class PasswordUtil {
 
     // private no-arg constructor to suppress instantiability
-    private PasswordService() {}
+    private PasswordUtil() {}
 
     public static String hashPassword(char[] plainPassword) {
         // checking input validity

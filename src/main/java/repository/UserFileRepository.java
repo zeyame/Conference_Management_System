@@ -2,15 +2,10 @@ package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.User;
-import exception.SavingDataException;
-import exception.UserRegistrationException;
-import util.JsonFileHandler;
+import util.file.JsonFileHandler;
 import util.LoggerUtil;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class UserFileRepository implements UserRepository {
     private static final String FILE_PATH = "src/main/resources/data/users.json";

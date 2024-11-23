@@ -1,4 +1,6 @@
-package util;
+package util.email;
+
+import util.LoggerUtil;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;

@@ -1,6 +1,6 @@
 package domain.model;
 
-import util.ValidationUtils;
+import util.ValidationUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -94,14 +94,14 @@ public class Session {
         }
 
         private void validateParameters() {
-            ValidationUtils.requireNonEmpty(this.id, "Session ID");
-            ValidationUtils.requireNonEmpty(this.conferenceId, "Conference ID");
-            ValidationUtils.requireNonEmpty(this.speakerId, "Speaker ID");
-            ValidationUtils.requireNonEmpty(this.name, "Session name");
-            ValidationUtils.requireNonEmpty(this.description, "Session description");
-            ValidationUtils.requireNonEmpty(this.room, "Session room");
-            ValidationUtils.validateDate(this.date, "Session date");
-            ValidationUtils.validateTimes(this.startTime, this.endTime);
+            ValidationUtil.requireNonEmpty(this.id, "Session ID");
+            ValidationUtil.requireNonEmpty(this.conferenceId, "Conference ID");
+            ValidationUtil.requireNonEmpty(this.speakerId, "Speaker ID");
+            ValidationUtil.requireNonEmpty(this.name, "Session name");
+            ValidationUtil.requireNonEmpty(this.description, "Session description");
+            ValidationUtil.requireNonEmpty(this.room, "Session room");
+            ValidationUtil.validateDate(this.date, "Session date");
+            ValidationUtil.validateTimes(this.startTime, this.endTime);
         }
     }
 

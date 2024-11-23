@@ -1,9 +1,8 @@
 package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import domain.model.Conference;
 import domain.model.Session;
-import util.JsonFileHandler;
+import util.file.JsonFileHandler;
 
 import java.util.HashMap;
 import java.util.Map;

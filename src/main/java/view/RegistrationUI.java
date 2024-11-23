@@ -5,7 +5,7 @@ import domain.model.UserRole;
 import dto.RegistrationDTO;
 import exception.FormValidationException;
 import response.ResponseEntity;
-import util.UIComponentFactory;
+import util.ui.UIComponentFactory;
 
 import javax.mail.internet.AddressException;
 import javax.swing.*;

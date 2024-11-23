@@ -1,4 +1,4 @@
-package util;
+package util.ui;
 
 import controller.OrganizerController;
 import dto.UserDTO;

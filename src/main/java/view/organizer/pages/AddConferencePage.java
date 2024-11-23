@@ -3,8 +3,8 @@ package view.organizer.pages;
 import dto.ConferenceDTO;
 import dto.UserDTO;
 import exception.FormValidationException;
-import util.FormBuilder;
-import util.UIComponentFactory;
+import util.ui.FormBuilder;
+import util.ui.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;

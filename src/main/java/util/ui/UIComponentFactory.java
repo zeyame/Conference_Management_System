@@ -1,4 +1,4 @@
-package util;
+package util.ui;
 
 import domain.model.UserRole;
 import javax.swing.*;
