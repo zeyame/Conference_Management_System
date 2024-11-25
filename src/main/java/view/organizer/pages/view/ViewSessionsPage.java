@@ -1,6 +1,7 @@
 package view.organizer.pages.view;
 
 import dto.SessionDTO;
+import util.ui.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
@@ -10,16 +11,25 @@ import java.util.List;
 
 public class ViewSessionsPage extends ViewListPage<SessionDTO> {
     private final String conferenceId;
+    private final JButton addSessionButton;
 
     public ViewSessionsPage(OrganizerObserver organizerObserver, String conferenceId, String conferenceName, List<SessionDTO> sessions) {
         super(organizerObserver, sessions, conferenceName);
         this.conferenceId = conferenceId;
 
         // initializing components
-        JButton addSessionButton = new JButton("Add Session");
+        addSessionButton = new JButton("Add Session");
 
         // set up listener
         addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId, this.conferenceName));
+    }
+
+    @Override
+    public JPanel createPageContent() {
+        JPanel mainContentPanel = super.createPageContent();
+        JPanel addSessionButtonPanel = UIComponentFactory.createButtonPanel(addSessionButton);
+        mainContentPanel.add(addSessionButtonPanel, BorderLayout.SOUTH);
+        return mainContentPanel;
     }
 
     @Override
