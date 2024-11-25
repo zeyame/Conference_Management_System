@@ -1,4 +1,4 @@
-package view.organizer.pages;
+package view.organizer.pages.add;
 
 import dto.SessionDTO;
 import dto.UserDTO;
@@ -6,7 +6,6 @@ import exception.FormValidationException;
 import util.ui.FormBuilder;
 import util.ui.UIComponentFactory;
 import util.validation.FormValidator;
-import util.validation.ValidationUtil;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
@@ -18,85 +17,45 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-public class AddSessionPage {
-    private final OrganizerObserver organizerObserver;
+public class AddSessionPage extends AddPage {
     private final String conferenceId;
     private final String conferenceName;
     private final List<UserDTO> speakers;
 
-    // Main panel
-    private final JPanel mainContentPanel;
-
-    // Form fields
-    private final JTextField nameField;
-    private final JTextField descriptionField;
+    // form fields
     private final JTextField roomField;
     private final JSpinner dateSpinner;
     private final JSpinner startTimeSpinner;
     private final JSpinner endTimeSpinner;
-    private final JButton submitButton;
     private JComboBox<UserDTO> speakerDropdown;
 
-    // Back button
-    private final JButton backButton;
-
     public AddSessionPage(OrganizerObserver organizerObserver, String conferenceId, String conferenceName, List<UserDTO> speakers) {
-        this.organizerObserver = organizerObserver;
+        super(organizerObserver);
         this.conferenceId = conferenceId;
         this.conferenceName = conferenceName;
         this.speakers = speakers;
 
-        // Initialize components
-        this.mainContentPanel = new JPanel(new BorderLayout());
-        this.nameField = new JTextField(17);
-        this.descriptionField = new JTextField(17);
+        // initialize components
         this.roomField = new JTextField(17);
         this.dateSpinner = UIComponentFactory.createDateSpinner();
         this.startTimeSpinner = UIComponentFactory.createTimeSpinner();
         this.endTimeSpinner = UIComponentFactory.createTimeSpinner();
-        this.submitButton = new JButton("Submit");
-        this.backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
         initializeJComboBox();
-
-        // Adjust back button size
-        Dimension smallerSize = new Dimension(25, 25);
-        backButton.setPreferredSize(smallerSize);
-        backButton.setMinimumSize(smallerSize);
-        backButton.setMaximumSize(smallerSize);
-        backButton.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 
         // Set up event listeners
         setUpListeners();
     }
 
-    public JPanel createPageContent() {
-        mainContentPanel.removeAll();
-
-        // create header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel("", backButton);
-
-        // create center panel for the form
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-
-        // add the session form
-        JPanel sessionForm = createSessionForm();
-        centerPanel.add(sessionForm);
-
-        // add space at the bottom
-        centerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        // add components to main panel
-        mainContentPanel.add(headerPanel, BorderLayout.NORTH);
-        mainContentPanel.add(centerPanel, BorderLayout.CENTER);
-
-        return mainContentPanel;
+    @Override
+    protected String getFormTitle() {
+        return "Add a New Session";
     }
 
-    private JPanel createSessionForm() {
+    @Override
+    protected JPanel createForm(JLabel formHeaderLabel) {
         FormBuilder formBuilder = new FormBuilder(10);
 
-        formBuilder.addFullWidthComponent(createHeaderLabel(), 0)
+        formBuilder.addFullWidthComponent(formHeaderLabel, 0)
                 .addLabel("Name", 1, 0)
                 .addComponent(nameField, 1, 1)
                 .addLabel("Description", 2, 0)
@@ -120,12 +79,6 @@ public class AddSessionPage {
         sessionFormPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 150, 0));
 
         return sessionFormPanel;
-    }
-
-    private JLabel createHeaderLabel() {
-        JLabel headerLabel = new JLabel("Add a New Session");
-        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 24));
-        return headerLabel;
     }
 
     private void initializeJComboBox() {

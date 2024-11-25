@@ -9,9 +9,15 @@ import view.UserUI;
 import view.organizer.pages.*;
 import util.LoggerUtil;
 import util.ui.UIComponentFactory;
-import view.organizer.pages.management.ManageConferencePage;
-import view.organizer.pages.management.ManagePage;
-import view.organizer.pages.management.ManageSessionPage;
+import view.organizer.pages.add.AddConferencePage;
+import view.organizer.pages.add.AddPage;
+import view.organizer.pages.add.AddSessionPage;
+import view.organizer.pages.manage.ManageConferencePage;
+import view.organizer.pages.manage.ManagePage;
+import view.organizer.pages.manage.ManageSessionPage;
+import view.organizer.pages.view.ViewAttendeesPage;
+import view.organizer.pages.view.ViewListPage;
+import view.organizer.pages.view.ViewSessionsPage;
 
 import java.util.*;
 import javax.swing.*;
@@ -109,14 +115,14 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     public void onManageSessionRequest(String sessionId) {
         LoggerUtil.getInstance().logInfo("Request to manage session with id '" + sessionId + "' received.");
 
-        ResponseEntity<SessionDTO> seessionResponse = organizerController.getSessionDetails(sessionId);
-        if (!seessionResponse.isSuccess()) {
-            showError(getCurrentPageId(), seessionResponse.getErrorMessage());
+        ResponseEntity<SessionDTO> sessionResponse = organizerController.getSessionDetails(sessionId);
+        if (!sessionResponse.isSuccess()) {
+            showError(getCurrentPageId(), sessionResponse.getErrorMessage());
             return;
         }
 
         // navigating from the "View Sessions Page" to the "Manage Session Page" of the requested session
-        SessionDTO sessionDTO = seessionResponse.getData();
+        SessionDTO sessionDTO = sessionResponse.getData();
         ManagePage manageSessionPage = new ManageSessionPage(this, sessionDTO);
         navigateTo(MANAGE_SESSION_PAGE, manageSessionPage.createPageContent());
     }
@@ -127,7 +133,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         LoggerUtil.getInstance().logInfo("Request to add a new conference received from organizer '" + organizerName + "'.");
 
         //  navigate to a new Add Conference Page
-        AddConferencePage addConferencePage = new AddConferencePage(this, userDTO);
+        AddPage addConferencePage = new AddConferencePage(this, userDTO);
         navigateTo(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent());
     }
 
@@ -144,7 +150,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         List<UserDTO> speakers = speakersResponse.getData();
         // navigate to a new Add Session Page
-        AddSessionPage addSessionPage = new AddSessionPage(this, conferenceId, conferenceName, speakers);
+        AddPage addSessionPage = new AddSessionPage(this, conferenceId, conferenceName, speakers);
         navigateTo(ADD_SESSION_PAGE, addSessionPage.createPageContent());
     }
 
@@ -211,7 +217,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<UserDTO> conferenceAttendees = conferenceAttendeesResponse.getData();
-        ViewAttendeesPage viewAttendeesPage = new ViewAttendeesPage(this, conferenceAttendees, conferenceName);
+        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, conferenceName, conferenceAttendees);
         navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent());
     }
 
@@ -227,7 +233,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<SessionDTO> sessions = sessionsResponse.getData();
-        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(this, conferenceId, conferenceName, sessions);
+        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conferenceName, sessions);
         navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent());
     }
 

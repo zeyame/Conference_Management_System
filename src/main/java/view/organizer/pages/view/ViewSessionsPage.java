@@ -1,7 +1,6 @@
-package view.organizer.pages;
+package view.organizer.pages.view;
 
 import dto.SessionDTO;
-import util.ui.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
@@ -9,56 +8,34 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class ViewSessionsPage {
-    private final OrganizerObserver organizerObserver;
+public class ViewSessionsPage extends ViewListPage<SessionDTO> {
     private final String conferenceId;
-    private final String conferenceName;
-    private final List<SessionDTO> sessions;
-
-    // main panel
-    private final JPanel mainContentPanel;
-
-    // buttons
-    private final JButton addSessionButton;
-    private final JButton backButton;
 
     public ViewSessionsPage(OrganizerObserver organizerObserver, String conferenceId, String conferenceName, List<SessionDTO> sessions) {
-        this.organizerObserver = organizerObserver;
+        super(organizerObserver, sessions, conferenceName);
         this.conferenceId = conferenceId;
-        this.conferenceName = conferenceName;
-        this.sessions = sessions;
 
         // initializing components
-        this.mainContentPanel = new JPanel(new BorderLayout());
-        this.addSessionButton = new JButton("Add Session");
-        this.backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
+        JButton addSessionButton = new JButton("Add Session");
 
         // set up listener
-        this.addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId, this.conferenceName));
+        addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId, this.conferenceName));
     }
 
-    public JPanel createPageContent() {
-        // creating main components
-        JPanel headerPanel = UIComponentFactory
-                .createHeaderPanel(String.format("Sessions registered for '%s'", this.conferenceName), backButton);
-        JScrollPane scrollPane = createSessionsScrollPane();
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        JPanel addSessionButtonPanel = UIComponentFactory.createButtonPanel(addSessionButton);
-
-        mainContentPanel.add(headerPanel, BorderLayout.NORTH);
-        mainContentPanel.add(scrollPane, BorderLayout.CENTER);
-        mainContentPanel.add(addSessionButtonPanel, BorderLayout.SOUTH);
-
-        return mainContentPanel;
+    @Override
+    protected String getPageTitle() {
+        return String.format("Sessions registered for '%s'", this.conferenceName);
     }
 
-    private JScrollPane createSessionsScrollPane() {
+
+    @Override
+    protected JScrollPane createItemsScrollPane() {
         JPanel sessionsPanel = new JPanel();
         sessionsPanel.setLayout(new BoxLayout(sessionsPanel, BoxLayout.Y_AXIS));
         sessionsPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
 
-        for (SessionDTO session : sessions) {
-            sessionsPanel.add(createSessionPanel(session));
+        for (SessionDTO session : items) {
+            sessionsPanel.add(createItemPanel(session));
             sessionsPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between sessions
         }
 
@@ -68,7 +45,8 @@ public class ViewSessionsPage {
         return scrollPane;
     }
 
-    private JPanel createSessionPanel(SessionDTO session) {
+    @Override
+    protected JPanel createItemPanel(SessionDTO session) {
         JPanel sessionPanel = new JPanel();
         sessionPanel.setLayout(new BoxLayout(sessionPanel, BoxLayout.Y_AXIS));
 

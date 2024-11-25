@@ -1,4 +1,4 @@
-package view.organizer.pages.management;
+package view.organizer.pages.manage;
 
 import dto.SessionDTO;
 import util.ui.UIComponentFactory;

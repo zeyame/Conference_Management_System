@@ -1,4 +1,4 @@
-package view.organizer.pages.management;
+package view.organizer.pages.manage;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;

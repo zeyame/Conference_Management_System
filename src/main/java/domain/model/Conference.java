@@ -3,6 +3,7 @@ package domain.model;
 import util.validation.ConferenceValidator;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
