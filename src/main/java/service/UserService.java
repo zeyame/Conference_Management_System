@@ -120,6 +120,17 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public String getNameById(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("User ID cannot be null or empty.");
+        }
+
+        return userRepository
+                .findById(id)
+                .map(User::getName)
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id '%s' does not exist.", id)));
+    }
+
     public Map<String, String> findNamesByIds(Set<String> ids) {
         if (ids == null) {
             return Collections.emptyMap();

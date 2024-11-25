@@ -53,6 +53,18 @@ public class SessionService {
         return session.getId();
     }
 
+    public SessionDTO getById(String id) {
+        Optional<Session> sessionOptional = sessionRepository.findById(id);
+        if (sessionOptional.isEmpty()) {
+            throw new SessionNotFoundException(String.format("Session with id '%s' does not exist.", id));
+        }
+
+        Session session = sessionOptional.get();
+        String speakerName = userService.getNameById(session.getSpeakerId());
+
+        return mapToDTO(session, speakerName);
+    }
+
     public List<SessionDTO> findByIds(Set<String> ids) {
         if (ids == null) {
             LoggerUtil.getInstance().logWarning("Session ids set provided to findByIds in ServiceService is null.");

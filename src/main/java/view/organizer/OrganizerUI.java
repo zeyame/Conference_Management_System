@@ -26,6 +26,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     // constants for subpage names
     private final String HOME_PAGE = "Home Page";
     private final String MANAGE_CONFERENCE_PAGE = "Manage Conference Page";
+    private final String MANAGE_SESSION_PAGE = "Manage Session Page";
     private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
     private final String ADD_SESSION_PAGE = "Add Session Page";
     private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
@@ -104,6 +105,17 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     @Override
     public void onManageSessionRequest(String sessionId) {
         LoggerUtil.getInstance().logInfo("Request to manage session with id '" + sessionId + "' received.");
+
+        ResponseEntity<SessionDTO> seessionResponse = organizerController.getSessionDetails(sessionId);
+        if (!seessionResponse.isSuccess()) {
+            showError(getCurrentPageId(), seessionResponse.getErrorMessage());
+            return;
+        }
+
+        // navigating from the "View Sessions Page" to the "Manage Session Page" of the requested session
+        SessionDTO sessionDTO = seessionResponse.getData();
+        ManageSessionPage manageSessionPage = new ManageSessionPage(this, sessionDTO);
+        navigateTo(MANAGE_SESSION_PAGE, manageSessionPage.createPageContent());
     }
 
 

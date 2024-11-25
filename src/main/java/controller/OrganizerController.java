@@ -26,6 +26,49 @@ public class OrganizerController {
         this.sessionService = sessionService;
     }
 
+    public ResponseEntity<Void> createConference(ConferenceDTO conferenceDTO) {
+        String conferenceId = null;
+        try {
+            conferenceId = conferenceService.create(conferenceDTO);
+            userService.addNewManagedConferenceForOrganizer(conferenceDTO.getOrganizerId(), conferenceId);
+
+            return ResponseEntity.success();
+        } catch (SavingDataException e) {
+            // rolling back conference creation if adding the conference to the organizer's managed conferences failed
+            if (conferenceId != null) {
+                conferenceService.deleteById(conferenceId);
+            }
+
+            LoggerUtil.getInstance().logError("Error occurred during conference creation or adding conference to organizer's managed conferences: " + e.getMessage());
+            return ResponseEntity.error("An error occurred while creating the conference. Please try again later.");
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError("An unexpected error occurred during conference creation: " + e.getMessage());
+            return ResponseEntity.error("An unexpected error occurred. Please try again later.");
+        }
+    }
+
+    public ResponseEntity<Void> createSession(SessionDTO sessionDTO) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
+
+            // create the session
+            String sessionId = sessionService.create(sessionDTO, conferenceDTO);
+
+            // assign a reference to the session to speaker
+            assignSessionToSpeaker(sessionId, sessionDTO);
+
+            // add a reference to the session to conference
+            conferenceService.registerSession(conferenceDTO.getId(), sessionId);
+
+            return ResponseEntity.success();
+        } catch (ConferenceNotFoundException e) {
+            LoggerUtil.getInstance().logError("Session creation failed due to invalid conference id.");
+            return ResponseEntity.error(String.format("Conference with id '%s' does not exist.", sessionDTO.getConferenceId()));
+        } catch (SessionCreationException | SavingDataException e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
     public ResponseEntity<List<UserDTO>> getRegisteredSpeakers() {
         return ResponseEntity.success(userService.findAllSpeakers());
     }
@@ -75,6 +118,16 @@ public class OrganizerController {
         }
     }
 
+    public ResponseEntity<SessionDTO> getSessionDetails(String sessionId) {
+        try {
+            SessionDTO sessionDTO = sessionService.getById(sessionId);
+            return ResponseEntity.success(sessionDTO);
+        } catch (SessionNotFoundException e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to retrieve session details as session with id '%s' does not exist.", sessionId));
+            return ResponseEntity.error(String.format("Session with id '%s' does not exist.", sessionId));
+        }
+    }
+
     public ResponseEntity<Void> validateConferenceData(ConferenceDTO conferenceDTO) {
         // implement validation logic
         String name = conferenceDTO.getName();
@@ -96,48 +149,6 @@ public class OrganizerController {
         return ResponseEntity.success();
     }
 
-    public ResponseEntity<Void> createConference(ConferenceDTO conferenceDTO) {
-        String conferenceId = null;
-        try {
-            conferenceId = conferenceService.create(conferenceDTO);
-            userService.addNewManagedConferenceForOrganizer(conferenceDTO.getOrganizerId(), conferenceId);
-
-            return ResponseEntity.success();
-        } catch (SavingDataException e) {
-            // rolling back conference creation if adding the conference to the organizer's managed conferences failed
-            if (conferenceId != null) {
-                conferenceService.deleteById(conferenceId);
-            }
-
-            LoggerUtil.getInstance().logError("Error occurred during conference creation or adding conference to organizer's managed conferences: " + e.getMessage());
-            return ResponseEntity.error("An error occurred while creating the conference. Please try again later.");
-        } catch (Exception e) {
-            LoggerUtil.getInstance().logError("An unexpected error occurred during conference creation: " + e.getMessage());
-            return ResponseEntity.error("An unexpected error occurred. Please try again later.");
-        }
-    }
-
-    public ResponseEntity<Void> createSession(SessionDTO sessionDTO) {
-        try {
-            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
-
-            // create the session
-            String sessionId = sessionService.create(sessionDTO, conferenceDTO);
-
-            // assign a reference to the session to speaker
-            assignSessionToSpeaker(sessionId, sessionDTO);
-
-            // add a reference to the session to conference
-            conferenceService.registerSession(conferenceDTO.getId(), sessionId);
-
-            return ResponseEntity.success();
-        } catch (ConferenceNotFoundException e) {
-            LoggerUtil.getInstance().logError("Session creation failed due to invalid conference id.");
-            return ResponseEntity.error(String.format("Conference with id '%s' does not exist.", sessionDTO.getConferenceId()));
-        } catch (SessionCreationException | SavingDataException e) {
-            return ResponseEntity.error(e.getMessage());
-        }
-    }
 
     private void assignSessionToSpeaker(String sessionId, SessionDTO sessionDTO) {
         try {

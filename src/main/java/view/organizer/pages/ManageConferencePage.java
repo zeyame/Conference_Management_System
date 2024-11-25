@@ -33,7 +33,7 @@ public class ManageConferencePage {
         this.mainContentPanel = new JPanel(new BorderLayout());
 
         // Create back button
-        backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
+        backButton = UIComponentFactory.createBackButton(e -> this.organizerObserver.onNavigateBackRequest());
 
         // Adjust back button size
         Dimension smallerSize = new Dimension(25, 25);

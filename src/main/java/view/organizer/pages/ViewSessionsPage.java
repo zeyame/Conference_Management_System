@@ -34,13 +34,13 @@ public class ViewSessionsPage {
         this.backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
 
         // set up listener
-        this.addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(conferenceId, conferenceName));
+        this.addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId, this.conferenceName));
     }
 
     public JPanel createPageContent() {
         // creating main components
         JPanel headerPanel = UIComponentFactory
-                .createHeaderPanel("Sessions registered for '" + conferenceName + "'", backButton);
+                .createHeaderPanel(String.format("Sessions registered for '%s'", this.conferenceName), backButton);
         JScrollPane scrollPane = createSessionsScrollPane();
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         JPanel addSessionButtonPanel = UIComponentFactory.createButtonPanel(addSessionButton);
