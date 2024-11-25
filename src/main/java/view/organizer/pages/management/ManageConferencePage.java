@@ -1,4 +1,4 @@
-package view.organizer.pages;
+package view.organizer.pages.management;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;
@@ -8,65 +8,30 @@ import view.organizer.OrganizerObserver;
 import javax.swing.*;
 import java.awt.*;
 
-public class ManageConferencePage {
-    // dependencies
+public class ManageConferencePage extends ManagePage {
     private final ConferenceDTO conferenceDTO;
-    private final OrganizerObserver organizerObserver;
     private final UserDTO userDTO;
 
-    // main panel
-    private final JPanel mainContentPanel;
-
-    // buttons
-    private final JButton backButton;
-    private final JButton editConferenceButton = UIComponentFactory.createStyledButton("Edit Conference");
-    private final JButton deleteConferenceButton = UIComponentFactory.createStyledButton("Delete Conference");
     private final JButton viewAttendeesButton = UIComponentFactory.createStyledButton("View Attendees");
     private final JButton viewSessionsButton = UIComponentFactory.createStyledButton("View Sessions");
     private final JButton viewSpeakersButton = UIComponentFactory.createStyledButton("View Speakers");
     private final JButton viewFeedbackButton = UIComponentFactory.createStyledButton("View Feedback");
 
-    public ManageConferencePage(ConferenceDTO conferenceDTO, UserDTO userDTO, OrganizerObserver organizerObserver) {
+    public ManageConferencePage(OrganizerObserver organizerObserver, ConferenceDTO conferenceDTO, UserDTO userDTO) {
+        super(organizerObserver, "Edit Conference", "Delete Conference");
         this.conferenceDTO = conferenceDTO;
         this.userDTO = userDTO;
-        this.organizerObserver = organizerObserver;
-        this.mainContentPanel = new JPanel(new BorderLayout());
-
-        // Create back button
-        backButton = UIComponentFactory.createBackButton(e -> this.organizerObserver.onNavigateBackRequest());
-
-        // Adjust back button size
-        Dimension smallerSize = new Dimension(25, 25);
-        backButton.setPreferredSize(smallerSize);
-        backButton.setMinimumSize(smallerSize);
-        backButton.setMaximumSize(smallerSize);
-        backButton.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 
         setUpListeners();
     }
 
-    public JPanel createPageContent() {
-        // refresh page
-        mainContentPanel.removeAll();
-
-        // add main components to the page
-        mainContentPanel.add(createHeaderPanel(), BorderLayout.NORTH);
-        mainContentPanel.add(createDetailsPanel(), BorderLayout.CENTER);
-        mainContentPanel.add(createFooterPanel(), BorderLayout.SOUTH);
-        return mainContentPanel;
+    @Override
+    protected String getHeaderTitle() {
+        return conferenceDTO.getName();
     }
 
-    private JPanel createHeaderPanel() {
-        JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(conferenceDTO.getName(), backButton);
-        baseHeaderPanel.add(Box.createRigidArea(new Dimension(350, 0)));
-        baseHeaderPanel.add(editConferenceButton);
-        baseHeaderPanel.add(Box.createRigidArea(new Dimension(15, 0)));
-        baseHeaderPanel.add(deleteConferenceButton);
-
-        return baseHeaderPanel;
-    }
-
-    private JPanel createDetailsPanel() {
+    @Override
+    protected JPanel createDetailsPanel() {
         JPanel detailsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
 
@@ -105,7 +70,9 @@ public class ManageConferencePage {
         return detailsPanel;
     }
 
-    private JPanel createFooterPanel() {
+
+    @Override
+    protected JPanel createFooterPanel() {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
         footerPanel.add(viewAttendeesButton);
         footerPanel.add(viewSessionsButton);
@@ -113,12 +80,14 @@ public class ManageConferencePage {
         footerPanel.add(viewFeedbackButton);
 
         footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
+
         return footerPanel;
     }
 
-    private void setUpListeners() {
-        editConferenceButton.addActionListener(e -> organizerObserver.onEditConferenceRequest());
-        deleteConferenceButton.addActionListener(e -> organizerObserver.onDeleteConferenceRequest());
+    @Override
+    protected void setUpListeners() {
+        editButton.addActionListener(e -> organizerObserver.onEditConferenceRequest());
+        deleteButton.addActionListener(e -> organizerObserver.onDeleteConferenceRequest());
         viewAttendeesButton.addActionListener(e -> organizerObserver.onViewAttendeesRequest(conferenceDTO.getId(), conferenceDTO.getName()));
         viewSessionsButton.addActionListener(e -> organizerObserver.onViewSessionsRequest(conferenceDTO.getId(), conferenceDTO.getName()));
         viewSpeakersButton.addActionListener(e -> organizerObserver.onViewSpeakersRequest());

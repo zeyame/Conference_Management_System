@@ -1,4 +1,4 @@
-package view.organizer.pages;
+package view.organizer.pages.management;
 
 import dto.SessionDTO;
 import util.ui.UIComponentFactory;
@@ -7,29 +7,18 @@ import view.organizer.OrganizerObserver;
 import javax.swing.*;
 import java.awt.*;
 
-public class ManageSessionPage {
+public class ManageSessionPage extends ManagePage {
     // dependencies
     private final SessionDTO sessionDTO;
-    private final OrganizerObserver organizerObserver;
-
-    // main panel
-    private final JPanel mainContentPanel;
 
     // buttons
-    private final JButton backButton;
-    private final JButton editSessionButton = UIComponentFactory.createStyledButton("Edit Session");
-    private final JButton deleteSessionButton = UIComponentFactory.createStyledButton("Delete Session");
     private final JButton viewAttendeesButton = UIComponentFactory.createStyledButton("View Registered Attendees");
     private final JButton viewAttendanceButton = UIComponentFactory.createStyledButton("View Attendance");
     private final JButton viewFeedbackButton = UIComponentFactory.createStyledButton("View Feedback");
 
     public ManageSessionPage(OrganizerObserver organizerObserver, SessionDTO sessionDTO) {
+        super(organizerObserver, "Edit Session", "Delete Session");
         this.sessionDTO = sessionDTO;
-        this.organizerObserver = organizerObserver;
-        this.mainContentPanel = new JPanel(new BorderLayout());
-
-        // Create back button
-        backButton = UIComponentFactory.createBackButton(e -> this.organizerObserver.onNavigateBackRequest());
 
         // Adjust view registered attendees button size
         this.viewAttendeesButton.setPreferredSize(new Dimension(200, 40));
@@ -37,28 +26,13 @@ public class ManageSessionPage {
         setUpListeners();
     }
 
-    public JPanel createPageContent() {
-        // refresh page
-        mainContentPanel.removeAll();
-
-        // add main components to the page
-        mainContentPanel.add(createHeaderPanel(), BorderLayout.NORTH);
-        mainContentPanel.add(createDetailsPanel(), BorderLayout.CENTER);
-        mainContentPanel.add(createFooterPanel(), BorderLayout.SOUTH);
-        return mainContentPanel;
+    @Override
+    protected String getHeaderTitle() {
+        return sessionDTO.getName();
     }
 
-    private JPanel createHeaderPanel() {
-        JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(sessionDTO.getName(), backButton);
-        baseHeaderPanel.add(Box.createRigidArea(new Dimension(450, 0)));
-        baseHeaderPanel.add(editSessionButton);
-        baseHeaderPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        baseHeaderPanel.add(deleteSessionButton);
-
-        return baseHeaderPanel;
-    }
-
-    private JPanel createDetailsPanel() {
+    @Override
+    protected JPanel createDetailsPanel() {
         JPanel detailsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
 
@@ -105,7 +79,8 @@ public class ManageSessionPage {
         return detailsPanel;
     }
 
-    private JPanel createFooterPanel() {
+    @Override
+    protected JPanel createFooterPanel() {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
         footerPanel.add(viewAttendeesButton);
         footerPanel.add(viewAttendanceButton);
@@ -115,7 +90,8 @@ public class ManageSessionPage {
         return footerPanel;
     }
 
-    private void setUpListeners() {
+    @Override
+    protected void setUpListeners() {
 //        editSessionButton.addActionListener(e -> organizerObserver.onEditSessionRequest());
 //        deleteSessionButton.addActionListener(e -> organizerObserver.onDeleteSessionRequest());
 //        viewAttendeesButton.addActionListener(e -> organizerObserver.onViewSessionAttendeesRequest(sessionDTO.getId(), sessionDTO.getName()));

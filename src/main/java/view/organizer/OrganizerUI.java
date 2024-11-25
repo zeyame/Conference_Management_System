@@ -9,6 +9,9 @@ import view.UserUI;
 import view.organizer.pages.*;
 import util.LoggerUtil;
 import util.ui.UIComponentFactory;
+import view.organizer.pages.management.ManageConferencePage;
+import view.organizer.pages.management.ManagePage;
+import view.organizer.pages.management.ManageSessionPage;
 
 import java.util.*;
 import javax.swing.*;
@@ -98,7 +101,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         // navigating from the "Home Page" to the "Manage Conference Page" of the requested conference
         ConferenceDTO conferenceDTO = managedConferenceResponse.getData();
-        ManageConferencePage manageConferencePage = new ManageConferencePage(conferenceDTO, userDTO, this);
+        ManagePage manageConferencePage = new ManageConferencePage(this, conferenceDTO, userDTO);
         navigateTo(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent());
     }
 
@@ -114,7 +117,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         // navigating from the "View Sessions Page" to the "Manage Session Page" of the requested session
         SessionDTO sessionDTO = seessionResponse.getData();
-        ManageSessionPage manageSessionPage = new ManageSessionPage(this, sessionDTO);
+        ManagePage manageSessionPage = new ManageSessionPage(this, sessionDTO);
         navigateTo(MANAGE_SESSION_PAGE, manageSessionPage.createPageContent());
     }
 
