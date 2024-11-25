@@ -5,11 +5,13 @@ import domain.model.Conference;
 import dto.ConferenceDTO;
 import exception.ConferenceNotFoundException;
 import exception.SavingDataException;
+import exception.SessionCreationException;
 import repository.ConferenceRepository;
 import util.LoggerUtil;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,11 +37,23 @@ public class ConferenceService {
         return conference.getId();
     }
 
-    public void deleteById(String conferenceId) {
-        conferenceRepository.deleteById(conferenceId);
+    public void registerSession(String id, String sessionId) {
+        Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
+        if (conferenceOptional.isEmpty()) {
+            throw new ConferenceNotFoundException(String.format("Conference with id '%s' does not exist.", id));
+        }
+
+        Conference conference = conferenceOptional.get();
+        conference.addSession(sessionId);
+
+        boolean isConferenceUpdated = conferenceRepository.save(conference);
+        if (!isConferenceUpdated) {
+            conference.removeSession(sessionId);
+            throw new SavingDataException(String.format("Unexpected error occurred when registering session to conference '%s'.",  conference.getName()));
+        }
     }
 
-    public ConferenceDTO findById(String id) {
+    public ConferenceDTO getById(String id) {
         return conferenceRepository
                 .findById(id)
                 .map(this::mapToDTO)
@@ -67,9 +81,15 @@ public class ConferenceService {
                 );
     }
 
+    public void deleteById(String conferenceId) {
+        conferenceRepository.deleteById(conferenceId);
+    }
+
     public ConferenceDTO mapToDTO(Conference conference) {
         String organizerId = conference.getOrganizerId(), name = conference.getName(), description = conference.getDescription();
         LocalDate startDate = conference.getStartDate(), endDate = conference.getEndDate();
+
+        System.out.println(startDate.toString() + endDate.toString());
 
         return ConferenceDTO.builder(organizerId, name, description, startDate, endDate)
                 .assignId(conference.getId())

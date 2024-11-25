@@ -1,6 +1,6 @@
 package dto;
 
-import util.ValidationUtil;
+import util.validation.ConferenceValidator;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -83,15 +83,8 @@ public class ConferenceDTO {
         }
 
         public ConferenceDTO build() {
-            validateParameters();
+            ConferenceValidator.validateConferenceParameters(this.id, this.organizerId, this.name, this.description, this.startDate, this.endDate, true);
             return new ConferenceDTO(this);
-        }
-
-        private void validateParameters() {
-            ValidationUtil.requireNonEmpty(this.organizerId, "Organizer ID");
-            ValidationUtil.requireNonEmpty(this.name, "Name");
-            ValidationUtil.requireNonEmpty(this.description, "Description");
-            ValidationUtil.validateDates(this.startDate, this.endDate);
         }
     }
 

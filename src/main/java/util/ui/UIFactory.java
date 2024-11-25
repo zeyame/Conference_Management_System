@@ -19,7 +19,7 @@ public class UIFactory {
     private UIFactory() {}
     public static UserUI createUserUI(UserDTO userDTO) {
         return switch (userDTO.getRole()) {
-            case ORGANIZER -> new OrganizerUI(new OrganizerController(new UserService(new UserFileRepository()), new ConferenceService(new ConferenceFileRepository()), new SessionService(new UserService(new UserFileRepository()), new SessionFileRepository())), userDTO);
+            case ORGANIZER -> new OrganizerUI(new OrganizerController(new UserService(new UserFileRepository()), new ConferenceService(new ConferenceFileRepository()), new SessionService(new UserService(new UserFileRepository()), new ConferenceService(new ConferenceFileRepository()), new SessionFileRepository())), userDTO);
             case ATTENDEE -> new AttendeeUI(userDTO);
             case SPEAKER -> new SpeakerUI(userDTO);
         };

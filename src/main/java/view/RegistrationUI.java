@@ -6,6 +6,7 @@ import dto.RegistrationDTO;
 import exception.FormValidationException;
 import response.ResponseEntity;
 import util.ui.UIComponentFactory;
+import util.validation.FormValidator;
 
 import javax.mail.internet.AddressException;
 import javax.swing.*;
@@ -176,7 +177,7 @@ public class RegistrationUI extends JFrame {
 
         // validate user input
         try {
-            validateRegistrationForm(email, name, password, confirmPassword, userRole);
+            FormValidator.validateRegistrationForm(email, name, password, confirmPassword, userRole);
         } catch (FormValidationException exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -200,37 +201,6 @@ public class RegistrationUI extends JFrame {
         clearFormData();
         JOptionPane.showMessageDialog(this, "Registration successful. You can now login.", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
-
-    private void validateRegistrationForm(String email, String name, char[] password, char[] confirmPassword, UserRole userRole) {
-        // validating selected role
-        if (userRole == null) {
-            throw new FormValidationException("A role must be selected");
-        }
-
-        // validating that all remaining fields are not empty
-        if (email.isEmpty() || name.isEmpty() || password.length == 0 || confirmPassword.length == 0) {
-            throw new FormValidationException("ALl fields must be filled out.");
-        }
-
-        // validating email format
-        try {
-            InternetAddress emailAddr = new InternetAddress(email);
-            emailAddr.validate();
-        } catch (AddressException e) {
-            throw new FormValidationException("Invalid email format.");
-        }
-
-        // validating password length
-        if (password.length < 6) {
-            throw new FormValidationException("Password must be atleast 6 characters.");
-        }
-
-        // validating passwords matching
-        if (!Arrays.equals(password, confirmPassword)) {
-            throw new FormValidationException("Entered passwords must match");
-        }
-    }
-
     private void clearFormData() {
         roleSelectionPanel.clearSelection();
         nameField.setText("");

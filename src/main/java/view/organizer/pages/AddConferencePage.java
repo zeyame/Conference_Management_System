@@ -5,6 +5,7 @@ import dto.UserDTO;
 import exception.FormValidationException;
 import util.ui.FormBuilder;
 import util.ui.UIComponentFactory;
+import util.validation.FormValidator;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
@@ -131,7 +132,7 @@ public class AddConferencePage {
         LocalDate endDate = extractLocalDate((Date) endDateTimeSpinner.getValue());
 
         try {
-            validateConferenceForm(conferenceName, conferenceDescription, startDate, endDate);
+            FormValidator.validateConferenceForm(conferenceName, conferenceDescription, startDate, endDate);
         } catch (FormValidationException ex) {
             JOptionPane.showMessageDialog(mainContentPanel, ex.getMessage(), "Form Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -148,21 +149,6 @@ public class AddConferencePage {
         // publish event to organizer ui that user wants to submit the conference form
         organizerObserver.onSubmitConferenceFormRequest(conferenceDTO);
     }
-
-    private void validateConferenceForm(String conferenceName, String conferenceDescription, LocalDate startDate, LocalDate endDate) {
-        if (conferenceName.isEmpty() || conferenceDescription.isEmpty() || startDate == null || endDate == null) {
-            throw new FormValidationException("All fields must be filled out.");
-        }
-
-        if (startDate.isBefore(LocalDate.now())) {
-            throw new FormValidationException("Start date cannot be in the past.");
-        }
-
-        if (startDate.equals(endDate) || startDate.isAfter(endDate)) {
-            throw new FormValidationException("Start date and time must be before end date and time.");
-        }
-    }
-
     private LocalDate extractLocalDate(Date date) {
         return date.toInstant()
                 .atZone(ZoneId.systemDefault())

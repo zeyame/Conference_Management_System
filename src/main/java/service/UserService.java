@@ -2,6 +2,7 @@ package service;
 
 import domain.factory.UserFactory;
 import domain.model.Organizer;
+import domain.model.Speaker;
 import domain.model.User;
 import domain.model.UserRole;
 import dto.RegistrationDTO;
@@ -12,6 +13,9 @@ import exception.UserNotFoundException;
 import repository.UserRepository;
 import util.LoggerUtil;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,28 +25,94 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void addNewManagedConferenceForOrganizer(String organizerId, String conferenceId) {
-        Optional<User> userOptional = userRepository.findById(organizerId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (user.getRole() != UserRole.ORGANIZER) {
-                LoggerUtil.getInstance().logWarning("Id provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
-                throw new InvalidUserRoleException("User with id '" + organizerId + "' does not have organizer permissions");
-            }
-            Organizer organizer = (Organizer) user;
-            organizer.addConference(conferenceId);
 
-            boolean isUserUpdated = userRepository.save(organizer);
-            if (!isUserUpdated) {
-                throw new SavingDataException("Failed to save conference to your managed conferences. Please try again later.");
-            }
-        } else {
+    // CREATE METHODS
+    public void registerUser(RegistrationDTO validatedDTO) {
+        if (validatedDTO == null) {
+            LoggerUtil.getInstance().logError("Registration DTO cannot be null.");
+            return;
+        }
+
+        // creating user instance
+        User user = UserFactory.createUser(validatedDTO);
+
+        // attempting to save validated user to file storage with retries if necessary
+        boolean isSavedToFile = userRepository.save(user);
+        if (!isSavedToFile) {
+            LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
+            throw new SavingDataException("An unexpected error occurred while saving data for user with email '" + validatedDTO.getEmail() + "'.");
+        }
+        LoggerUtil.getInstance().logInfo("User with email '" + validatedDTO.getEmail() + "' has successfully been registered.");
+    }
+
+    public void addNewManagedConferenceForOrganizer(String organizerId, String conferenceId) {
+        if (organizerId == null || conferenceId == null) {
+            LoggerUtil.getInstance().logError("Organizer id and conference id parameters cannot be null.");
+            return;
+        }
+
+        // retrieving user
+        Optional<User> userOptional = userRepository.findById(organizerId);
+        if (userOptional.isEmpty()) {
             LoggerUtil.getInstance().logWarning("Id provided '" + organizerId + "' does not belong to any registered user.");
             throw new UserNotFoundException("User with id '" + organizerId + "' does not exist.");
         }
+
+        // validating user is an organizer
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.ORGANIZER) {
+            LoggerUtil.getInstance().logWarning("Id provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
+            throw new InvalidUserRoleException("User with id '" + organizerId + "' does not have organizer permissions");
+        }
+
+        // updating organizer's data
+        Organizer organizer = (Organizer) user;
+        organizer.addConference(conferenceId);
+
+        boolean isUserUpdated = userRepository.save(organizer);
+        if (!isUserUpdated) {
+            throw new SavingDataException("Failed to save conference to your managed conferences. Please try again later.");
+        }
     }
 
+    public void assignNewSessionForSpeaker(String speakerId, String sessionId, LocalDateTime startTime, LocalDateTime endTime) {
+        if (speakerId == null || sessionId == null) {
+            LoggerUtil.getInstance().logError("Speaker id and session id parameters cannot be null.");
+            return;
+        }
+
+        // retrieving user
+        Optional<User> userOptional = userRepository.findById(speakerId);
+        if (userOptional.isEmpty()) {
+            LoggerUtil.getInstance().logError(String.format("Id provided '%s' does not belong to any registered user.", speakerId));
+            throw new UserNotFoundException(String.format("User with id '%s' does not exist.", speakerId));
+        }
+
+        // validating user is a speaker
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.SPEAKER) {
+            LoggerUtil.getInstance().logError(String.format("Id provided belongs to a user with the role of '%s'.  Required role: Speaker.", user.getRole().getDisplayName()));
+            throw new InvalidUserRoleException(String.format("User with id '%s' does not have speaker permissions.", speakerId));
+        }
+
+        // update speaker's data by assigning new session
+        Speaker speaker = (Speaker) user;
+        speaker.assignSession(sessionId, startTime, endTime);
+
+        // saving updated speaker user
+        boolean isUserUpdated = userRepository.save(speaker);
+        if (!isUserUpdated) {
+            throw new SavingDataException("Failed to save session to speaker's assigned session. Please try again later.");
+        }
+    }
+
+
+    // READ METHODS
     public List<UserDTO> findByIds(Set<String> ids) {
+        if (ids == null) {
+            return Collections.emptyList();
+        }
+
         return ids.stream()
                 .map(userRepository::findById)
                 .flatMap(Optional::stream)
@@ -51,8 +121,11 @@ public class UserService {
     }
 
     public Map<String, String> findNamesByIds(Set<String> ids) {
-        Map<String, String> namesByIds = new HashMap<>();
+        if (ids == null) {
+            return Collections.emptyMap();
+        }
 
+        Map<String, String> namesByIds = new HashMap<>();
         for (String id: ids) {
             Optional<User> userOptional = userRepository.findById(id);
             userOptional.ifPresent(user -> namesByIds.put(id, user.getName()));
@@ -84,6 +157,10 @@ public class UserService {
     }
 
     public Set<String> findManagedConferencesForOrganizer(String email) {
+        if (email == null) {
+            return Collections.emptySet();
+        }
+
         Optional<User> organizerOptional = userRepository.findByEmail(email);
         if (organizerOptional.isPresent()) {
             User user = organizerOptional.get();
@@ -100,23 +177,31 @@ public class UserService {
     }
 
     public boolean isEmailRegistered(String email) {
+        if (email == null) {
+            return false;
+        }
+
         return userRepository
                 .findByEmail(email)
                 .isPresent();
     }
 
-
-    public void registerUser(RegistrationDTO validatedDTO) {
-        // creating user instance
-        User user = UserFactory.createUser(validatedDTO);
-
-        // attempting to save validated user to file storage with retries if necessary
-        boolean isSavedToFile = userRepository.save(user);
-        if (!isSavedToFile) {
-            LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
-            throw new SavingDataException("An unexpected error occurred while saving data for user with email '" + validatedDTO.getEmail() + "'.");
+    public boolean isSpeakerAvailable(String id, LocalDateTime sessionStart, LocalDateTime sessionEnd) {
+        if (id == null) {
+            return false;
         }
-        LoggerUtil.getInstance().logInfo("User with email '" + validatedDTO.getEmail() + "' has successfully been registered.");
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            return false;
+        }
+
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.SPEAKER) {
+            return false;
+        }
+
+        Speaker speaker = (Speaker) user;
+        return speaker.isAvailable(sessionStart, sessionEnd);
     }
 
     private UserDTO mapToDTO(User user) {

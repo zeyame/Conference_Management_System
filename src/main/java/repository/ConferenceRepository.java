@@ -7,10 +7,10 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ConferenceRepository {
-    public boolean save(Conference conference);
-    public Optional<Conference> findById(String id);
-    public Optional<Conference> findByName(String name);
-    public List<Conference> findAll();
-    public List<Conference> findByIds(Set<String> ids);
-    public void deleteById(String id);
+    boolean save(Conference conference);
+    Optional<Conference> findById(String id);
+    Optional<Conference> findByName(String name);
+    List<Conference> findAll();
+    List<Conference> findByIds(Set<String> ids);
+    void deleteById(String id);
 }

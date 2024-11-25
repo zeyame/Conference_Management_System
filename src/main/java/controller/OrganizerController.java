@@ -1,5 +1,6 @@
 package controller;
 
+import domain.model.Session;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
@@ -11,6 +12,7 @@ import service.UserService;
 import util.LoggerUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class OrganizerController {
@@ -30,7 +32,7 @@ public class OrganizerController {
 
     public ResponseEntity<ConferenceDTO> getManagedConference(String conferenceId) {
         try {
-            ConferenceDTO conferenceDTO = conferenceService.findById(conferenceId);
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             return ResponseEntity.success(conferenceDTO);
         } catch (ConferenceNotFoundException e) {
             LoggerUtil.getInstance().logError("Conference with id '" + conferenceId + "' could not be found.");
@@ -51,7 +53,7 @@ public class OrganizerController {
 
     public ResponseEntity<List<UserDTO>> getConferenceAttendees(String conferenceId) {
         try {
-            ConferenceDTO conferenceDTO = conferenceService.findById(conferenceId);
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             Set<String> attendeeIds = conferenceDTO.getAttendees();
             List<UserDTO> attendees = userService.findByIds(attendeeIds);
             LoggerUtil.getInstance().logInfo("Successfully retrieved attendees for '" + conferenceDTO.getName() + "'.");
@@ -63,7 +65,7 @@ public class OrganizerController {
 
     public ResponseEntity<List<SessionDTO>> getConferenceSessions(String conferenceId) {
         try {
-            ConferenceDTO conferenceDTO = conferenceService.findById(conferenceId);
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             Set<String> sessionIds = conferenceDTO.getSessions();
             List<SessionDTO> sessions = sessionService.findByIds(sessionIds);
             LoggerUtil.getInstance().logInfo("Successfully retrieved sessions for '" + conferenceDTO.getName() + "'.");
@@ -78,11 +80,13 @@ public class OrganizerController {
         String name = conferenceDTO.getName();
         LocalDate startDate = conferenceDTO.getStartDate(), endDate = conferenceDTO.getEndDate();
 
+        // ensure conference name is available
         if (conferenceService.isNameTaken(name)) {
             LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Conference name '" + name + "' is already taken.");
             return ResponseEntity.error("The provided conference name is already taken.");
         }
 
+        // ensure selected time period is available
         if (!conferenceService.isTimePeriodAvailable(startDate, endDate)) {
             LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Dates provided for the conference are not available..");
             return ResponseEntity.error("Another conference is already registered to take place within the time period provided. Please choose different dates.");
@@ -112,4 +116,53 @@ public class OrganizerController {
             return ResponseEntity.error("An unexpected error occurred. Please try again later.");
         }
     }
+
+    public ResponseEntity<Void> createSession(SessionDTO sessionDTO) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
+
+            // create the session
+            String sessionId = sessionService.create(sessionDTO, conferenceDTO);
+
+            // assign a reference to the session to speaker
+            assignSessionToSpeaker(sessionId, sessionDTO);
+
+            // add a reference to the session to conference
+            conferenceService.registerSession(conferenceDTO.getId(), sessionId);
+
+            return ResponseEntity.success();
+        } catch (ConferenceNotFoundException e) {
+            LoggerUtil.getInstance().logError("Session creation failed due to invalid conference id.");
+            return ResponseEntity.error(String.format("Conference with id '%s' does not exist.", sessionDTO.getConferenceId()));
+        } catch (SessionCreationException | SavingDataException e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
+    private void assignSessionToSpeaker(String sessionId, SessionDTO sessionDTO) {
+        try {
+            userService.assignNewSessionForSpeaker(
+                    sessionDTO.getSpeakerId(),
+                    sessionId,
+                    LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime()),
+                    LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime())
+            );
+        } catch (UserNotFoundException | InvalidUserRoleException | SavingDataException e) {
+            // rollback session creation if assigning session to speaker fails
+            sessionService.deleteById(sessionId);
+            LoggerUtil.getInstance().logError("Session creation failed: " + e.getMessage());
+            throw handleAssignmentError(e, sessionDTO.getSpeakerId());
+        }
+    }
+
+    private SessionCreationException handleAssignmentError(Exception e, String speakerId) {
+        if (e instanceof UserNotFoundException) {
+            return SessionCreationException.invalidSpeaker("Speaker with id '" + speakerId + "' does not exist.");
+        } else if (e instanceof InvalidUserRoleException) {
+            return SessionCreationException.invalidSpeaker("User with id '" + speakerId + "' does not have speaker permissions.");
+        } else {
+            return SessionCreationException.savingFailure("An unexpected error occurred when assigning session to speaker.");
+        }
+    }
+
 }

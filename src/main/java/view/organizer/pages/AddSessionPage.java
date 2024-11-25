@@ -5,6 +5,8 @@ import dto.UserDTO;
 import exception.FormValidationException;
 import util.ui.FormBuilder;
 import util.ui.UIComponentFactory;
+import util.validation.FormValidator;
+import util.validation.ValidationUtil;
 import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
@@ -19,6 +21,7 @@ import java.util.List;
 public class AddSessionPage {
     private final OrganizerObserver organizerObserver;
     private final String conferenceId;
+    private final String conferenceName;
     private final List<UserDTO> speakers;
 
     // Main panel
@@ -37,9 +40,10 @@ public class AddSessionPage {
     // Back button
     private final JButton backButton;
 
-    public AddSessionPage(OrganizerObserver organizerObserver, String conferenceId, List<UserDTO> speakers) {
+    public AddSessionPage(OrganizerObserver organizerObserver, String conferenceId, String conferenceName, List<UserDTO> speakers) {
         this.organizerObserver = organizerObserver;
         this.conferenceId = conferenceId;
+        this.conferenceName = conferenceName;
         this.speakers = speakers;
 
         // Initialize components
@@ -155,32 +159,19 @@ public class AddSessionPage {
         LocalTime endTime = extractLocalTime((Date) endTimeSpinner.getValue());
 
         try {
-            validateSessionForm(sessionName, sessionDescription, speaker, room, date, startTime, endTime);
+            FormValidator.validateSessionForm(sessionName, sessionDescription, speaker, room, date, startTime, endTime);
         } catch (FormValidationException ex) {
             JOptionPane.showMessageDialog(mainContentPanel, ex.getMessage(), "Form Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         SessionDTO sessionDTO = SessionDTO.builder(conferenceId, speaker.getId(), speaker.getName(),
-                sessionName, sessionDescription,
+                sessionName,
                 room, date, startTime, endTime)
+                .setDescription(sessionDescription)
                 .build();
 
-        organizerObserver.onSubmitSessionFormRequest(sessionDTO);
-    }
-
-    private void validateSessionForm(String name, String description, UserDTO speaker, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        if (name.isEmpty() || description.isEmpty() || speaker == null || room.isEmpty() || date == null || startTime == null || endTime == null) {
-            throw new FormValidationException("All fields must be filled out.");
-        }
-
-        if (date.isBefore(LocalDate.now())) {
-            throw new FormValidationException("Session date cannot be in the past.");
-        }
-
-        if (startTime.equals(endTime) || startTime.isAfter(endTime)) {
-            throw new FormValidationException("Start time must be before end time.");
-        }
+        organizerObserver.onSubmitSessionFormRequest(sessionDTO, conferenceName);
     }
 
     private LocalDate extractLocalDate(Date date) {

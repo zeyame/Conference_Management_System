@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 public class Attendee extends User {
     @JsonProperty("schedule")
-    private final Map<LocalDateTime, Session> schedule;
+    private final Map<LocalDateTime, String> schedule;          // K: Session Time, V: Session ID
 
     public Attendee() {
         super(null, null, null, null, null);

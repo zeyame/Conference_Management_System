@@ -1,6 +1,7 @@
 package dto;
 
-import util.ValidationUtil;
+import util.validation.SessionValidator;
+import util.validation.ValidationUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -8,12 +9,12 @@ import java.util.*;
 
 public class SessionDTO {
 
-    private final String id; // optional, can be null
+    private final String id;
     private final String conferenceId;
     private final String speakerId;
     private final String speakerName;
     private final String name;
-    private final String description;
+    private String description;
     private final String room;
     private LocalDate date;
     private LocalTime startTime;
@@ -33,8 +34,8 @@ public class SessionDTO {
         this.date = null;
         this.startTime = null;
         this.endTime = null;
-        this.registeredAttendees = Collections.emptySet();
-        this.attendanceRecord = Collections.emptyMap();
+        this.registeredAttendees = new HashSet<>();
+        this.attendanceRecord = new HashMap<>();
     }
 
     private SessionDTO(Builder builder) {
@@ -52,8 +53,8 @@ public class SessionDTO {
         this.attendanceRecord = builder.attendanceRecord;
     }
 
-    public static Builder builder(String conferenceId, String speakerId, String speakerName, String name, String description, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        return new Builder(conferenceId, speakerId, speakerName, name, description, room, date, startTime, endTime);
+    public static Builder builder(String conferenceId, String speakerId, String speakerName, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return new Builder(conferenceId, speakerId, speakerName, name, room, date, startTime, endTime);
     }
 
     public static class Builder {
@@ -62,7 +63,6 @@ public class SessionDTO {
         private final String speakerId;
         private final String speakerName;
         private final String name;
-        private final String description;
         private final String room;
         private final LocalDate date;
         private final LocalTime startTime;
@@ -70,23 +70,34 @@ public class SessionDTO {
 
         // optional parameters
         private String id;
+        private String description;
         private Set<String> registeredAttendees = new HashSet<>();
         private Map<String, Boolean> attendanceRecord = new HashMap<>();
 
-        public Builder(String conferenceId, String speakerId, String speakerName, String name, String description, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        public Builder(String conferenceId, String speakerId, String speakerName, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.conferenceId = conferenceId;
             this.speakerId = speakerId;
             this.speakerName = speakerName;
             this.name = name;
-            this.description = description;
             this.room = room;
             this.date = date;
             this.startTime = startTime;
             this.endTime = endTime;
+
+            // assigning optional parameters with default values
+            this.id = null;
+            this.description = null;
+            this.registeredAttendees = new HashSet<>();
+            this.attendanceRecord = new HashMap<>();
         }
 
         public Builder setId(String id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
             return this;
         }
 
@@ -101,19 +112,11 @@ public class SessionDTO {
         }
 
         public SessionDTO build() {
-            validateParameters();
+            SessionValidator.validateSessionParameters(
+                    this.id, this.conferenceId, this.speakerId,
+                    this.speakerName, this.name,
+                    this.date, this.startTime, this.endTime, true);
             return new SessionDTO(this);
-        }
-
-        private void validateParameters() {
-            ValidationUtil.requireNonEmpty(this.conferenceId, "Conference ID");
-            ValidationUtil.requireNonEmpty(this.speakerId, "Speaker ID");
-            ValidationUtil.requireNonEmpty(this.speakerName, "Speaker name");
-            ValidationUtil.requireNonEmpty(this.name, "Session name");
-            ValidationUtil.requireNonEmpty(this.description, "Session description");
-            ValidationUtil.requireNonEmpty(this.room, "Session room");
-            ValidationUtil.validateDate(this.date, "Session date");
-            ValidationUtil.validateTimes(this.startTime, this.endTime);
         }
     }
 
@@ -138,6 +141,10 @@ public class SessionDTO {
     }
 
     public String getDescription() {return this.description;}
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getRoom() {
         return this.room;

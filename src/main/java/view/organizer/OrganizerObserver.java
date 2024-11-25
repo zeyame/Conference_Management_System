@@ -27,9 +27,9 @@ public interface OrganizerObserver {
 
     // View Sessions Page events
     void onManageSessionRequest(String sessionId);
-    void onAddSessionRequest(String conferenceId);
+    void onAddSessionRequest(String conferenceId, String conferenceName);
 
     // Add Session Page events
-    void onSubmitSessionFormRequest(SessionDTO sessionDTO);
+    void onSubmitSessionFormRequest(SessionDTO sessionDTO, String conferenceName);
 
 }

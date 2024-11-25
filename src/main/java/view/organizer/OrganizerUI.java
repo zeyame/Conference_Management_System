@@ -117,7 +117,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onAddSessionRequest(String conferenceId) {
+    public void onAddSessionRequest(String conferenceId, String conferenceName) {
         LoggerUtil.getInstance().logInfo("Request to add a new session to conference '" + conferenceId + "' received.");
 
         // get registered speakers that can be assigned to new session
@@ -129,7 +129,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         List<UserDTO> speakers = speakersResponse.getData();
         // navigate to a new Add Session Page
-        AddSessionPage addSessionPage = new AddSessionPage(this, conferenceId, speakers);
+        AddSessionPage addSessionPage = new AddSessionPage(this, conferenceId, conferenceName, speakers);
         navigateTo(ADD_SESSION_PAGE, addSessionPage.createPageContent());
     }
 
@@ -158,8 +158,20 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onSubmitSessionFormRequest(SessionDTO sessionDTO) {
+    public void onSubmitSessionFormRequest(SessionDTO sessionDTO, String conferenceName) {
+        LoggerUtil.getInstance().logInfo("Request to create session '" + sessionDTO.getName() + "' received.");
 
+        ResponseEntity<Void> createSessionResponse = organizerController.createSession(sessionDTO);
+        if (!createSessionResponse.isSuccess()) {
+            showError(getCurrentPageId(), createSessionResponse.getErrorMessage());
+            return;
+        }
+
+        // navigate to an updated view sessions page
+        onViewSessionsRequest(sessionDTO.getConferenceId(), conferenceName);
+
+        // display success message
+        showSuccess(getCurrentPageId(), String.format("Session '%s' has successfully been added!", sessionDTO.getName()));
     }
 
     @Override

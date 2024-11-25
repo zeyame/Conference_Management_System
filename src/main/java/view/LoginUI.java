@@ -4,6 +4,7 @@ import controller.MainController;
 import exception.FormValidationException;
 import response.ResponseEntity;
 import util.ui.UIComponentFactory;
+import util.validation.FormValidator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -151,7 +152,7 @@ public class LoginUI extends JFrame {
         char[] password = passwordField.getPassword();
 
         try {
-            validateLoginForm(email, password);
+            FormValidator.validateLoginForm(email, password);
         } catch (FormValidationException exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -176,11 +177,5 @@ public class LoginUI extends JFrame {
         }
 
         dispose();
-    }
-
-    private void validateLoginForm(String email, char[] password) {
-        if (email.isEmpty() || password.length == 0) {
-            throw new FormValidationException("All fields must be filled out.");
-        }
     }
 }

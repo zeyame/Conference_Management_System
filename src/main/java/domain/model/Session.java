@@ -1,8 +1,8 @@
 package domain.model;
 
-import util.ValidationUtil;
-
+import util.validation.SessionValidator;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -12,7 +12,7 @@ public class Session {
     private final String conferenceId;
     private final String speakerId;
     private final String name;
-    private final String description;
+    private String description;
     private final String room;
     private LocalDate date;
     private LocalTime startTime;
@@ -31,14 +31,14 @@ public class Session {
         this.date = null;
         this.startTime = null;
         this.endTime = null;
-        this.registeredAttendees = Collections.emptySet();
-        this.attendanceRecord = Collections.emptyMap();
+        this.registeredAttendees = new HashSet<>();
+        this.attendanceRecord = new HashMap<>();
     }
 
     private Session(Builder builder) {
         this.id = builder.id;
         this.conferenceId = builder.conferenceId;
-        this.speakerId = builder.conferenceId;
+        this.speakerId = builder.speakerId;
         this.name = builder.name;
         this.description = builder.description;
         this.room = builder.room;
@@ -49,6 +49,10 @@ public class Session {
         this.attendanceRecord = builder.attendanceRecord;
     }
 
+    public static Builder builder(String id, String conferenceId, String speakerId, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return new Builder(id, conferenceId, speakerId, name, room, date, startTime, endTime);
+    }
+
 
     public static class Builder {
         // required parameters
@@ -56,26 +60,35 @@ public class Session {
         private final String conferenceId;
         private final String speakerId;
         private final String name;
-        private final String description;
         private final String room;
         private final LocalDate date;
         private final LocalTime startTime;
         private final LocalTime endTime;
 
         // optional parameters
+        private String description;
         private Set<String> registeredAttendees;
         private Map<String, Boolean> attendanceRecord;
 
-        private Builder(String id, String conferenceId, String speakerId, String name, String description, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        private Builder(String id, String conferenceId, String speakerId, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.id = id;
             this.conferenceId = conferenceId;
             this.speakerId = speakerId;
             this.name = name;
-            this.description = description;
             this.room = room;
             this.date = date;
             this.startTime = startTime;
             this.endTime = endTime;
+
+            // assigning optional parameters with default values
+            this.description = null;
+            this.registeredAttendees = new HashSet<>();
+            this.attendanceRecord = new HashMap<>();
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
+            return this;
         }
 
         public Builder setRegisteredAttendees(Set<String> registeredAttendees) {
@@ -89,20 +102,19 @@ public class Session {
         }
 
         public Session build() {
-            validateParameters();
+            SessionValidator.validateSessionParameters(
+                    this.id, this.conferenceId, this.speakerId,
+                    null, this.name,
+                    this.date, this.startTime, this.endTime, false);
             return new Session(this);
         }
+    }
 
-        private void validateParameters() {
-            ValidationUtil.requireNonEmpty(this.id, "Session ID");
-            ValidationUtil.requireNonEmpty(this.conferenceId, "Conference ID");
-            ValidationUtil.requireNonEmpty(this.speakerId, "Speaker ID");
-            ValidationUtil.requireNonEmpty(this.name, "Session name");
-            ValidationUtil.requireNonEmpty(this.description, "Session description");
-            ValidationUtil.requireNonEmpty(this.room, "Session room");
-            ValidationUtil.validateDate(this.date, "Session date");
-            ValidationUtil.validateTimes(this.startTime, this.endTime);
-        }
+    public boolean overlapsWith(LocalDateTime otherStart, LocalDateTime otherEnd) {
+        LocalDateTime sessionStart = LocalDateTime.of(this.date, this.startTime);
+        LocalDateTime sessionEnd = LocalDateTime.of(this.date, this.endTime);
+
+        return !sessionStart.isAfter(otherEnd) && !sessionEnd.isBefore(otherStart);
     }
 
     public String getId() {
@@ -122,6 +134,10 @@ public class Session {
     }
 
     public String getDescription() {return this.description;}
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getRoom() {
         return this.room;

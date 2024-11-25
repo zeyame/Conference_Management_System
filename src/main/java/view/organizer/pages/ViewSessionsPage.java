@@ -34,7 +34,7 @@ public class ViewSessionsPage {
         this.backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
 
         // set up listener
-        this.addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(conferenceId));
+        this.addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(conferenceId, conferenceName));
     }
 
     public JPanel createPageContent() {

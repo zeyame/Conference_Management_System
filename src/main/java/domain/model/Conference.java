@@ -1,6 +1,6 @@
 package domain.model;
 
-import util.ValidationUtil;
+import util.validation.ConferenceValidator;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -91,17 +91,17 @@ public class Conference {
         }
 
         public Conference build() {
-            validateParameters();
+            ConferenceValidator.validateConferenceParameters(this.id, this.organizerId, this.name, this.description, this.startDate, this.endDate, false);
             return new Conference(this);
         }
+    }
 
-        private void validateParameters() {
-            ValidationUtil.requireNonEmpty(this.id,  "Conference ID");
-            ValidationUtil.requireNonEmpty(this.organizerId, "Organizer ID");
-            ValidationUtil.requireNonEmpty(this.name, "Name");
-            ValidationUtil.requireNonEmpty(this.description, "Description");
-            ValidationUtil.validateDates(this.startDate, this.endDate);
-        }
+    public void addSession(String sessionId) {
+        this.sessions.add(sessionId);
+    }
+
+    public void removeSession(String sessionId) {
+        this.sessions.remove(sessionId);
     }
 
     public String getId() {
