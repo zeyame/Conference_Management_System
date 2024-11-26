@@ -7,7 +7,8 @@ public class Organizer extends User {
 
     private final Set<String> managedConferences;
 
-    public Organizer() {
+    // no-arg constructor for JSON serialization/de-serialization
+    private Organizer() {
         super(null, null, null, null, null);
         this.managedConferences = new HashSet<>();
     }

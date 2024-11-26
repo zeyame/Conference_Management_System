@@ -1,1 +1,38 @@
-{"c1ced727-e8bf-4259-96c5-ec376a6035a0":{"id":"c1ced727-e8bf-4259-96c5-ec376a6035a0","conferenceId":"3bdfd08d-6d25-4c5a-9162-b96c4901fb60","speakerId":"f0e1d2c3-b4a5-6789-0123-456789abcdef","name":"Test Session","description":"Hello there.","room":"B302","date":[2024,12,25],"startTime":[9,0],"endTime":[11,0],"registeredAttendees":["1", "2", "3"],"presentAttendees":[], "attendanceRecord":  0},"66b3227c-c29b-4020-9659-a5223d6850be":{"id":"66b3227c-c29b-4020-9659-a5223d6850be","conferenceId":"3bdfd08d-6d25-4c5a-9162-b96c4901fb60","speakerId":"a1b2c3d4-e5f6-7890-1234-56789abcdef0","name":"Test Session 2","description":"Hello there test session 2","room":"B302","date":[2024,12,25],"startTime":[15,0],"endTime":[15,45],"registeredAttendees":["4", "5"],"presentAttendees":[], "attendanceRecord":  0}}
+{
+  "fc565fcb-392e-4dd8-9fd4-900cf6c312a4": {
+    "id": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4",
+    "conferenceId": "616faed7-2bc4-4839-9ae9-6082beca15e4",
+    "speakerId": "ffd8fbe0-8205-4073-8c61-b21d27cbdccb",
+    "name": "Devops Session",
+    "description": "Not really devops.",
+    "room": "B302",
+    "date": [2025, 6, 20],
+    "startTime": [20, 10, 50, 984000000],
+    "endTime": [20, 10, 50, 986000000],
+    "registeredAttendees": [],
+    "presentAttendees": [],
+    "attendanceRecord": 0.0,
+    "feedback": [
+      "7127a935-ea41-4658-8036-eacc6f7210e4",
+      "c67785bf-c1cf-469a-90cb-01a06e243602",
+      "308b488f-36d7-454b-8620-ad2b558406d9",
+      "1a8de081-3c17-4c7a-b2e3-b86397d58d02",
+      "21170ef4-987d-49e5-af46-301b28dab058",
+      "a63fbf63-9d47-4524-8a3a-d4bb0b4b98fb",
+      "fe8ab191-1551-4a4a-8517-d6c8b26bb497",
+      "373e51ca-c363-4b24-9b0c-dab5b3edba66",
+      "a7a55aa5-3b63-4173-bd71-7512d3a67823",
+      "e861fd53-cec0-4562-ae05-d25bdb0ab9d6",
+      "a6e5d1d2-44c2-4842-8e83-e721fea6a002",
+      "274cf24e-6d5d-46ab-9830-961241f78229",
+      "55b6a456-7e3c-4058-9558-c6af7758b443",
+      "21d0bfaf-d977-4aaa-bc47-5716aa34d772",
+      "0d62e6ae-62e4-4559-aaa5-c75be030cce1",
+      "de61eeea-6a02-48fb-983a-3439224059d8",
+      "a721a5c9-8517-4b2a-85e7-a03bd1be0fd5",
+      "2e2d9d41-d45c-4932-b8f2-ca72f5777142",
+      "8020c38c-1bba-4da4-947a-d1fdb3221b75",
+      "f0c04a29-3c64-4feb-9119-169d022fc6b9"
+    ]
+  }
+}

@@ -19,9 +19,10 @@ public class Session {
     private LocalTime endTime;
     private final Set<String> registeredAttendees;
     private final Set<String> presentAttendees;
+    private final Set<String> feedback;
     private final double attendanceRecord;
 
-    // no-arg constructor for JSON serialization
+    // no-arg constructor for JSON serialization/de-serialization
     private Session() {
         this.id = null;
         this.conferenceId = null;
@@ -34,6 +35,7 @@ public class Session {
         this.endTime = null;
         this.registeredAttendees = new HashSet<>();
         this.presentAttendees = new HashSet<>();
+        this.feedback = new HashSet<>();
         this.attendanceRecord = 0;
     }
 
@@ -49,6 +51,7 @@ public class Session {
         this.endTime = builder.endTime;
         this.registeredAttendees = builder.registeredAttendees;
         this.presentAttendees = builder.presentAttendees;
+        this.feedback = builder.feedback;
         this.attendanceRecord = getAttendanceRecord();
     }
 
@@ -72,6 +75,7 @@ public class Session {
         private String description;
         private Set<String> registeredAttendees;
         private Set<String> presentAttendees;
+        private Set<String> feedback;
 
         private Builder(String id, String conferenceId, String speakerId, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.id = id;
@@ -87,6 +91,7 @@ public class Session {
             this.description = null;
             this.registeredAttendees = new HashSet<>();
             this.presentAttendees = new HashSet<>();
+            this.feedback = new HashSet<>();
         }
 
         public Builder setDescription(String description) {
@@ -101,6 +106,11 @@ public class Session {
 
         public Builder setPresentAttendees(Set<String> presentAttendees) {
             this.presentAttendees = presentAttendees != null ? presentAttendees : new HashSet<>();
+            return this;
+        }
+
+        public Builder setFeedback(Set<String> feedback) {
+            this.feedback = feedback != null ? feedback : new HashSet<>();
             return this;
         }
 
@@ -176,6 +186,10 @@ public class Session {
 
     public Set<String> getPresentAttendees() {
         return new HashSet<>(this.presentAttendees);            // defensive copy
+    }
+
+    public Set<String> getFeedback() {
+        return new HashSet<>(this.feedback);            // defensive copy
     }
 
     public float getAttendanceRecord() {

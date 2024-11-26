@@ -1,12 +1,14 @@
 package controller;
 
-import domain.model.Session;
+import domain.model.Feedback;
 import dto.ConferenceDTO;
+import dto.FeedbackDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
 import exception.*;
 import response.ResponseEntity;
 import service.ConferenceService;
+import service.FeedbackService;
 import service.SessionService;
 import service.UserService;
 import util.LoggerUtil;
@@ -19,11 +21,13 @@ public class OrganizerController {
     private final UserService userService;
     private final ConferenceService conferenceService;
     private final SessionService sessionService;
+    private final FeedbackService feedbackService;
 
-    public OrganizerController(UserService userService, ConferenceService conferenceService, SessionService sessionService) {
+    public OrganizerController(UserService userService, ConferenceService conferenceService, SessionService sessionService, FeedbackService feedbackService) {
         this.userService = userService;
         this.conferenceService = conferenceService;
         this.sessionService = sessionService;
+        this.feedbackService = feedbackService;
     }
 
     public ResponseEntity<Void> createConference(ConferenceDTO conferenceDTO) {
@@ -86,10 +90,10 @@ public class OrganizerController {
     public ResponseEntity<List<ConferenceDTO>> getManagedConferences(String email) {
         try {
             Set<String> conferenceIds = userService.findManagedConferencesForOrganizer(email);
-            List<ConferenceDTO> conferenceDTOS = conferenceService.findByIds(conferenceIds);
+            List<ConferenceDTO> conferenceDTOS = conferenceService.findAllById(conferenceIds);
             return ResponseEntity.success(conferenceDTOS);
         } catch (InvalidUserRoleException | UserNotFoundException e) {
-            LoggerUtil.getInstance().logError("Failed to retrieve managed conferences for user with email '" + email + "' due to the following reason: " + e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to retrieve managed conferences for user with email '%s' due to the following reasons: %s", email, e.getMessage()));
             return ResponseEntity.error("Error retrieving managed conferences. Please try again later.");
         }
     }
@@ -98,11 +102,11 @@ public class OrganizerController {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             Set<String> attendeeIds = conferenceDTO.getAttendees();
-            List<UserDTO> attendees = userService.findByIds(attendeeIds);
-            LoggerUtil.getInstance().logInfo("Successfully retrieved attendees for '" + conferenceDTO.getName() + "'.");
+            List<UserDTO> attendees = userService.findAllById(attendeeIds);
+            LoggerUtil.getInstance().logInfo(String.format("Successfully retrieved attendees for '%s'.", conferenceDTO.getName()));
             return ResponseEntity.success(attendees);
         } catch (ConferenceNotFoundException e) {
-            return ResponseEntity.error("Could not find attendees for the conference with id '" + conferenceId + "' as it does not exist.");
+            return ResponseEntity.error(String.format("Could not find attendees for the conference with id '%s' as it does not exist.", conferenceId));
         }
     }
 
@@ -111,7 +115,7 @@ public class OrganizerController {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             Set<String> sessionIds = conferenceDTO.getSessions();
             System.out.println("Session ids size in '" + conferenceDTO.getName() + "': " + sessionIds.size());
-            List<SessionDTO> sessions = sessionService.findByIds(sessionIds);
+            List<SessionDTO> sessions = sessionService.findAllById(sessionIds);
             System.out.println("Sessions size retrieved from service: " + sessions.size());
             LoggerUtil.getInstance().logInfo("Successfully retrieved sessions for '" + conferenceDTO.getName() + "'.");
             return ResponseEntity.success(sessions);
@@ -134,11 +138,24 @@ public class OrganizerController {
         try {
             SessionDTO sessionDTO = sessionService.getById(sessionId);
             Set<String> attendeeIds = sessionDTO.getRegisteredAttendees();
-            List<UserDTO> attendees = userService.findByIds(attendeeIds);
+            List<UserDTO> attendees = userService.findAllById(attendeeIds);
             LoggerUtil.getInstance().logInfo(String.format("Successfully retrieved attendees for session '%s'.", sessionDTO.getName()));
             return ResponseEntity.success(attendees);
         } catch (SessionNotFoundException e) {
             LoggerUtil.getInstance().logError(String.format("Failed to retrieve session details as session with id '%s' does not exist.", sessionId));
+            return ResponseEntity.error(String.format("Session with id '%s' does not exist.", sessionId));
+        }
+    }
+
+    public ResponseEntity<List<FeedbackDTO>> getSessionFeedback(String sessionId) {
+        try {
+            SessionDTO sessionDTO = sessionService.getById(sessionId);
+            Set<String> feedbackIds = sessionDTO.getFeedback();
+            List<FeedbackDTO> feedback = feedbackService.findAllById(feedbackIds);
+            LoggerUtil.getInstance().logInfo(String.format("Successfully retrieved all feedback for session with id'%s'.", sessionId));
+            return ResponseEntity.success(feedback);
+        } catch (SessionNotFoundException e) {
+            LoggerUtil.getInstance().logError(String.format("Could not retrieve feedback for session wit id '%s' as it does not exist.", sessionId));
             return ResponseEntity.error(String.format("Session with id '%s' does not exist.", sessionId));
         }
     }

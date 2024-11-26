@@ -11,26 +11,13 @@ import java.util.List;
 public class ViewAttendeesPage extends ViewListPage<UserDTO> {
 
     public ViewAttendeesPage(OrganizerObserver organizerObserver, String eventName, List<UserDTO> attendees) {
-        super(organizerObserver, attendees, eventName);
+        super(organizerObserver, eventName, attendees);
     }
 
     @Override
     protected String getPageTitle() {
         return String.format("Attendees registered for '%s'", this.eventName);
     }
-
-//    @Override
-//    protected JScrollPane createItemsScrollPane() {
-//        JPanel attendeesPanel = new JPanel();
-//        attendeesPanel.setLayout(new BoxLayout(attendeesPanel, BoxLayout.Y_AXIS));
-//
-//        for (UserDTO attendee: items) {
-//            attendeesPanel.add(createItemPanel(attendee));
-//            attendeesPanel.add(Box.createRigidArea(new Dimension(0, 25)));
-//        }
-//
-//        return new JScrollPane(attendeesPanel);
-//    }
 
     @Override
     protected JPanel createItemPanel(UserDTO attendee) {

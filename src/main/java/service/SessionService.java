@@ -6,24 +6,20 @@ import dto.ConferenceDTO;
 import dto.SessionDTO;
 import exception.*;
 import repository.SessionRepository;
-import response.ResponseEntity;
+import util.CollectionUtils;
 import util.LoggerUtil;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class SessionService {
 
     private final UserService userService;
-    private final ConferenceService conferenceService;
     private final SessionRepository sessionRepository;
 
-    public SessionService(UserService userService, ConferenceService conferenceService, SessionRepository sessionRepository) {
+    public SessionService(UserService userService, SessionRepository sessionRepository) {
         this.userService = userService;
-        this.conferenceService = conferenceService;
         this.sessionRepository = sessionRepository;
     }
 
@@ -42,7 +38,7 @@ public class SessionService {
         Session session = SessionFactory.create(sessionDTO);
 
         // attempting to save validated session to file storage with retries
-        boolean isSessionSaved = sessionRepository.save(session);
+        boolean isSessionSaved = sessionRepository.save(session, session.getId());
         if (!isSessionSaved) {
             LoggerUtil.getInstance().logError("Session creation failed due to a data saving error.");
             throw SessionCreationException.savingFailure("An unexpected error occurred while saving session data.");
@@ -65,14 +61,17 @@ public class SessionService {
         return mapToDTO(session, speakerName);
     }
 
-    public List<SessionDTO> findByIds(Set<String> ids) {
+    public List<SessionDTO> findAllById(Set<String> ids) {
         if (ids == null) {
             LoggerUtil.getInstance().logWarning("Session ids set provided to findByIds in ServiceService is null.");
             return Collections.emptyList();
         }
 
-        // batch fetch all sessions and extract the valid ones
-        List<Session> sessions = extractValidSessions(sessionRepository.findAllById(ids));
+        // batch fetch all sessions
+        List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(ids);
+
+        // extract valid sessions
+        List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
 
         // retrieve the speaker id for each session
         Set<String> speakerIds = sessions.stream()
@@ -94,8 +93,11 @@ public class SessionService {
             return false;
         }
 
-        // batch fetch sessions
-        List<Session> sessions = extractValidSessions(sessionRepository.findAllById(ids));
+        // batch fetch all sessions
+        List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(ids);
+
+        // extract valid sessions
+        List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
 
         return sessions.stream()
                 .anyMatch(session -> name.equals(session.getName()));
@@ -115,7 +117,7 @@ public class SessionService {
         validateSpeakerAvailability(sessionDTO);
 
         // validate session time availability within the conference
-        validateSessionTime(sessionDTO, conferenceDTO.getSessions());
+        validateSessionTime(sessionDTO, conferenceDTO);
     }
 
     private void validateSessionName(String sessionName, Set<String> sessionIds, String conferenceName) {
@@ -137,25 +139,33 @@ public class SessionService {
         }
     }
 
-    private void validateSessionTime(SessionDTO sessionDTO, Set<String> sessionIds) {
-        List<Session> sessions = extractValidSessions(sessionRepository.findAllById(sessionIds));
+    private void validateSessionTime(SessionDTO sessionDTO, ConferenceDTO conferenceDTO) {
+        if (sessionDTO == null || conferenceDTO == null) {
+            throw new IllegalArgumentException("Invalid parameters provided when validating session time. SessionDTO and ConferenceDTO cannot be null.");
+        }
+
+        if (sessionDTO.getDate().isBefore(conferenceDTO.getStartDate())) {
+            throw SessionCreationException.timeUnavailable(String.format("The session date you selected is earlier than the start date of the conference '%s'. Please select a date on or after the conference's start date.", conferenceDTO.getStartDate()));
+        }
+
         LocalDateTime sessionStart = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime());
         LocalDateTime sessionEnd = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime());
 
-        for (Session session : sessions) {
-            if (session.overlapsWith(sessionStart, sessionEnd)) {
-                LoggerUtil.getInstance().logError("Session date and time validation failed.");
-                throw SessionCreationException.timeUnavailable(String.format("The session '%s' is already registered to take place within the time period you selected. Please choose a different time slot.", session.getName()));
-            }
-        }
-    }
+        // batch fetch all sessions
+        List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(conferenceDTO.getSessions());
 
-    private List<Session> extractValidSessions(List<Optional<Session>> sessionOptionals) {
-        // extract valid session
-        return sessionOptionals.stream()
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        // extract valid sessions
+        List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
+
+        sessions.stream()
+                .filter(session -> session.overlapsWith(sessionStart, sessionEnd))
+                .findFirst()
+                .ifPresent(conflictingSession -> {
+                    LoggerUtil.getInstance().logError("Session date and time validation failed.");
+                    throw SessionCreationException.timeUnavailable(String.format(
+                            "The session '%s' is already registered to take place within the time period you selected. Please choose a different time slot.",
+                            conflictingSession.getName()));
+                });
     }
 
     private SessionDTO mapToDTO(Session session, String speakerName) {
@@ -172,6 +182,7 @@ public class SessionService {
          .setDescription(session.getDescription())
          .setRegisteredAttendees(session.getRegisteredAttendees())
          .setPresentAttendees(session.getPresentAttendees())
+         .setFeedback(session.getFeedback())
          .build();
     }
 }

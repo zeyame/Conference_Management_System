@@ -21,10 +21,10 @@ public abstract class ViewListPage<T> {
     // list of items
     protected final List<T> items;
 
-    public ViewListPage(OrganizerObserver organizerObserver, List<T> items, String eventName) {
+    public ViewListPage(OrganizerObserver organizerObserver, String eventName, List<T> items) {
         this.organizerObserver = organizerObserver;
-        this.items = items;
         this.eventName = eventName;
+        this.items = items;
 
         // initializing components
         this.mainContentPanel = new JPanel(new BorderLayout());

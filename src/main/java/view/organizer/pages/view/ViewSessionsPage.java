@@ -14,7 +14,7 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
     private final JButton addSessionButton;
 
     public ViewSessionsPage(OrganizerObserver organizerObserver, String conferenceId, String eventName, List<SessionDTO> sessions) {
-        super(organizerObserver, sessions, eventName);
+        super(organizerObserver, eventName, sessions);
         this.conferenceId = conferenceId;
 
         // initializing components
@@ -36,20 +36,6 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
     protected String getPageTitle() {
         return String.format("Sessions registered for '%s'", this.eventName);
     }
-
-
-//    @Override
-//    protected JScrollPane createItemsScrollPane() {
-//        JPanel sessionsPanel = new JPanel();
-//        sessionsPanel.setLayout(new BoxLayout(sessionsPanel, BoxLayout.Y_AXIS));
-//
-//        for (SessionDTO session : items) {
-//            sessionsPanel.add(createItemPanel(session));
-//            sessionsPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between sessions
-//        }
-//
-//        return new JScrollPane(sessionsPanel);
-//    }
 
     @Override
     protected JPanel createItemPanel(SessionDTO session) {

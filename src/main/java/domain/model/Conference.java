@@ -19,7 +19,7 @@ public class Conference {
     private final Set<String> attendees;
     private final Set<String> speakers;
 
-    // private no-args constructor for JSON serialization
+    // no-arg constructor for JSON serialization/de-serialization
     private Conference() {
         this.id = null;
         this.organizerId = null;

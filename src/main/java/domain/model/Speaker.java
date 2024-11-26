@@ -6,7 +6,8 @@ import java.util.*;
 public class Speaker extends User {
     private final Map<LocalDateTime, AssignedSession> assignedSessions;          // K: Session Time, V: Session ID
 
-    public Speaker() {
+    // no-arg constructor for JSON serialization/de-serialization
+    private Speaker() {
         super(null, null, null, null, null);
         this.assignedSessions = new TreeMap<>();
     }

@@ -10,7 +10,8 @@ public class Attendee extends User {
     @JsonProperty("schedule")
     private final Map<LocalDateTime, String> schedule;          // K: Session Time, V: Session ID
 
-    public Attendee() {
+    // no-arg constructor for JSON serialization/de-serialization
+    private Attendee() {
         super(null, null, null, null, null);
         this.schedule = new TreeMap<>();
     }

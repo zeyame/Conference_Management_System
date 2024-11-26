@@ -5,8 +5,8 @@ import domain.model.Conference;
 import dto.ConferenceDTO;
 import exception.ConferenceNotFoundException;
 import exception.SavingDataException;
-import exception.SessionCreationException;
 import repository.ConferenceRepository;
+import util.CollectionUtils;
 import util.LoggerUtil;
 
 import java.time.LocalDate;
@@ -27,7 +27,7 @@ public class ConferenceService {
         Conference conference = ConferenceFactory.createConference(conferenceDTO);
 
         // attempting to save validated conference to file storage with retries if necessary
-        boolean isSavedToFile = conferenceRepository.save(conference);
+        boolean isSavedToFile = conferenceRepository.save(conference, conference.getId());
         if (!isSavedToFile) {
             LoggerUtil.getInstance().logError("Conference creation failed. Could not save new conference to file storage.");
             throw new SavingDataException("An unexpected error occurred while saving conference data.");
@@ -46,7 +46,7 @@ public class ConferenceService {
         Conference conference = conferenceOptional.get();
         conference.addSession(sessionId);
 
-        boolean isConferenceUpdated = conferenceRepository.save(conference);
+        boolean isConferenceUpdated = conferenceRepository.save(conference, conference.getId());
         if (!isConferenceUpdated) {
             conference.removeSession(sessionId);
             throw new SavingDataException(String.format("Unexpected error occurred when registering session to conference '%s'.",  conference.getName()));
@@ -60,8 +60,13 @@ public class ConferenceService {
                 .orElseThrow(() -> new ConferenceNotFoundException("Conference with id '" + id + "' could not be found"));
     }
 
-    public List<ConferenceDTO> findByIds(Set<String> ids) {
-        List<Conference> conferences = conferenceRepository.findByIds(ids);
+    public List<ConferenceDTO> findAllById(Set<String> ids) {
+        // batch fetch conferences corresponding to ids
+        List<Optional<Conference>> conferenceOptionals = conferenceRepository.findAllById(ids);
+
+        // extract the valid conferences
+        List<Conference> conferences = CollectionUtils.extractValidEntities(conferenceOptionals);
+
         return conferences.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());

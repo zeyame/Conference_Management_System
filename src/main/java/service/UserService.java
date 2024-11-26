@@ -11,11 +11,10 @@ import exception.InvalidUserRoleException;
 import exception.SavingDataException;
 import exception.UserNotFoundException;
 import repository.UserRepository;
+import util.CollectionUtils;
 import util.LoggerUtil;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +36,7 @@ public class UserService {
         User user = UserFactory.createUser(validatedDTO);
 
         // attempting to save validated user to file storage with retries if necessary
-        boolean isSavedToFile = userRepository.save(user);
+        boolean isSavedToFile = userRepository.save(user, user.getId());
         if (!isSavedToFile) {
             LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
             throw new SavingDataException("An unexpected error occurred while saving data for user with email '" + validatedDTO.getEmail() + "'.");
@@ -69,7 +68,7 @@ public class UserService {
         Organizer organizer = (Organizer) user;
         organizer.addConference(conferenceId);
 
-        boolean isUserUpdated = userRepository.save(organizer);
+        boolean isUserUpdated = userRepository.save(organizer, organizerId);
         if (!isUserUpdated) {
             throw new SavingDataException("Failed to save conference to your managed conferences. Please try again later.");
         }
@@ -100,7 +99,7 @@ public class UserService {
         speaker.assignSession(sessionId, startTime, endTime);
 
         // saving updated speaker user
-        boolean isUserUpdated = userRepository.save(speaker);
+        boolean isUserUpdated = userRepository.save(speaker, speakerId);
         if (!isUserUpdated) {
             throw new SavingDataException("Failed to save session to speaker's assigned session. Please try again later.");
         }
@@ -108,13 +107,17 @@ public class UserService {
 
 
     // READ METHODS
-    public List<UserDTO> findByIds(Set<String> ids) {
+    public List<UserDTO> findAllById(Set<String> ids) {
         if (ids == null) {
             return Collections.emptyList();
         }
 
         // batch fetch all users matching the set of ids
-        List<User> users = userRepository.findAllById(ids);
+        List<Optional<User>> userOptionals = userRepository.findAllById(ids);
+
+        // extract all valid users
+        List<User> users = CollectionUtils.extractValidEntities(userOptionals);
+
         return users.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -137,22 +140,43 @@ public class UserService {
         }
 
         Map<String, String> namesByIds = new HashMap<>();
-        for (String id: ids) {
-            Optional<User> userOptional = userRepository.findById(id);
-            userOptional.ifPresent(user -> namesByIds.put(id, user.getName()));
-        }
 
+        // batch fetch and extract valid users matching ids
+        List<Optional<User>> userOptionals = userRepository.findAllById(ids);
+
+        userOptionals.forEach(optional ->
+                System.out.println(optional.map(value -> "User found: " + value).orElse("User not found"))
+        );
+
+
+        System.out.println("User optionals in findNameByIds: " + userOptionals.size());
+
+        List<User> users = CollectionUtils.extractValidEntities(userOptionals);
+
+        System.out.println("Valid users in findNameByIds: " + users.size());
+
+        // populating map
+        users.forEach(user -> namesByIds.put(user.getId(), user.getName()));
+
+        System.out.println("Map size after populating: " + namesByIds.size());
         return namesByIds;
     }
 
-    public UserDTO findByEmail(String email) {
+    public UserDTO getBydId(String id) {
+        return userRepository
+                .findById(id)
+                .map(this::mapToDTO)
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id '%s' does not exist.", id)));
+    }
+
+    public UserDTO getByEmail(String email) {
         return userRepository
                 .findByEmail(email)
                 .map(this::mapToDTO)
                 .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' could not be found."));
     }
 
-    public UserDTO findAuthenticatedByEmail(String email) {
+    public UserDTO getAuthenticatedByEmail(String email) {
         return userRepository
                 .findByEmail(email)
                 .map(this::mapToAuthenticatedDTO)
@@ -173,18 +197,19 @@ public class UserService {
         }
 
         Optional<User> organizerOptional = userRepository.findByEmail(email);
-        if (organizerOptional.isPresent()) {
-            User user = organizerOptional.get();
-            if (user.getRole() != UserRole.ORGANIZER) {
-                LoggerUtil.getInstance().logWarning("Email provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
-                throw new InvalidUserRoleException("User with email '" + email + "' does not have organizer permissions.");
-            }
-            Organizer organizer = (Organizer) user;
-            return organizer.getManagedConferences();
-        } else {
-            LoggerUtil.getInstance().logWarning("Email provided '" + email + "' does not belong to any registered user.");
-            throw new UserNotFoundException("User with email '" + email + "' could not be found.");
+        if (organizerOptional.isEmpty()) {
+            LoggerUtil.getInstance().logError(String.format("User with email '%s' does not exist.", email));
+            throw new UserNotFoundException((String.format("User with email '%s' does not exist.", email)));
         }
+
+        User user = organizerOptional.get();
+        if (user.getRole() != UserRole.ORGANIZER) {
+            LoggerUtil.getInstance().logWarning("Email provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
+            throw new InvalidUserRoleException(String.format("User with email '%s' does not have organizer permissions.", email));
+        }
+
+        Organizer organizer = (Organizer) user;
+        return organizer.getManagedConferences();
     }
 
     public boolean isEmailRegistered(String email) {
@@ -201,6 +226,7 @@ public class UserService {
         if (id == null) {
             return false;
         }
+
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             return false;

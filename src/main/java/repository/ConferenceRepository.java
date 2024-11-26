@@ -1,16 +1,31 @@
 package repository;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.Conference;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+public class ConferenceRepository extends BaseRepository<Conference> {
 
-public interface ConferenceRepository {
-    boolean save(Conference conference);
-    Optional<Conference> findById(String id);
-    Optional<Conference> findByName(String name);
-    List<Conference> findAll();
-    List<Conference> findByIds(Set<String> ids);
-    void deleteById(String id);
+    public ConferenceRepository() {
+        super("src/main/resources/data/conferences.json");
+    }
+
+    public Optional<Conference> findByName(String name) {
+        return cache.values()
+                .stream()
+                .filter(conference -> conference.getName().equalsIgnoreCase(name))
+                .findAny();
+    }
+
+    public List<Optional<Conference>> findAllById(Set<String> ids) {
+        return ids.stream()
+                .map(id -> Optional.ofNullable(cache.get(id)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    protected TypeReference<Map<String, Conference>> getTypeReference() {
+        return new TypeReference<Map<String, Conference>>() {};
+    }
 }

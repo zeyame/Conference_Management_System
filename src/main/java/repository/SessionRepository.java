@@ -1,17 +1,27 @@
 package repository;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import domain.model.Session;
+import util.LoggerUtil;
+import util.file.JsonFileHandler;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public interface SessionRepository {
+public class SessionRepository extends BaseRepository<Session> {
 
-    boolean save(Session session);
-    Optional<Session> findById(String id);
+    public SessionRepository() {
+        super("src/main/resources/data/sessions.json");
+    }
 
-    List<Optional<Session>> findAllById(Set<String> ids);
+    public List<Optional<Session>> findAllById(Set<String> ids) {
+        return ids.stream()
+                .map(id -> Optional.ofNullable(cache.get(id)))
+                .collect(Collectors.toList());
+    }
 
-    void deleteById(String id);
+    @Override
+    protected TypeReference<Map<String, Session>> getTypeReference() {
+        return new TypeReference<Map<String, Session>>() {};
+    }
 }

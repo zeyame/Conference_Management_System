@@ -42,7 +42,7 @@ public class MainController {
     public ResponseEntity<Boolean> validateLogin(String email, char[] password) {
         try {
             // fetch user from the service layer
-            UserDTO authenticatedUser = userService.findAuthenticatedByEmail(email);
+            UserDTO authenticatedUser = userService.getAuthenticatedByEmail(email);
 
             // verify the password
             String hashedPassword = authenticatedUser.getHashedPassword();
@@ -93,7 +93,7 @@ public class MainController {
 
     public ResponseEntity<Void> loginUser(String email) {
         try {
-            UserDTO userDTO = userService.findByEmail(email);
+            UserDTO userDTO = userService.getByEmail(email);
 
             UserUI userUI = UIFactory.createUserUI(userDTO);
             userUI.display();

@@ -2,6 +2,7 @@ package view.organizer;
 
 import controller.OrganizerController;
 import dto.ConferenceDTO;
+import dto.FeedbackDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
 import response.ResponseEntity;
@@ -15,10 +16,7 @@ import view.organizer.pages.add.AddSessionPage;
 import view.organizer.pages.manage.ManageConferencePage;
 import view.organizer.pages.manage.ManagePage;
 import view.organizer.pages.manage.ManageSessionPage;
-import view.organizer.pages.view.ViewAttendeesPage;
-import view.organizer.pages.view.ViewListPage;
-import view.organizer.pages.view.ViewSessionAttendancePage;
-import view.organizer.pages.view.ViewSessionsPage;
+import view.organizer.pages.view.*;
 
 import java.util.*;
 import javax.swing.*;
@@ -42,6 +40,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
     private final String VIEW_SESSIONS_PAGE = "View Sessions Page";
     private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
+    private final String VIEW_SESSION_FEEDBACK_PAGE = "View Session Feedback Page";
 
     // map used for quick retrieval of organizer subpages need for routing
     Map<String, Component> subpages = new HashMap<>();
@@ -235,7 +234,6 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<SessionDTO> sessions = sessionsResponse.getData();
-        System.out.println("Retrieved sessions size: " + sessions.size());
         ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conferenceName, sessions);
         navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent());
     }
@@ -246,8 +244,23 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onViewFeedbackRequest() {
+    public void onViewConferenceFeedbackRequest(String conferenceId) {
 
+    }
+
+    @Override
+    public void onViewSessionFeedbackRequest(String sessionId, String sessionName) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view feedback for session '%s' received.", sessionName));
+
+        ResponseEntity<List<FeedbackDTO>> feedbackResponse = organizerController.getSessionFeedback(sessionId);
+        if (!feedbackResponse.isSuccess()) {
+            showError(getCurrentPageId(), feedbackResponse.getErrorMessage());
+            return;
+        }
+
+        List<FeedbackDTO> feedback = feedbackResponse.getData();
+        ViewListPage<FeedbackDTO> viewFeedbackPage = new ViewFeedbackPage(this, sessionName, feedback);
+        navigateTo(VIEW_SESSION_FEEDBACK_PAGE, viewFeedbackPage.createPageContent());
     }
 
     @Override

@@ -1,57 +1,202 @@
-{"rayhuntr1@gmail.com":{"id":"7111602c-7c78-4729-9aea-25546d179584","email":"rayhuntr1@gmail.com","name":"zeyad","hashedPassword":"$2a$10$mZXcCp8MdeA3.W3h42IZhOtYKBbJFQ0IAeLDGvWvyEiO3lBHX99/q","managedConferences":["3bdfd08d-6d25-4c5a-9162-b96c4901fb60"],"role":"Organizer"},"speaker1@example.com":{"id":"a1b2c3d4-e5f6-7890-1234-56789abcdef0","email":"speaker1@example.com","name":"Alice Smith","hashedPassword":"$2a$10$exampleHashForSpeaker1","assignedSessions":{"2024-12-25T15:00":{"id":"66b3227c-c29b-4020-9659-a5223d6850be","startTime":[2024,12,25,15,0],"endTime":[2024,12,25,15,45]}},"role":"Speaker"},"speaker2@example.com":{"id":"f0e1d2c3-b4a5-6789-0123-456789abcdef","email":"speaker2@example.com","name":"Bob Johnson","hashedPassword":"$2a$10$exampleHashForSpeaker2","assignedSessions":{"2024-12-25T09:00":{"id":"c1ced727-e8bf-4259-96c5-ec376a6035a0","startTime":[2024,12,25,9,0],"endTime":[2024,12,25,11,0]}},"role":"Speaker"},
-  "john.doe@example.com": {
-    "id": "1",
-    "email": "john.doe@example.com",
+{"3a87b96e-6dd6-4092-b8f7-17d055587338":{"id":"3a87b96e-6dd6-4092-b8f7-17d055587338","email":"rayhuntr1@gmail.com","name":"Zeyad","hashedPassword":"$2a$10$y3Tp4UMLe0VZi4Ey8uptlewSyGCdopDFbmQzh8nnfzksqekchcQG2","managedConferences":["616faed7-2bc4-4839-9ae9-6082beca15e4"],"role":"Organizer"},"ffd8fbe0-8205-4073-8c61-b21d27cbdccb":{"id":"ffd8fbe0-8205-4073-8c61-b21d27cbdccb","email":"zeyame14@gmail.com","name":"Alex Hunter","hashedPassword":"$2a$10$nLQ5lbGaMT868LXFUpghTOED.W0MRcwMBc15eXgtM2hVMTtX1OZl2","assignedSessions":{"2025-06-20T20:10:50.984":{"id":"fc565fcb-392e-4dd8-9fd4-900cf6c312a4","startTime":[2025,6,20,20,10,50,984000000],"endTime":[2025,6,20,20,10,50,986000000]}},"role":"Speaker"},
+  "b21ac1ab-2b40-46e1-b285-b070d96a9979": {
+    "id": "b21ac1ab-2b40-46e1-b285-b070d96a9979",
+    "email": "attendee1@example.com",
     "name": "John Doe",
-    "hashedPassword": "$2a$10$abcdef1234567890abcdef1234567890abcdef12345678",
-    "role": "Attendee",
+    "hashedPassword": "$2a$10$X9jAq6Kn8qvG9mXsRlmbkOihIDFG01HRZxyvKMFhwiaydsG8WnJk2",
     "schedule": {
-      "2024-11-30T10:00:00": "session1",
-      "2024-11-30T15:00:00": "session2"
-    }
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
   },
-  "jane.smith@example.com": {
-    "id": "2",
-    "email": "jane.smith@example.com",
+  "76a5145a-2596-44ef-9654-2a31bf8a01db": {
+    "id": "76a5145a-2596-44ef-9654-2a31bf8a01db",
+    "email": "attendee2@example.com",
     "name": "Jane Smith",
-    "hashedPassword": "$2a$10$123456abcdef123456abcdef123456abcdef1234567890",
-    "role": "Attendee",
+    "hashedPassword": "$2a$10$Q9t3jb6PGVZl4qlNFSjto.JRhoW2.Zh8P8FzNdPRUxPjqG52xA/Oq",
     "schedule": {
-      "2024-12-01T09:30:00": "session3",
-      "2024-12-01T11:00:00": "session4"
-    }
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
   },
-  "alice.jones@example.com": {
-    "id": "3",
-    "email": "alice.jones@example.com",
-    "name": "Alice Jones",
-    "hashedPassword": "$2a$10$abcdef123456abcdef123456abcdef123456abcdef1234",
-    "role": "Attendee",
+  "fa317bfd-1e7a-4577-b0b2-99e099e75b7a": {
+    "id": "fa317bfd-1e7a-4577-b0b2-99e099e75b7a",
+    "email": "attendee3@example.com",
+    "name": "Alice Johnson",
+    "hashedPassword": "$2a$10$7bOTD9QkFQsPuGeD6xDi8uJrwRVGGESvZI/zjcRmc2F3Ep/eDr8E.",
     "schedule": {
-      "2024-11-28T13:00:00": "session5",
-      "2024-11-28T16:30:00": "session6"
-    }
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
   },
-  "bob.brown@example.com": {
-    "id": "4",
-    "email": "bob.brown@example.com",
-    "name": "Bob Brown",
-    "hashedPassword": "$2a$10$789012abcdef789012abcdef789012abcdef7890123456",
-    "role": "Attendee",
+  "9aebe59f-7fd2-4832-a871-44675418": {
+    "id": "9aebe59f-7fd2-4832-a871-44675418",
+    "email": "attendee4@example.com",
+    "name": "Bob Williams",
+    "hashedPassword": "$2a$10$qoplc6Bp/c5yHTMBal2P1OMmZkOCWw5iqRuXzz4wH6gS1w5LLYp12",
     "schedule": {
-      "2024-11-29T08:00:00": "session7",
-      "2024-11-29T14:00:00": "session8"
-    }
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
   },
-  "eve.davis@example.com": {
-    "id": "5",
-    "email": "eve.davis@example.com",
-    "name": "Eve Davis",
-    "hashedPassword": "$2a$10$abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd",
-    "role": "Attendee",
+  "04b29f9b-799a-47ca-b01c-8bc9d94e3159": {
+    "id": "04b29f9b-799a-47ca-b01c-8bc9d94e3159",
+    "email": "attendee5@example.com",
+    "name": "Charlie Brown",
+    "hashedPassword": "$2a$10$gdhUEW7JhK3MuHirKuUtseWGQUy6KH1j.LhMI9pN2V7ehd7LlIxoC",
     "schedule": {
-      "2024-11-27T10:30:00": "session9",
-      "2024-11-27T12:30:00": "session10"
-    }
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "9ccdb86e-2631-4f6a-a26e-f7c1bdfb2555": {
+    "id": "9ccdb86e-2631-4f6a-a26e-f7c1bdfb2555",
+    "email": "attendee6@example.com",
+    "name": "David Smith",
+    "hashedPassword": "$2a$10$TPmrPbrlTjZZjCxnsRpJluDjGcGGJjX5.jcvCtmG6SbmtJBG2UBsy",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "d72a6b69-d63d-4f76-8d94-48e167400ded": {
+    "id": "d72a6b69-d63d-4f76-8d94-48e167400ded",
+    "email": "attendee7@example.com",
+    "name": "Eve Cooper",
+    "hashedPassword": "$2a$10$aZ6YpINxz24kNREuxyGrDuHKIc2nCS.qDB/3vRGPvjGBIBjXt24dq",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "bc3302a0-4c56-40e7-bae1-23305a32c672": {
+    "id": "bc3302a0-4c56-40e7-bae1-23305a32c672",
+    "email": "attendee8@example.com",
+    "name": "Frank White",
+    "hashedPassword": "$2a$10$9U3Be9mmpL07fEJ0CT99SOi8Y5qqHZScU5odrbUCnbDJsPlo3B6oi",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "450e91e1-0c91-45a6-b22a-56a538a4a053": {
+    "id": "450e91e1-0c91-45a6-b22a-56a538a4a053",
+    "email": "attendee9@example.com",
+    "name": "Grace Black",
+    "hashedPassword": "$2a$10$D3PpW41DQHENvYYvUTJKUOMd7xfszdy7cVg98oOKMOArDnoBgAjtm",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "c50e521c-42fd-4fe2-8914-233174262c47": {
+    "id": "c50e521c-42fd-4fe2-8914-233174262c47",
+    "email": "attendee10@example.com",
+    "name": "Hannah Green",
+    "hashedPassword": "$2a$10$AC1sEQCT1GAvB0JTw7pjcuV0oKglR/xu9GbF7vK4djTUC1Icf4oDa",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "3f8db3a0-8213-4e58-844b-2de22910e687": {
+    "id": "3f8db3a0-8213-4e58-844b-2de22910e687",
+    "email": "attendee11@example.com",
+    "name": "Ian Scott",
+    "hashedPassword": "$2a$10$j1hTAa/JUdb8Rp5Fh8.Ytup5okA6SBy0J/h7GXPfp/LPCv0Mw29na",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "84f93253-e95c-4ec1-9fc0-e5d6e315feba": {
+    "id": "84f93253-e95c-4ec1-9fc0-e5d6e315feba",
+    "email": "attendee12@example.com",
+    "name": "Jack Wilson",
+    "hashedPassword": "$2a$10$UbBtVSWXzysNgOM34/YsNuevEz6RU3AoPTB8RpoY02cVZJm0uztW6",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "88b9c01c-c1c3-4104-889b-e5d4f8eef399": {
+    "id": "88b9c01c-c1c3-4104-889b-e5d4f8eef399",
+    "email": "attendee13@example.com",
+    "name": "Kate Miller",
+    "hashedPassword": "$2a$10$8AXiGZ0rhxlgyu5V4OQYLuWOLFnw4czcl2brCjJLW/11Geh7TWh1S",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "46a5fecc-7da9-470b-bcf9-211c905a70d9": {
+    "id": "46a5fecc-7da9-470b-bcf9-211c905a70d9",
+    "email": "attendee14@example.com",
+    "name": "Laura Martinez",
+    "hashedPassword": "$2a$10$7Os2N46zIuzYrTJaZTrj6uuVRlCWeWgFhDIsNcq3hDco.WuU9rxRK",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "0927fbbd-fab5-415b-b49c-ec68c713f56c": {
+    "id": "0927fbbd-fab5-415b-b49c-ec68c713f56c",
+    "email": "attendee15@example.com",
+    "name": "Michael Brown",
+    "hashedPassword": "$2a$10$E7OE0k.AO38zwZCJwDSd7OZuy5Fie9Jwgn3uGWccl0kdaM3Ptt4jy",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "f4d16438-a57e-4fa1-962c-c2b1befa640c": {
+    "id": "f4d16438-a57e-4fa1-962c-c2b1befa640c",
+    "email": "attendee16@example.com",
+    "name": "Natalie Taylor",
+    "hashedPassword": "$2a$10$WT79oQkJhvl8Xs3O1pbMUecVm/A6msESCRa4tOACnYCFhwnNKTe16",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "0fd7f5db-e15e-4645-89f0-1168b1f79d53": {
+    "id": "0fd7f5db-e15e-4645-89f0-1168b1f79d53",
+    "email": "attendee17@example.com",
+    "name": "Olivia Davis",
+    "hashedPassword": "$2a$10$wtCZ8S5HYjlhkFqBds07Su2GBb6E8KhOF7ylkOYgIqs6nDHG2Kb8i",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "b05b00c1-d4d1-44b0-9f2e-2670e6241bda": {
+    "id": "b05b00c1-d4d1-44b0-9f2e-2670e6241bda",
+    "email": "attendee18@example.com",
+    "name": "Peter Lee",
+    "hashedPassword": "$2a$10$kUpAv7VWbLU59.FQ3JS.vXjHIo7TBBaAZupM2ApSW2owH04Byu.z6",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "aa0d0677-395f-4771-9fd7-e4b336113d5b": {
+    "id": "aa0d0677-395f-4771-9fd7-e4b336113d5b",
+    "email": "attendee19@example.com",
+    "name": "Quinn Harris",
+    "hashedPassword": "$2a$10$hkh.DNdkaTZ2HiElq0RXYOTG3KfILWLxrO8vsgqAItFPRzOgt79tK",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
+  },
+  "b4416873-1457-4da6-b7f9-b518a4c420c3": {
+    "id": "b4416873-1457-4da6-b7f9-b518a4c420c3",
+    "email": "attendee20@example.com",
+    "name": "Rachel King",
+    "hashedPassword": "$2a$10$zuN6nMTrOu9pDMF8OY9eNOYApjoW.U6FyXJtpRI2JwTZW5vLHC7Hy",
+    "schedule": {
+      "2025-06-20T20:10:50.984": "fc565fcb-392e-4dd8-9fd4-900cf6c312a4"
+    },
+    "role": "Attendee"
   }
 }

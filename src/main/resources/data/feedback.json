@@ -1,0 +1,142 @@
+{
+  "7127a935-ea41-4658-8036-eacc6f7210e4": {
+    "id": "7127a935-ea41-4658-8036-eacc6f7210e4",
+    "attendeeId": "b21ac1ab-2b40-46e1-b285-b070d96a9979",
+    "rating": 2,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "c67785bf-c1cf-469a-90cb-01a06e243602": {
+    "id": "c67785bf-c1cf-469a-90cb-01a06e243602",
+    "attendeeId": "76a5145a-2596-44ef-9654-2a31bf8a01db",
+    "rating": 4,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "308b488f-36d7-454b-8620-ad2b558406d9": {
+    "id": "308b488f-36d7-454b-8620-ad2b558406d9",
+    "attendeeId": "fa317bfd-1e7a-4577-b0b2-99e099e75b7a",
+    "rating": 2,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "1a8de081-3c17-4c7a-b2e3-b86397d58d02": {
+    "id": "1a8de081-3c17-4c7a-b2e3-b86397d58d02",
+    "attendeeId": "9aebe59f-7fd2-4832-a871-44675418",
+    "rating": 3,
+    "comment": "Could have been better.",
+    "type": "SESSION"
+  },
+  "21170ef4-987d-49e5-af46-301b28dab058": {
+    "id": "21170ef4-987d-49e5-af46-301b28dab058",
+    "attendeeId": "04b29f9b-799a-47ca-b01c-8bc9d94e3159",
+    "rating": 5,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "a63fbf63-9d47-4524-8a3a-d4bb0b4b98fb": {
+    "id": "a63fbf63-9d47-4524-8a3a-d4bb0b4b98fb",
+    "attendeeId": "9ccdb86e-2631-4f6a-a26e-f7c1bdfb2555",
+    "rating": 4,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "fe8ab191-1551-4a4a-8517-d6c8b26bb497": {
+    "id": "fe8ab191-1551-4a4a-8517-d6c8b26bb497",
+    "attendeeId": "d72a6b69-d63d-4f76-8d94-48e167400ded",
+    "rating": 3,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "373e51ca-c363-4b24-9b0c-dab5b3edba66": {
+    "id": "373e51ca-c363-4b24-9b0c-dab5b3edba66",
+    "attendeeId": "bc3302a0-4c56-40e7-bae1-23305a32c672",
+    "rating": 5,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "a7a55aa5-3b63-4173-bd71-7512d3a67823": {
+    "id": "a7a55aa5-3b63-4173-bd71-7512d3a67823",
+    "attendeeId": "450e91e1-0c91-45a6-b22a-56a538a4a053",
+    "rating": 1,
+    "comment": "Could have been better.",
+    "type": "SESSION"
+  },
+  "e861fd53-cec0-4562-ae05-d25bdb0ab9d6": {
+    "id": "e861fd53-cec0-4562-ae05-d25bdb0ab9d6",
+    "attendeeId": "c50e521c-42fd-4fe2-8914-233174262c47",
+    "rating": 3,
+    "comment": "Could have been better.",
+    "type": "SESSION"
+  },
+  "a6e5d1d2-44c2-4842-8e83-e721fea6a002": {
+    "id": "a6e5d1d2-44c2-4842-8e83-e721fea6a002",
+    "attendeeId": "3f8db3a0-8213-4e58-844b-2de22910e687",
+    "rating": 4,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "274cf24e-6d5d-46ab-9830-961241f78229": {
+    "id": "274cf24e-6d5d-46ab-9830-961241f78229",
+    "attendeeId": "84f93253-e95c-4ec1-9fc0-e5d6e315feba",
+    "rating": 3,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "55b6a456-7e3c-4058-9558-c6af7758b443": {
+    "id": "55b6a456-7e3c-4058-9558-c6af7758b443",
+    "attendeeId": "88b9c01c-c1c3-4104-889b-e5d4f8eef399",
+    "rating": 5,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "21d0bfaf-d977-4aaa-bc47-5716aa34d772": {
+    "id": "21d0bfaf-d977-4aaa-bc47-5716aa34d772",
+    "attendeeId": "46a5fecc-7da9-470b-bcf9-211c905a70d9",
+    "rating": 2,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "0d62e6ae-62e4-4559-aaa5-c75be030cce1": {
+    "id": "0d62e6ae-62e4-4559-aaa5-c75be030cce1",
+    "attendeeId": "0927fbbd-fab5-415b-b49c-ec68c713f56c",
+    "rating": 5,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "de61eeea-6a02-48fb-983a-3439224059d8": {
+    "id": "de61eeea-6a02-48fb-983a-3439224059d8",
+    "attendeeId": "f4d16438-a57e-4fa1-962c-c2b1befa640c",
+    "rating": 3,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "a721a5c9-8517-4b2a-85e7-a03bd1be0fd5": {
+    "id": "a721a5c9-8517-4b2a-85e7-a03bd1be0fd5",
+    "attendeeId": "0fd7f5db-e15e-4645-89f0-1168b1f79d53",
+    "rating": 4,
+    "comment": "Could have been better.",
+    "type": "SESSION"
+  },
+  "2e2d9d41-d45c-4932-b8f2-ca72f5777142": {
+    "id": "2e2d9d41-d45c-4932-b8f2-ca72f5777142",
+    "attendeeId": "b05b00c1-d4d1-44b0-9f2e-2670e6241bda",
+    "rating": 3,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  },
+  "8020c38c-1bba-4da4-947a-d1fdb3221b75": {
+    "id": "8020c38c-1bba-4da4-947a-d1fdb3221b75",
+    "attendeeId": "aa0d0677-395f-4771-9fd7-e4b336113d5b",
+    "rating": 4,
+    "comment": "Could have been better.",
+    "type": "SESSION"
+  },
+  "f0c04a29-3c64-4feb-9119-169d022fc6b9": {
+    "id": "f0c04a29-3c64-4feb-9119-169d022fc6b9",
+    "attendeeId": "b4416873-1457-4da6-b7f9-b518a4c420c3",
+    "rating": 5,
+    "comment": "This session was great!",
+    "type": "SESSION"
+  }
+}

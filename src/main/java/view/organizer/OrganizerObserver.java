@@ -22,7 +22,7 @@ public interface OrganizerObserver {
     void onViewAttendeesRequest(String conferenceId, String conferenceName);
     void onViewSessionsRequest(String conferenceId, String conferenceName);
     void onViewSpeakersRequest();
-    void onViewFeedbackRequest();
+    void onViewConferenceFeedbackRequest(String conferenceId);
     void onNavigateBackRequest();
 
     // View Sessions Page events
@@ -35,5 +35,6 @@ public interface OrganizerObserver {
     // Manage Session Page Events
     void onViewSessionAttendeesRequest(String sessionId, String sessionName);
     void onViewSessionAttendanceRequest(String sessionId);
+    void onViewSessionFeedbackRequest(String sessionId, String sessionName);
 
 }

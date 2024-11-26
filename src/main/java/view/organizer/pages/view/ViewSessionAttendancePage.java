@@ -13,7 +13,7 @@ public class ViewSessionAttendancePage extends ViewListPage<UserDTO> {
     private final Set<String> presentAttendees;
 
     public ViewSessionAttendancePage(OrganizerObserver organizerObserver, List<UserDTO> registeredAttendees, Set<String> presentAttendees, String eventName, float attendanceRecord) {
-        super(organizerObserver, registeredAttendees, eventName);
+        super(organizerObserver, eventName, registeredAttendees);
         this.presentAttendees = presentAttendees;
         this.attendanceRecord = attendanceRecord;
     }
@@ -32,8 +32,8 @@ public class ViewSessionAttendancePage extends ViewListPage<UserDTO> {
 
     @Override
     protected JPanel createItemPanel(UserDTO attendee) {
-        JPanel attendeePanel = new JPanel();
-        attendeePanel.setLayout(new BoxLayout(attendeePanel, BoxLayout.Y_AXIS));
+        JPanel attendancePanel = new JPanel();
+        attendancePanel.setLayout(new BoxLayout(attendancePanel, BoxLayout.Y_AXIS));
 
         // name of attendee
         JLabel nameLabel = new JLabel("Name: " + attendee.getName());
@@ -42,13 +42,13 @@ public class ViewSessionAttendancePage extends ViewListPage<UserDTO> {
 
         // email of conference
         String status = presentAttendees.contains(attendee.getId()) ? "Attended" : "Absent";
-        JLabel emailLabel = new JLabel("Status: " + status);
-        emailLabel.setFont(new Font("Sans serif", Font.PLAIN, 14));
+        JLabel statusLabel = new JLabel("Status: " + status);
+        statusLabel.setFont(new Font("Sans serif", Font.PLAIN, 14));
 
-        attendeePanel.add(nameLabel);
-        attendeePanel.add(emailLabel);
+        attendancePanel.add(nameLabel);
+        attendancePanel.add(statusLabel);
 
-        return attendeePanel;
+        return attendancePanel;
     }
 
     private JLabel createAttendanceRecordLabel() {

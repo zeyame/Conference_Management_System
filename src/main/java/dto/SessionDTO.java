@@ -22,6 +22,7 @@ public class SessionDTO {
     private LocalTime endTime;
     private final Set<String> registeredAttendees;
     private final Set<String> presentAttendees;
+    private final Set<String> feedback;
     private final float attendanceRecord;
 
     // No-arg constructor for JSON serialization
@@ -38,6 +39,7 @@ public class SessionDTO {
         this.endTime = null;
         this.registeredAttendees = new HashSet<>();
         this.presentAttendees = new HashSet<>();
+        this.feedback = new HashSet<>();
         this.attendanceRecord = 0;
     }
 
@@ -54,6 +56,7 @@ public class SessionDTO {
         this.endTime = builder.endTime;
         this.registeredAttendees = builder.registeredAttendees;
         this.presentAttendees = builder.presentAttendees;
+        this.feedback = builder.feedback;
         this.attendanceRecord = getAttendanceRecord();
     }
 
@@ -77,6 +80,7 @@ public class SessionDTO {
         private String description;
         private Set<String> registeredAttendees;
         private Set<String> presentAttendees;
+        private Set<String> feedback;
 
         public Builder(String conferenceId, String speakerId, String speakerName, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.conferenceId = conferenceId;
@@ -93,6 +97,7 @@ public class SessionDTO {
             this.description = null;
             this.registeredAttendees = new HashSet<>();
             this.presentAttendees = new HashSet<>();
+            this.feedback = new HashSet<>();
         }
 
         public Builder setId(String id) {
@@ -112,6 +117,11 @@ public class SessionDTO {
 
         public Builder setPresentAttendees(Set<String> presentAttendees) {
             this.presentAttendees = presentAttendees != null ? presentAttendees : new HashSet<>();
+            return this;
+        }
+
+        public Builder setFeedback(Set<String> feedback) {
+            this.feedback = feedback != null ? feedback : new HashSet<>();
             return this;
         }
 
@@ -184,6 +194,10 @@ public class SessionDTO {
 
     public Set<String> getPresentAttendees() {
         return new HashSet<>(this.presentAttendees);            // defensive copy
+    }
+
+    public Set<String> getFeedback() {
+        return new HashSet<>(this.feedback);            // defensive copy
     }
 
     public float getAttendanceRecord() {
