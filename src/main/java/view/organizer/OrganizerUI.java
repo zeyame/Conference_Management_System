@@ -13,6 +13,7 @@ import util.ui.UIComponentFactory;
 import view.organizer.pages.add.AddConferencePage;
 import view.organizer.pages.add.AddPage;
 import view.organizer.pages.add.AddSessionPage;
+import view.organizer.pages.add.EditSessionPage;
 import view.organizer.pages.manage.ManageConferencePage;
 import view.organizer.pages.manage.ManagePage;
 import view.organizer.pages.manage.ManageSessionPage;
@@ -37,6 +38,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String MANAGE_SESSION_PAGE = "Manage Session Page";
     private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
     private final String ADD_SESSION_PAGE = "Add Session Page";
+    private final String EDIT_SESSION_PAGE = "Edit Session Page";
     private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
     private final String VIEW_SESSIONS_PAGE = "View Sessions Page";
     private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
@@ -198,6 +200,26 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     @Override
     public void onEditConferenceRequest() {
+
+    }
+
+    @Override
+    public void onEditSessionRequest(SessionDTO sessionDTO) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to edit session '%s' received,", sessionDTO.getName()));
+
+        ResponseEntity<List<UserDTO>> speakersResponse = organizerController.getRegisteredSpeakers();
+        if (!speakersResponse.isSuccess()) {
+            showError(getCurrentPageId(), speakersResponse.getErrorMessage());
+            return;
+        }
+
+        List<UserDTO> speakers = speakersResponse.getData();
+        AddPage editSessionPage = new EditSessionPage(this, sessionDTO.getConferenceId(), speakers, sessionDTO);
+        navigateTo(EDIT_SESSION_PAGE, editSessionPage.createPageContent());
+    }
+
+    @Override
+    public void onUpdateSessionFormRequest(SessionDTO updatedSessionDTO) {
 
     }
 

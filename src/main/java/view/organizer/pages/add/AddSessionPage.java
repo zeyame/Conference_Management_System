@@ -18,16 +18,16 @@ import java.util.Date;
 import java.util.List;
 
 public class AddSessionPage extends AddPage {
-    private final String conferenceId;
-    private final String conferenceName;
-    private final List<UserDTO> speakers;
+    protected final String conferenceId;
+    protected final String conferenceName;
+    protected final List<UserDTO> speakers;
 
     // form fields
-    private final JTextField roomField;
-    private final JSpinner dateSpinner;
-    private final JSpinner startTimeSpinner;
-    private final JSpinner endTimeSpinner;
-    private JComboBox<UserDTO> speakerDropdown;
+    protected final JTextField roomField;
+    protected final JSpinner dateSpinner;
+    protected final JSpinner startTimeSpinner;
+    protected final JSpinner endTimeSpinner;
+    protected JComboBox<UserDTO> speakerDropdown;
 
     public AddSessionPage(OrganizerObserver organizerObserver, String conferenceId, String conferenceName, List<UserDTO> speakers) {
         super(organizerObserver);
@@ -98,11 +98,7 @@ public class AddSessionPage extends AddPage {
         });
     }
 
-    private void setUpListeners() {
-        submitButton.addActionListener(this::handleSubmitSessionDetails);
-    }
-
-    private void handleSubmitSessionDetails(ActionEvent e) {
+    protected void handleSubmitSessionDetails(ActionEvent e) {
         String sessionName = nameField.getText();
         String sessionDescription = descriptionField.getText();
         UserDTO speaker = (UserDTO) speakerDropdown.getSelectedItem();
@@ -127,11 +123,16 @@ public class AddSessionPage extends AddPage {
         organizerObserver.onSubmitSessionFormRequest(sessionDTO, conferenceName);
     }
 
-    private LocalDate extractLocalDate(Date date) {
+    protected LocalDate extractLocalDate(Date date) {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    private LocalTime extractLocalTime(Date time) {
+    protected LocalTime extractLocalTime(Date time) {
         return time.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
     }
+
+    private void setUpListeners() {
+        submitButton.addActionListener(this::handleSubmitSessionDetails);
+    }
+
 }
