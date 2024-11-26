@@ -128,6 +128,19 @@ public class OrganizerController {
         }
     }
 
+    public ResponseEntity<List<UserDTO>> getSessionAttendees(String sessionId) {
+        try {
+            SessionDTO sessionDTO = sessionService.getById(sessionId);
+            Set<String> attendeeIds = sessionDTO.getRegisteredAttendees();
+            List<UserDTO> attendees = userService.findByIds(attendeeIds);
+            LoggerUtil.getInstance().logInfo(String.format("Successfully retrieved attendees for session '%s'.", sessionDTO.getName()));
+            return ResponseEntity.success(attendees);
+        } catch (SessionNotFoundException e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to retrieve session details as session with id '%s' does not exist.", sessionId));
+            return ResponseEntity.error(String.format("Session with id '%s' does not exist.", sessionId));
+        }
+    }
+
     public ResponseEntity<Void> validateConferenceData(ConferenceDTO conferenceDTO) {
         // implement validation logic
         String name = conferenceDTO.getName();

@@ -1,1 +1,57 @@
-{"rayhuntr1@gmail.com":{"id":"7111602c-7c78-4729-9aea-25546d179584","email":"rayhuntr1@gmail.com","name":"zeyad","hashedPassword":"$2a$10$mZXcCp8MdeA3.W3h42IZhOtYKBbJFQ0IAeLDGvWvyEiO3lBHX99/q","managedConferences":["3bdfd08d-6d25-4c5a-9162-b96c4901fb60"],"role":"Organizer"},"speaker1@example.com":{"id":"a1b2c3d4-e5f6-7890-1234-56789abcdef0","email":"speaker1@example.com","name":"Alice Smith","hashedPassword":"$2a$10$exampleHashForSpeaker1","assignedSessions":{"2024-12-25T15:00":{"id":"66b3227c-c29b-4020-9659-a5223d6850be","startTime":[2024,12,25,15,0],"endTime":[2024,12,25,15,45]}},"role":"Speaker"},"speaker2@example.com":{"id":"f0e1d2c3-b4a5-6789-0123-456789abcdef","email":"speaker2@example.com","name":"Bob Johnson","hashedPassword":"$2a$10$exampleHashForSpeaker2","assignedSessions":{"2024-12-25T09:00":{"id":"c1ced727-e8bf-4259-96c5-ec376a6035a0","startTime":[2024,12,25,9,0],"endTime":[2024,12,25,11,0]}},"role":"Speaker"}}
+{"rayhuntr1@gmail.com":{"id":"7111602c-7c78-4729-9aea-25546d179584","email":"rayhuntr1@gmail.com","name":"zeyad","hashedPassword":"$2a$10$mZXcCp8MdeA3.W3h42IZhOtYKBbJFQ0IAeLDGvWvyEiO3lBHX99/q","managedConferences":["3bdfd08d-6d25-4c5a-9162-b96c4901fb60"],"role":"Organizer"},"speaker1@example.com":{"id":"a1b2c3d4-e5f6-7890-1234-56789abcdef0","email":"speaker1@example.com","name":"Alice Smith","hashedPassword":"$2a$10$exampleHashForSpeaker1","assignedSessions":{"2024-12-25T15:00":{"id":"66b3227c-c29b-4020-9659-a5223d6850be","startTime":[2024,12,25,15,0],"endTime":[2024,12,25,15,45]}},"role":"Speaker"},"speaker2@example.com":{"id":"f0e1d2c3-b4a5-6789-0123-456789abcdef","email":"speaker2@example.com","name":"Bob Johnson","hashedPassword":"$2a$10$exampleHashForSpeaker2","assignedSessions":{"2024-12-25T09:00":{"id":"c1ced727-e8bf-4259-96c5-ec376a6035a0","startTime":[2024,12,25,9,0],"endTime":[2024,12,25,11,0]}},"role":"Speaker"},
+  "john.doe@example.com": {
+    "id": "1",
+    "email": "john.doe@example.com",
+    "name": "John Doe",
+    "hashedPassword": "$2a$10$abcdef1234567890abcdef1234567890abcdef12345678",
+    "role": "Attendee",
+    "schedule": {
+      "2024-11-30T10:00:00": "session1",
+      "2024-11-30T15:00:00": "session2"
+    }
+  },
+  "jane.smith@example.com": {
+    "id": "2",
+    "email": "jane.smith@example.com",
+    "name": "Jane Smith",
+    "hashedPassword": "$2a$10$123456abcdef123456abcdef123456abcdef1234567890",
+    "role": "Attendee",
+    "schedule": {
+      "2024-12-01T09:30:00": "session3",
+      "2024-12-01T11:00:00": "session4"
+    }
+  },
+  "alice.jones@example.com": {
+    "id": "3",
+    "email": "alice.jones@example.com",
+    "name": "Alice Jones",
+    "hashedPassword": "$2a$10$abcdef123456abcdef123456abcdef123456abcdef1234",
+    "role": "Attendee",
+    "schedule": {
+      "2024-11-28T13:00:00": "session5",
+      "2024-11-28T16:30:00": "session6"
+    }
+  },
+  "bob.brown@example.com": {
+    "id": "4",
+    "email": "bob.brown@example.com",
+    "name": "Bob Brown",
+    "hashedPassword": "$2a$10$789012abcdef789012abcdef789012abcdef7890123456",
+    "role": "Attendee",
+    "schedule": {
+      "2024-11-29T08:00:00": "session7",
+      "2024-11-29T14:00:00": "session8"
+    }
+  },
+  "eve.davis@example.com": {
+    "id": "5",
+    "email": "eve.davis@example.com",
+    "name": "Eve Davis",
+    "hashedPassword": "$2a$10$abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+    "role": "Attendee",
+    "schedule": {
+      "2024-11-27T10:30:00": "session9",
+      "2024-11-27T12:30:00": "session10"
+    }
+  }
+}

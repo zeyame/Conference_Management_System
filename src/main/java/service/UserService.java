@@ -113,9 +113,9 @@ public class UserService {
             return Collections.emptyList();
         }
 
-        return ids.stream()
-                .map(userRepository::findById)
-                .flatMap(Optional::stream)
+        // batch fetch all users matching the set of ids
+        List<User> users = userRepository.findAllById(ids);
+        return users.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }

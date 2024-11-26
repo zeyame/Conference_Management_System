@@ -207,7 +207,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     @Override
     public void onViewAttendeesRequest(String conferenceId, String conferenceName) {
-        LoggerUtil.getInstance().logInfo("Request to view attendees for conference '" + conferenceName + "' received.");
+        LoggerUtil.getInstance().logInfo(String.format("Request to view attendees for conference '%s' received.", conferenceName));
 
         // get attendees for conference
         ResponseEntity<List<UserDTO>> conferenceAttendeesResponse = organizerController.getConferenceAttendees(conferenceId);
@@ -250,6 +250,21 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     @Override
     public void onNavigateBackRequest() {
         navigateBack();
+    }
+
+    @Override
+    public void onViewSessionAttendeesRequest(String sessionId, String sessionName) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view registered attendees for session '%s' received.", sessionName));
+
+        ResponseEntity<List<UserDTO>> sessionAttendeesResponse = organizerController.getSessionAttendees(sessionId);
+        if (!sessionAttendeesResponse.isSuccess()) {
+            showError(getCurrentPageId(), sessionAttendeesResponse.getErrorMessage());
+            return;
+        }
+
+        List<UserDTO> attendees = sessionAttendeesResponse.getData();
+        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, sessionName, attendees);
+        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent());
     }
 
     private void initializeHomePage() {

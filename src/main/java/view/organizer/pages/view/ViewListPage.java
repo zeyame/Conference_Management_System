@@ -9,7 +9,7 @@ import java.util.List;
 
 public abstract class ViewListPage<T> {
     protected final OrganizerObserver organizerObserver;
-    protected final String conferenceName;
+    protected final String eventName;           // event can be a conference or a session
 
     // main panel
     protected final JPanel mainContentPanel;
@@ -20,10 +20,10 @@ public abstract class ViewListPage<T> {
     // list of items
     protected final List<T> items;
 
-    public ViewListPage(OrganizerObserver organizerObserver, List<T> items, String conferenceName) {
+    public ViewListPage(OrganizerObserver organizerObserver, List<T> items, String eventName) {
         this.organizerObserver = organizerObserver;
         this.items = items;
-        this.conferenceName = conferenceName;
+        this.eventName = eventName;
 
         // initializing components
         this.mainContentPanel = new JPanel(new BorderLayout());
@@ -35,7 +35,9 @@ public abstract class ViewListPage<T> {
         JPanel headerPanel = UIComponentFactory
                 .createHeaderPanel(getPageTitle(), backButton);
         JScrollPane scrollPane = createItemsScrollPane();
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(7);
 
         mainContentPanel.add(headerPanel, BorderLayout.NORTH);
         mainContentPanel.add(scrollPane, BorderLayout.CENTER);

@@ -13,15 +13,15 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
     private final String conferenceId;
     private final JButton addSessionButton;
 
-    public ViewSessionsPage(OrganizerObserver organizerObserver, String conferenceId, String conferenceName, List<SessionDTO> sessions) {
-        super(organizerObserver, sessions, conferenceName);
+    public ViewSessionsPage(OrganizerObserver organizerObserver, String conferenceId, String eventName, List<SessionDTO> sessions) {
+        super(organizerObserver, sessions, eventName);
         this.conferenceId = conferenceId;
 
         // initializing components
         addSessionButton = new JButton("Add Session");
 
         // set up listener
-        addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId, this.conferenceName));
+        addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId, this.eventName));
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
 
     @Override
     protected String getPageTitle() {
-        return String.format("Sessions registered for '%s'", this.conferenceName);
+        return String.format("Sessions registered for '%s'", this.eventName);
     }
 
 
@@ -49,10 +49,7 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
             sessionsPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between sessions
         }
 
-        JScrollPane scrollPane = new JScrollPane(sessionsPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(7);
-        return scrollPane;
+        return new JScrollPane(sessionsPanel);
     }
 
     @Override

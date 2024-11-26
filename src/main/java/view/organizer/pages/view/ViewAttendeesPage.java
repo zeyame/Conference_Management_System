@@ -10,13 +10,13 @@ import java.util.List;
 
 public class ViewAttendeesPage extends ViewListPage<UserDTO> {
 
-    public ViewAttendeesPage(OrganizerObserver organizerObserver, String conferenceName, List<UserDTO> attendees) {
-        super(organizerObserver, attendees, conferenceName);
+    public ViewAttendeesPage(OrganizerObserver organizerObserver, String eventName, List<UserDTO> attendees) {
+        super(organizerObserver, attendees, eventName);
     }
 
     @Override
     protected String getPageTitle() {
-        return String.format("Attendees registered for '%s'", this.conferenceName);
+        return String.format("Attendees registered for '%s'", this.eventName);
     }
 
     @Override
@@ -29,12 +29,7 @@ public class ViewAttendeesPage extends ViewListPage<UserDTO> {
             attendeesPanel.add(Box.createRigidArea(new Dimension(0, 25)));
         }
 
-        JScrollPane attendeesScrollPane = new JScrollPane(attendeesPanel);
-        attendeesScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        attendeesScrollPane.getVerticalScrollBar().setUnitIncrement(7);
-        attendeesScrollPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
-
-        return attendeesScrollPane;
+        return new JScrollPane(attendeesPanel);
     }
 
     @Override

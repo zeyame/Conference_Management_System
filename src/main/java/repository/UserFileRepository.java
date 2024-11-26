@@ -6,6 +6,7 @@ import util.file.JsonFileHandler;
 import util.LoggerUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UserFileRepository implements UserRepository {
     private static final String FILE_PATH = "src/main/resources/data/users.json";
@@ -38,6 +39,14 @@ public class UserFileRepository implements UserRepository {
                 .stream()
                 .filter(user -> id.equals(user.getId()))
                 .findAny();
+    }
+
+    @Override
+    public List<User> findAllById(Set<String> ids) {
+        return userCache.values()
+                .stream()
+                .filter(user -> ids.contains(user.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override

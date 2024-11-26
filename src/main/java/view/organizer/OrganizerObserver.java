@@ -32,4 +32,7 @@ public interface OrganizerObserver {
     // Add Session Page events
     void onSubmitSessionFormRequest(SessionDTO sessionDTO, String conferenceName);
 
+    // Manage Session Page Events
+    void onViewSessionAttendeesRequest(String sessionId, String sessionName);
+
 }
