@@ -17,6 +17,7 @@ import view.organizer.pages.manage.ManagePage;
 import view.organizer.pages.manage.ManageSessionPage;
 import view.organizer.pages.view.ViewAttendeesPage;
 import view.organizer.pages.view.ViewListPage;
+import view.organizer.pages.view.ViewSessionAttendancePage;
 import view.organizer.pages.view.ViewSessionsPage;
 
 import java.util.*;
@@ -40,6 +41,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String ADD_SESSION_PAGE = "Add Session Page";
     private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
     private final String VIEW_SESSIONS_PAGE = "View Sessions Page";
+    private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
 
     // map used for quick retrieval of organizer subpages need for routing
     Map<String, Component> subpages = new HashMap<>();
@@ -233,6 +235,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<SessionDTO> sessions = sessionsResponse.getData();
+        System.out.println("Retrieved sessions size: " + sessions.size());
         ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conferenceName, sessions);
         navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent());
     }
@@ -265,6 +268,31 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         List<UserDTO> attendees = sessionAttendeesResponse.getData();
         ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, sessionName, attendees);
         navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent());
+    }
+
+    @Override
+    public void onViewSessionAttendanceRequest(String sessionId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view attendance record for session with id '%s' received.", sessionId));
+
+        ResponseEntity<SessionDTO> sessionResponse = organizerController.getSessionDetails(sessionId);
+        if (!sessionResponse.isSuccess()) {
+            showError(getCurrentPageId(), sessionResponse.getErrorMessage());
+            return;
+        }
+
+        ResponseEntity<List<UserDTO>> sessionAttendeesResponse = organizerController.getSessionAttendees(sessionId);
+        if (!sessionAttendeesResponse.isSuccess()) {
+            showError(getCurrentPageId(), sessionAttendeesResponse.getErrorMessage());
+            return;
+        }
+
+        SessionDTO sessionDTO = sessionResponse.getData();
+        List<UserDTO> registeredAttendees = sessionAttendeesResponse.getData();
+        Set<String> presentAttendees = sessionDTO.getPresentAttendees();
+        float attendanceRecord = sessionDTO.getAttendanceRecord();
+
+        ViewListPage<UserDTO> viewSessionAttendancePage = new ViewSessionAttendancePage(this, registeredAttendees, presentAttendees, sessionDTO.getName(), attendanceRecord);
+        navigateTo(VIEW_SESSION_ATTENDANCE_PAGE, viewSessionAttendancePage.createPageContent());
     }
 
     private void initializeHomePage() {

@@ -95,7 +95,7 @@ public class ManageSessionPage extends ManagePage {
 //        editSessionButton.addActionListener(e -> organizerObserver.onEditSessionRequest());
 //        deleteSessionButton.addActionListener(e -> organizerObserver.onDeleteSessionRequest());
         viewAttendeesButton.addActionListener(e -> organizerObserver.onViewSessionAttendeesRequest(sessionDTO.getId(), sessionDTO.getName()));
-//        viewAttendanceButton.addActionListener(e -> organizerObserver.onViewSessionAttendanceRequest(sessionDTO.getId()));
+        viewAttendanceButton.addActionListener(e -> organizerObserver.onViewSessionAttendanceRequest(sessionDTO.getId()));
 //        viewFeedbackButton.addActionListener(e -> organizerObserver.onViewSessionFeedbackRequest(sessionDTO.getId()));
     }
 }

@@ -34,5 +34,6 @@ public interface OrganizerObserver {
 
     // Manage Session Page Events
     void onViewSessionAttendeesRequest(String sessionId, String sessionName);
+    void onViewSessionAttendanceRequest(String sessionId);
 
 }

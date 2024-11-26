@@ -71,13 +71,13 @@ public class SessionService {
             return Collections.emptyList();
         }
 
-        // batch fetch all sessions
-        List<Session> sessions = sessionRepository.findAllById(ids);
+        // batch fetch all sessions and extract the valid ones
+        List<Session> sessions = extractValidSessions(sessionRepository.findAllById(ids));
 
         // retrieve the speaker id for each session
         Set<String> speakerIds = sessions.stream()
-                                        .map(Session::getSpeakerId)
-                                        .collect(Collectors.toSet());
+                .map(Session::getSpeakerId)
+                .collect(Collectors.toSet());
 
         // retrieve the speaker name corresponding to each speaker id
         Map<String, String> speakerIdToNameMap = userService.findNamesByIds(speakerIds);
@@ -95,7 +95,7 @@ public class SessionService {
         }
 
         // batch fetch sessions
-        List<Session> sessions = sessionRepository.findAllById(ids);
+        List<Session> sessions = extractValidSessions(sessionRepository.findAllById(ids));
 
         return sessions.stream()
                 .anyMatch(session -> name.equals(session.getName()));
@@ -138,7 +138,7 @@ public class SessionService {
     }
 
     private void validateSessionTime(SessionDTO sessionDTO, Set<String> sessionIds) {
-        List<Session> sessions = sessionRepository.findAllById(sessionIds);
+        List<Session> sessions = extractValidSessions(sessionRepository.findAllById(sessionIds));
         LocalDateTime sessionStart = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime());
         LocalDateTime sessionEnd = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime());
 
@@ -148,6 +148,14 @@ public class SessionService {
                 throw SessionCreationException.timeUnavailable(String.format("The session '%s' is already registered to take place within the time period you selected. Please choose a different time slot.", session.getName()));
             }
         }
+    }
+
+    private List<Session> extractValidSessions(List<Optional<Session>> sessionOptionals) {
+        // extract valid session
+        return sessionOptionals.stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     private SessionDTO mapToDTO(Session session, String speakerName) {
@@ -163,7 +171,7 @@ public class SessionService {
         ).setId(session.getId())
          .setDescription(session.getDescription())
          .setRegisteredAttendees(session.getRegisteredAttendees())
-         .setAttendanceRecord(session.getAttendanceRecord())
+         .setPresentAttendees(session.getPresentAttendees())
          .build();
     }
 }

@@ -40,9 +40,9 @@ public class SessionFileRepository implements SessionRepository {
     }
 
     @Override
-    public List<Session> findAllById(Set<String> ids) {
+    public List<Optional<Session>> findAllById(Set<String> ids) {
         return ids.stream()
-                .map(sessionCache::get)
+                .map(id -> Optional.ofNullable(sessionCache.get(id)))
                 .collect(Collectors.toList());
     }
 

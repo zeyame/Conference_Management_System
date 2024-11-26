@@ -11,7 +11,7 @@ public interface SessionRepository {
     boolean save(Session session);
     Optional<Session> findById(String id);
 
-    List<Session> findAllById(Set<String> ids);
+    List<Optional<Session>> findAllById(Set<String> ids);
 
     void deleteById(String id);
 }

@@ -1,5 +1,6 @@
 package view.organizer.pages.view;
 
+import dto.SessionDTO;
 import util.ui.UIComponentFactory;
 import view.organizer.OrganizerObserver;
 
@@ -47,7 +48,17 @@ public abstract class ViewListPage<T> {
 
     protected abstract String getPageTitle();
 
-    protected abstract JScrollPane createItemsScrollPane();
-
     protected abstract JPanel createItemPanel(T item);
+
+    private JScrollPane createItemsScrollPane() {
+        JPanel itemsPanel = new JPanel();
+        itemsPanel.setLayout(new BoxLayout(itemsPanel, BoxLayout.Y_AXIS));
+
+        for (T item : items) {
+            itemsPanel.add(createItemPanel(item));
+            itemsPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between sessions
+        }
+
+        return new JScrollPane(itemsPanel);
+    }
 }

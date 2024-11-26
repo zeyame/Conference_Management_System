@@ -19,18 +19,18 @@ public class ViewAttendeesPage extends ViewListPage<UserDTO> {
         return String.format("Attendees registered for '%s'", this.eventName);
     }
 
-    @Override
-    protected JScrollPane createItemsScrollPane() {
-        JPanel attendeesPanel = new JPanel();
-        attendeesPanel.setLayout(new BoxLayout(attendeesPanel, BoxLayout.Y_AXIS));
-
-        for (UserDTO attendee: items) {
-            attendeesPanel.add(createItemPanel(attendee));
-            attendeesPanel.add(Box.createRigidArea(new Dimension(0, 25)));
-        }
-
-        return new JScrollPane(attendeesPanel);
-    }
+//    @Override
+//    protected JScrollPane createItemsScrollPane() {
+//        JPanel attendeesPanel = new JPanel();
+//        attendeesPanel.setLayout(new BoxLayout(attendeesPanel, BoxLayout.Y_AXIS));
+//
+//        for (UserDTO attendee: items) {
+//            attendeesPanel.add(createItemPanel(attendee));
+//            attendeesPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+//        }
+//
+//        return new JScrollPane(attendeesPanel);
+//    }
 
     @Override
     protected JPanel createItemPanel(UserDTO attendee) {

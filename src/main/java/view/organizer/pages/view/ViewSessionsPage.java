@@ -38,19 +38,18 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
     }
 
 
-    @Override
-    protected JScrollPane createItemsScrollPane() {
-        JPanel sessionsPanel = new JPanel();
-        sessionsPanel.setLayout(new BoxLayout(sessionsPanel, BoxLayout.Y_AXIS));
-        sessionsPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
-
-        for (SessionDTO session : items) {
-            sessionsPanel.add(createItemPanel(session));
-            sessionsPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between sessions
-        }
-
-        return new JScrollPane(sessionsPanel);
-    }
+//    @Override
+//    protected JScrollPane createItemsScrollPane() {
+//        JPanel sessionsPanel = new JPanel();
+//        sessionsPanel.setLayout(new BoxLayout(sessionsPanel, BoxLayout.Y_AXIS));
+//
+//        for (SessionDTO session : items) {
+//            sessionsPanel.add(createItemPanel(session));
+//            sessionsPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between sessions
+//        }
+//
+//        return new JScrollPane(sessionsPanel);
+//    }
 
     @Override
     protected JPanel createItemPanel(SessionDTO session) {

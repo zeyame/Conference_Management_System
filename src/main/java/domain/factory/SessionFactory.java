@@ -6,7 +6,6 @@ import util.IdGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Map;
 import java.util.Set;
 
 public class SessionFactory {
@@ -25,12 +24,12 @@ public class SessionFactory {
         LocalTime startTime = sessionDTO.getStartTime();
         LocalTime endTime = sessionDTO.getEndTime();
         Set<String> registeredAttendees = sessionDTO.getRegisteredAttendees();
-        Map<String, Boolean> attendanceRecord = sessionDTO.getAttendanceRecord();
+        Set<String> presentAttendees = sessionDTO.getPresentAttendees();
 
         return Session.builder(id, conferenceId, speakerId, name, room, date, startTime, endTime)
                 .setDescription(description)
                 .setRegisteredAttendees(registeredAttendees)
-                .setAttendanceRecord(attendanceRecord)
+                .setPresentAttendees(presentAttendees)
                 .build();
     }
 }

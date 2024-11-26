@@ -18,7 +18,8 @@ public class Session {
     private LocalTime startTime;
     private LocalTime endTime;
     private final Set<String> registeredAttendees;
-    private final Map<String, Boolean> attendanceRecord;
+    private final Set<String> presentAttendees;
+    private final double attendanceRecord;
 
     // no-arg constructor for JSON serialization
     private Session() {
@@ -32,7 +33,8 @@ public class Session {
         this.startTime = null;
         this.endTime = null;
         this.registeredAttendees = new HashSet<>();
-        this.attendanceRecord = new HashMap<>();
+        this.presentAttendees = new HashSet<>();
+        this.attendanceRecord = 0;
     }
 
     private Session(Builder builder) {
@@ -46,7 +48,8 @@ public class Session {
         this.startTime = builder.startTime;
         this.endTime = builder.endTime;
         this.registeredAttendees = builder.registeredAttendees;
-        this.attendanceRecord = builder.attendanceRecord;
+        this.presentAttendees = builder.presentAttendees;
+        this.attendanceRecord = getAttendanceRecord();
     }
 
     public static Builder builder(String id, String conferenceId, String speakerId, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
@@ -68,7 +71,7 @@ public class Session {
         // optional parameters
         private String description;
         private Set<String> registeredAttendees;
-        private Map<String, Boolean> attendanceRecord;
+        private Set<String> presentAttendees;
 
         private Builder(String id, String conferenceId, String speakerId, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.id = id;
@@ -83,7 +86,7 @@ public class Session {
             // assigning optional parameters with default values
             this.description = null;
             this.registeredAttendees = new HashSet<>();
-            this.attendanceRecord = new HashMap<>();
+            this.presentAttendees = new HashSet<>();
         }
 
         public Builder setDescription(String description) {
@@ -96,8 +99,8 @@ public class Session {
             return this;
         }
 
-        public Builder setAttendanceRecord(Map<String, Boolean> attendanceRecord) {
-            this.attendanceRecord = attendanceRecord != null ? attendanceRecord : new HashMap<>();
+        public Builder setPresentAttendees(Set<String> presentAttendees) {
+            this.presentAttendees = presentAttendees != null ? presentAttendees : new HashSet<>();
             return this;
         }
 
@@ -171,7 +174,14 @@ public class Session {
         return new HashSet<>(this.registeredAttendees);         // defensive copy
     }
 
-    public Map<String, Boolean> getAttendanceRecord() {
-        return new HashMap<>(this.attendanceRecord);            // defensive copy
+    public Set<String> getPresentAttendees() {
+        return new HashSet<>(this.presentAttendees);            // defensive copy
+    }
+
+    public float getAttendanceRecord() {
+        if (this.registeredAttendees.isEmpty() || this.presentAttendees.isEmpty()) {
+            return 0;
+        }
+        return (float) this.presentAttendees.size() / this.registeredAttendees.size();
     }
 }

@@ -1,5 +1,6 @@
 package dto;
 
+import domain.model.Session;
 import util.validation.SessionValidator;
 import util.validation.ValidationUtil;
 
@@ -20,7 +21,8 @@ public class SessionDTO {
     private LocalTime startTime;
     private LocalTime endTime;
     private final Set<String> registeredAttendees;
-    private final Map<String, Boolean> attendanceRecord;
+    private final Set<String> presentAttendees;
+    private final float attendanceRecord;
 
     // No-arg constructor for JSON serialization
     private SessionDTO() {
@@ -35,7 +37,8 @@ public class SessionDTO {
         this.startTime = null;
         this.endTime = null;
         this.registeredAttendees = new HashSet<>();
-        this.attendanceRecord = new HashMap<>();
+        this.presentAttendees = new HashSet<>();
+        this.attendanceRecord = 0;
     }
 
     private SessionDTO(Builder builder) {
@@ -50,7 +53,8 @@ public class SessionDTO {
         this.startTime = builder.startTime;
         this.endTime = builder.endTime;
         this.registeredAttendees = builder.registeredAttendees;
-        this.attendanceRecord = builder.attendanceRecord;
+        this.presentAttendees = builder.presentAttendees;
+        this.attendanceRecord = getAttendanceRecord();
     }
 
     public static Builder builder(String conferenceId, String speakerId, String speakerName, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
@@ -71,8 +75,8 @@ public class SessionDTO {
         // optional parameters
         private String id;
         private String description;
-        private Set<String> registeredAttendees = new HashSet<>();
-        private Map<String, Boolean> attendanceRecord = new HashMap<>();
+        private Set<String> registeredAttendees;
+        private Set<String> presentAttendees;
 
         public Builder(String conferenceId, String speakerId, String speakerName, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.conferenceId = conferenceId;
@@ -88,7 +92,7 @@ public class SessionDTO {
             this.id = null;
             this.description = null;
             this.registeredAttendees = new HashSet<>();
-            this.attendanceRecord = new HashMap<>();
+            this.presentAttendees = new HashSet<>();
         }
 
         public Builder setId(String id) {
@@ -106,8 +110,8 @@ public class SessionDTO {
             return this;
         }
 
-        public Builder setAttendanceRecord(Map<String, Boolean> attendanceRecord) {
-            this.attendanceRecord = attendanceRecord != null ? attendanceRecord : new HashMap<>();
+        public Builder setPresentAttendees(Set<String> presentAttendees) {
+            this.presentAttendees = presentAttendees != null ? presentAttendees : new HashSet<>();
             return this;
         }
 
@@ -178,7 +182,14 @@ public class SessionDTO {
         return new HashSet<>(this.registeredAttendees);         // defensive copy
     }
 
-    public Map<String, Boolean> getAttendanceRecord() {
-        return new HashMap<>(this.attendanceRecord);           // defensive copy
+    public Set<String> getPresentAttendees() {
+        return new HashSet<>(this.presentAttendees);            // defensive copy
+    }
+
+    public float getAttendanceRecord() {
+        if (this.registeredAttendees.isEmpty() || this.presentAttendees.isEmpty()) {
+            return 0;
+        }
+        return (float) this.presentAttendees.size() / this.registeredAttendees.size();
     }
 }

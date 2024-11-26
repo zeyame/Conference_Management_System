@@ -110,7 +110,9 @@ public class OrganizerController {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             Set<String> sessionIds = conferenceDTO.getSessions();
+            System.out.println("Session ids size in '" + conferenceDTO.getName() + "': " + sessionIds.size());
             List<SessionDTO> sessions = sessionService.findByIds(sessionIds);
+            System.out.println("Sessions size retrieved from service: " + sessions.size());
             LoggerUtil.getInstance().logInfo("Successfully retrieved sessions for '" + conferenceDTO.getName() + "'.");
             return ResponseEntity.success(sessions);
         } catch (ConferenceNotFoundException e) {
