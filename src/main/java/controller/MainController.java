@@ -75,7 +75,7 @@ public class MainController {
 
             userService.registerUser(registrationDTO);
 
-            emailService.sendWelcomeEmail(registrationDTO.getEmail(), registrationDTO.getName());
+            emailService.sendWelcomeEmail(registrationDTO.getEmail(), registrationDTO.getName(), registrationDTO.getUserRole());
 
             LoggerUtil.getInstance().logInfo("Registration is successful for user: \n" + registrationDTO);
             return ResponseEntity.success();

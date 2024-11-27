@@ -20,7 +20,7 @@ public interface OrganizerObserver {
     void onEditConferenceRequest();
     void onDeleteConferenceRequest();
     void onViewAttendeesRequest(String conferenceId, String conferenceName);
-    void onViewSessionsRequest(String conferenceId, String conferenceName);
+    void onViewSessionsRequest(String conferenceId);
     void onViewSpeakersRequest();
     void onViewConferenceFeedbackRequest(String conferenceId);
     void onNavigateBackRequest();

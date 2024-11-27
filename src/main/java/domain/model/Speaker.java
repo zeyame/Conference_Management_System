@@ -2,6 +2,7 @@ package domain.model;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Speaker extends User {
     private final Map<LocalDateTime, AssignedSession> assignedSessions;          // K: Session Time, V: Session ID
@@ -28,6 +29,16 @@ public class Speaker extends User {
             return;
         }
         assignedSessions.put(start, new AssignedSession(sessionId, start, end));
+    }
+
+    public void unassignSession(String sessionId) {
+        Optional<LocalDateTime> startTimeToRemove = assignedSessions.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().id.equals(sessionId))
+                .map(Map.Entry::getKey)
+                .findFirst();
+
+        startTimeToRemove.ifPresent(assignedSessions::remove);
     }
 
 
@@ -66,6 +77,6 @@ public class Speaker extends User {
     }
 
     public Map<LocalDateTime, AssignedSession> getAssignedSessions() {
-        return new HashMap<>(this.assignedSessions);          // defensive copy
+        return new HashMap<>(this.assignedSessions);
     }
 }

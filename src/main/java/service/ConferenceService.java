@@ -54,10 +54,11 @@ public class ConferenceService {
     }
 
     public ConferenceDTO getById(String id) {
+        System.out.println("Conference id received in conference service: " + id);
         return conferenceRepository
                 .findById(id)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> new ConferenceNotFoundException("Conference with id '" + id + "' could not be found"));
+                .orElseThrow(() -> new ConferenceNotFoundException(String.format("Conference with id '%s' could not be found.", id)));
     }
 
     public List<ConferenceDTO> findAllById(Set<String> ids) {
@@ -93,8 +94,6 @@ public class ConferenceService {
     public ConferenceDTO mapToDTO(Conference conference) {
         String organizerId = conference.getOrganizerId(), name = conference.getName(), description = conference.getDescription();
         LocalDate startDate = conference.getStartDate(), endDate = conference.getEndDate();
-
-        System.out.println(startDate.toString() + endDate.toString());
 
         return ConferenceDTO.builder(organizerId, name, description, startDate, endDate)
                 .assignId(conference.getId())

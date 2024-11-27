@@ -144,21 +144,11 @@ public class UserService {
         // batch fetch and extract valid users matching ids
         List<Optional<User>> userOptionals = userRepository.findAllById(ids);
 
-        userOptionals.forEach(optional ->
-                System.out.println(optional.map(value -> "User found: " + value).orElse("User not found"))
-        );
-
-
-        System.out.println("User optionals in findNameByIds: " + userOptionals.size());
-
         List<User> users = CollectionUtils.extractValidEntities(userOptionals);
-
-        System.out.println("Valid users in findNameByIds: " + users.size());
 
         // populating map
         users.forEach(user -> namesByIds.put(user.getId(), user.getName()));
 
-        System.out.println("Map size after populating: " + namesByIds.size());
         return namesByIds;
     }
 
@@ -223,22 +213,43 @@ public class UserService {
     }
 
     public boolean isSpeakerAvailable(String id, LocalDateTime sessionStart, LocalDateTime sessionEnd) {
-        if (id == null) {
-            return false;
+        if (id == null || id.isEmpty() || sessionStart == null || sessionEnd == null) {
+            throw new IllegalArgumentException("Speaker id, session start and session end are all required for checking if a speaker available and cannot be null or empty.");
         }
 
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
-            return false;
+            throw new UserNotFoundException(String.format("User with id '%s' does not exist.", id));
         }
 
         User user = userOptional.get();
         if (user.getRole() != UserRole.SPEAKER) {
-            return false;
+            throw new InvalidUserRoleException(String.format("User with id '%s' does not have speaker permissions.", id));
         }
 
         Speaker speaker = (Speaker) user;
         return speaker.isAvailable(sessionStart, sessionEnd);
+    }
+
+    public void unassignSessionFromSpeaker(String id, String sessionId) {
+        if (id == null || id.isEmpty() || sessionId == null || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Speaker id and session id are required to remove session from speaker's schedule and cannot be null or empty.");
+        }
+
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException(String.format("User with id '%s' does not exist.", id));
+        }
+
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.SPEAKER) {
+            throw new InvalidUserRoleException(String.format("User with id '%s' does not have speaker permissions.", id));
+        }
+
+        Speaker speaker = (Speaker) user;
+        speaker.unassignSession(sessionId);
+
+        LoggerUtil.getInstance().logInfo(String.format("Successfully unassigned session with id '%s' from speaker '%s'.", sessionId, speaker.getName()));
     }
 
     private UserDTO mapToDTO(User user) {

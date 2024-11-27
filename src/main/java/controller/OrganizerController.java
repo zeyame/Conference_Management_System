@@ -1,6 +1,5 @@
 package controller;
 
-import domain.model.Feedback;
 import dto.ConferenceDTO;
 import dto.FeedbackDTO;
 import dto.SessionDTO;
@@ -14,7 +13,6 @@ import service.UserService;
 import util.LoggerUtil;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class OrganizerController {
@@ -53,22 +51,22 @@ public class OrganizerController {
 
     public ResponseEntity<Void> createSession(SessionDTO sessionDTO) {
         try {
-            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
+            sessionService.createOrUpdate(sessionDTO, false);
+            return ResponseEntity.success();
+        } catch (SessionException e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
 
-            // create the session
-            String sessionId = sessionService.create(sessionDTO, conferenceDTO);
-
-            // assign a reference to the session to speaker
-            assignSessionToSpeaker(sessionId, sessionDTO);
-
-            // add a reference to the session to conference
-            conferenceService.registerSession(conferenceDTO.getId(), sessionId);
-
+    public ResponseEntity<Void> updateSession(SessionDTO updatedSessionDTO) {
+        try {
+            sessionService.createOrUpdate(updatedSessionDTO, true);
+            LoggerUtil.getInstance().logInfo(String.format("Session '%s' was updated successfully.", updatedSessionDTO.getName()));
             return ResponseEntity.success();
         } catch (ConferenceNotFoundException e) {
-            LoggerUtil.getInstance().logError("Session creation failed due to invalid conference id.");
-            return ResponseEntity.error(String.format("Conference with id '%s' does not exist.", sessionDTO.getConferenceId()));
-        } catch (SessionCreationException | SavingDataException e) {
+            LoggerUtil.getInstance().logError("Failed to update session '%s' as conference id does not exist.");
+            return ResponseEntity.error("Failed to update session data due to invalid conference id provided.");
+        } catch (SessionException e) {
             return ResponseEntity.error(e.getMessage());
         }
     }
@@ -114,9 +112,7 @@ public class OrganizerController {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             Set<String> sessionIds = conferenceDTO.getSessions();
-            System.out.println("Session ids size in '" + conferenceDTO.getName() + "': " + sessionIds.size());
             List<SessionDTO> sessions = sessionService.findAllById(sessionIds);
-            System.out.println("Sessions size retrieved from service: " + sessions.size());
             LoggerUtil.getInstance().logInfo("Successfully retrieved sessions for '" + conferenceDTO.getName() + "'.");
             return ResponseEntity.success(sessions);
         } catch (ConferenceNotFoundException e) {
@@ -179,33 +175,6 @@ public class OrganizerController {
 
         LoggerUtil.getInstance().logInfo("Validation successful for conference: " + name + " with dates: " + startDate + " - " + endDate);
         return ResponseEntity.success();
-    }
-
-
-    private void assignSessionToSpeaker(String sessionId, SessionDTO sessionDTO) {
-        try {
-            userService.assignNewSessionForSpeaker(
-                    sessionDTO.getSpeakerId(),
-                    sessionId,
-                    LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime()),
-                    LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime())
-            );
-        } catch (UserNotFoundException | InvalidUserRoleException | SavingDataException e) {
-            // rollback session creation if assigning session to speaker fails
-            sessionService.deleteById(sessionId);
-            LoggerUtil.getInstance().logError("Session creation failed: " + e.getMessage());
-            throw handleAssignmentError(e, sessionDTO.getSpeakerId());
-        }
-    }
-
-    private SessionCreationException handleAssignmentError(Exception e, String speakerId) {
-        if (e instanceof UserNotFoundException) {
-            return SessionCreationException.invalidSpeaker("Speaker with id '" + speakerId + "' does not exist.");
-        } else if (e instanceof InvalidUserRoleException) {
-            return SessionCreationException.invalidSpeaker("User with id '" + speakerId + "' does not have speaker permissions.");
-        } else {
-            return SessionCreationException.savingFailure("An unexpected error occurred when assigning session to speaker.");
-        }
     }
 
 }

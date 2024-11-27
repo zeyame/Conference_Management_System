@@ -4,11 +4,14 @@ import domain.factory.SessionFactory;
 import domain.model.Session;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
+import dto.UserDTO;
 import exception.*;
 import repository.SessionRepository;
 import util.CollectionUtils;
 import util.LoggerUtil;
+import util.email.EmailService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,37 +19,57 @@ import java.util.stream.Collectors;
 public class SessionService {
 
     private final UserService userService;
+    private final ConferenceService conferenceService;
+    private final EmailService emailService;
     private final SessionRepository sessionRepository;
 
-    public SessionService(UserService userService, SessionRepository sessionRepository) {
+    public SessionService(UserService userService, ConferenceService conferenceService, EmailService emailService, SessionRepository sessionRepository) {
         this.userService = userService;
+        this.conferenceService = conferenceService;
+        this.emailService = emailService;
         this.sessionRepository = sessionRepository;
     }
 
-    public String create(SessionDTO sessionDTO, ConferenceDTO conferenceDTO) {
+    public void createOrUpdate(SessionDTO sessionDTO, boolean isUpdate) {
         if (sessionDTO == null) {
-            LoggerUtil.getInstance().logWarning("SessionDTO object provided to the create method in SessionService is null.");
-            return "";
+            throw new IllegalArgumentException("SessionDTO and ConferenceDTO cannot be null.");
         }
 
-        String sessionName = sessionDTO.getName();
+        try {
+            System.out.println("Conference id received: " + sessionDTO.getConferenceId());
 
-        // validate session data
-        validateData(sessionDTO, conferenceDTO);
+            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
 
-        // creating session
-        Session session = SessionFactory.create(sessionDTO);
+            // validate session data
+            validateData(sessionDTO, conferenceDTO, isUpdate);
 
-        // attempting to save validated session to file storage with retries
-        boolean isSessionSaved = sessionRepository.save(session, session.getId());
-        if (!isSessionSaved) {
-            LoggerUtil.getInstance().logError("Session creation failed due to a data saving error.");
-            throw SessionCreationException.savingFailure("An unexpected error occurred while saving session data.");
+            // convert DTO to domain object
+            Session session = SessionFactory.create(sessionDTO);
+
+            // attempting to save validated session to file storage with retries
+            boolean isSessionSaved = sessionRepository.save(session, session.getId());
+            if (!isSessionSaved) {
+                LoggerUtil.getInstance().logError("Session creation failed due to a data saving error.");
+                throw SessionException.savingFailure("An unexpected error occurred while saving session data.");
+            }
+
+            // assign session to speaker
+            assignSessionToSpeaker(session);
+
+            // add a reference to the session to conference
+            conferenceService.registerSession(conferenceDTO.getId(), session.getId());
+
+            if (isUpdate) {
+                System.out.println("Registered attendee size in create/update: " + session.getRegisteredAttendees().size());
+                notifyAttendeesAndSpeaker(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
+            }
+
+            sessionRepository.save(session, session.getId());
+
+            LoggerUtil.getInstance().logInfo(String.format("Session '%s' has successfully been created/updated.", session.getName()));
+        } catch (ConferenceNotFoundException e) {
+            throw SessionException.invalidConference(e.getMessage());
         }
-
-        LoggerUtil.getInstance().logInfo(String.format("Session '%s' has successfully been created.", sessionName));
-
-        return session.getId();
     }
 
     public SessionDTO getById(String id) {
@@ -107,23 +130,26 @@ public class SessionService {
         sessionRepository.deleteById(id);
     }
 
-    private void validateData(SessionDTO sessionDTO, ConferenceDTO conferenceDTO) {
-        String sessionName = sessionDTO.getName();
+    private void validateData(SessionDTO sessionDTO, ConferenceDTO conferenceDTO, boolean isUpdate) {
+        Set<String> conferenceSessions = conferenceDTO.getSessions();
 
-        // validate session name
-        validateSessionName(sessionName, conferenceDTO.getSessions(), conferenceDTO.getName());
+        if (isUpdate) {
+            // removing session id from conference sessions, if it exists, for correct validation of session name and time
+            conferenceSessions.remove(sessionDTO.getId());
 
-        // validate speaker availability
+            // removing session from speaker's schedule for correct speaker availability validation
+            userService.unassignSessionFromSpeaker(sessionDTO.getSpeakerId(), sessionDTO.getId());
+        }
+
+        validateSessionName(sessionDTO.getName(), conferenceSessions, conferenceDTO.getName());
         validateSpeakerAvailability(sessionDTO);
-
-        // validate session time availability within the conference
-        validateSessionTime(sessionDTO, conferenceDTO);
+        validateSessionTime(sessionDTO, conferenceSessions, conferenceDTO.getStartDate());
     }
 
     private void validateSessionName(String sessionName, Set<String> sessionIds, String conferenceName) {
         if (isNameTaken(sessionName, sessionIds)) {
             LoggerUtil.getInstance().logError("Session name validation failed.");
-            throw SessionCreationException.nameTaken(String.format("A session with this name is already registered in '%s'. Please choose a different name.", conferenceName));
+            throw SessionException.nameTaken(String.format("A session with this name is already registered in '%s'. Please choose a different name.", conferenceName));
         }
     }
 
@@ -132,40 +158,84 @@ public class SessionService {
         LocalDateTime sessionStart = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime());
         LocalDateTime sessionEnd = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime());
 
-        boolean isAvailable = userService.isSpeakerAvailable(speakerId, sessionStart, sessionEnd);
-        if (!isAvailable) {
-            LoggerUtil.getInstance().logError("Speaker availability validation failed.");
-            throw SessionCreationException.speakerUnavailable("The chosen speaker is not available for the selected time. Please choose a different speaker or change the session timing.");
+        try {
+            boolean isAvailable = userService.isSpeakerAvailable(speakerId, sessionStart, sessionEnd);
+            if (!isAvailable) {
+                LoggerUtil.getInstance().logError("Speaker availability validation failed.");
+                throw SessionException.speakerUnavailable("The chosen speaker is not available for the selected time. " +
+                        "Please choose a different speaker or change the session timing.");
+            }
+        } catch (UserNotFoundException | InvalidUserRoleException e) {
+            throw SessionException.invalidSpeaker(e.getMessage());
         }
     }
 
-    private void validateSessionTime(SessionDTO sessionDTO, ConferenceDTO conferenceDTO) {
-        if (sessionDTO == null || conferenceDTO == null) {
-            throw new IllegalArgumentException("Invalid parameters provided when validating session time. SessionDTO and ConferenceDTO cannot be null.");
+    private void validateSessionTime(SessionDTO sessionDTO, Set<String> conferenceSessions, LocalDate conferenceStartDate) {
+        if (sessionDTO == null || conferenceSessions == null || conferenceStartDate == null) {
+            throw new IllegalArgumentException("Invalid parameters provided when validating session time. SessionDTO, ConferenceSessions, and ConferenceStartDate cannot be null.");
         }
 
-        if (sessionDTO.getDate().isBefore(conferenceDTO.getStartDate())) {
-            throw SessionCreationException.timeUnavailable(String.format("The session date you selected is earlier than the start date of the conference '%s'. Please select a date on or after the conference's start date.", conferenceDTO.getStartDate()));
+        if (sessionDTO.getDate().isBefore(conferenceStartDate)) {
+            throw SessionException.timeUnavailable(String.format("The session date you selected is earlier than the start date of the conference '%s'. " +
+                    "Please select a date on or after the conference's start date.", conferenceStartDate));
         }
 
         LocalDateTime sessionStart = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime());
         LocalDateTime sessionEnd = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime());
 
         // batch fetch all sessions
-        List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(conferenceDTO.getSessions());
+        List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(conferenceSessions);
 
         // extract valid sessions
         List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
 
+        // check for any conflicting sessions within the conference
         sessions.stream()
                 .filter(session -> session.overlapsWith(sessionStart, sessionEnd))
                 .findFirst()
                 .ifPresent(conflictingSession -> {
                     LoggerUtil.getInstance().logError("Session date and time validation failed.");
-                    throw SessionCreationException.timeUnavailable(String.format(
-                            "The session '%s' is already registered to take place within the time period you selected. Please choose a different time slot.",
-                            conflictingSession.getName()));
+                    throw SessionException.timeUnavailable(String.format(
+                            "The session '%s' is already registered to take place within the time period you selected. " +
+                                    "Please choose a different time slot.", conflictingSession.getName()));
                 });
+    }
+
+    private void assignSessionToSpeaker(Session session) {
+        try {
+            userService.assignNewSessionForSpeaker(
+                    session.getSpeakerId(),
+                    session.getId(),
+                    LocalDateTime.of(session.getDate(), session.getStartTime()),
+                    LocalDateTime.of(session.getDate(), session.getEndTime())
+            );
+        } catch (UserNotFoundException | InvalidUserRoleException | SavingDataException e) {
+            // rollback session creation if assigning session to speaker fails
+            deleteById(session.getId());
+            LoggerUtil.getInstance().logError("Session creation failed: " + e.getMessage());
+            throw handleAssignmentError(e, session.getSpeakerId());
+        }
+    }
+
+    private SessionException handleAssignmentError(Exception e, String speakerId) {
+        if (e instanceof UserNotFoundException) {
+            return SessionException.invalidSpeaker("Speaker with id '" + speakerId + "' does not exist.");
+        } else if (e instanceof InvalidUserRoleException) {
+            return SessionException.invalidSpeaker("User with id '" + speakerId + "' does not have speaker permissions.");
+        } else {
+            return SessionException.savingFailure("An unexpected error occurred when assigning session to speaker.");
+        }
+    }
+
+    private void notifyAttendeesAndSpeaker(SessionDTO sessionDTO, Set<String> attendeeIds, String speakerId) {
+        try {
+            List<UserDTO> users = userService.findAllById(attendeeIds);
+            UserDTO user = userService.getBydId(speakerId);
+            users.add(user);
+            emailService.notifyAttendeesAndSpeakerOfSessionChange(sessionDTO, users);
+        } catch (UserNotFoundException e) {
+            throw SessionException.notificationFailure("Could not notify speaker of session change due to invalid id.");
+        }
     }
 
     private SessionDTO mapToDTO(Session session, String speakerName) {

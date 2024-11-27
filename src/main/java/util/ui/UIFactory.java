@@ -10,6 +10,7 @@ import service.ConferenceService;
 import service.FeedbackService;
 import service.SessionService;
 import service.UserService;
+import util.email.EmailService;
 import view.attendee.AttendeeUI;
 import view.organizer.OrganizerUI;
 import view.speaker.SpeakerUI;
@@ -21,7 +22,7 @@ public class UIFactory {
     private UIFactory() {}
     public static UserUI createUserUI(UserDTO userDTO) {
         return switch (userDTO.getRole()) {
-            case ORGANIZER -> new OrganizerUI(new OrganizerController(new UserService(new UserRepository()), new ConferenceService(new ConferenceRepository()), new SessionService(new UserService(new UserRepository()), new SessionRepository()), new FeedbackService(new UserService(new UserRepository()), new FeedbackRepository())), userDTO);
+            case ORGANIZER -> new OrganizerUI(new OrganizerController(new UserService(new UserRepository()), new ConferenceService(new ConferenceRepository()), new SessionService(new UserService(new UserRepository()),new ConferenceService(new ConferenceRepository()), EmailService.getInstance(), new SessionRepository()), new FeedbackService(new UserService(new UserRepository()), new FeedbackRepository())), userDTO);
             case ATTENDEE -> new AttendeeUI(userDTO);
             case SPEAKER -> new SpeakerUI(userDTO);
         };

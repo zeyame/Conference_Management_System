@@ -111,7 +111,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         // navigating from the "Home Page" to the "Manage Conference Page" of the requested conference
         ConferenceDTO conferenceDTO = managedConferenceResponse.getData();
         ManagePage manageConferencePage = new ManageConferencePage(this, conferenceDTO, userDTO);
-        navigateTo(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent());
+        navigateTo(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent(), true);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         // navigating from the "View Sessions Page" to the "Manage Session Page" of the requested session
         SessionDTO sessionDTO = sessionResponse.getData();
         ManagePage manageSessionPage = new ManageSessionPage(this, sessionDTO);
-        navigateTo(MANAGE_SESSION_PAGE, manageSessionPage.createPageContent());
+        navigateTo(MANAGE_SESSION_PAGE, manageSessionPage.createPageContent(), true);
     }
 
 
@@ -137,7 +137,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         //  navigate to a new Add Conference Page
         AddPage addConferencePage = new AddConferencePage(this, userDTO);
-        navigateTo(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent());
+        navigateTo(ADD_CONFERENCE_PAGE, addConferencePage.createPageContent(), true);
     }
 
     @Override
@@ -154,7 +154,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         List<UserDTO> speakers = speakersResponse.getData();
         // navigate to a new Add Session Page
         AddPage addSessionPage = new AddSessionPage(this, conferenceId, conferenceName, speakers);
-        navigateTo(ADD_SESSION_PAGE, addSessionPage.createPageContent());
+        navigateTo(ADD_SESSION_PAGE, addSessionPage.createPageContent(), true);
     }
 
 
@@ -176,7 +176,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         // navigate back to an updated home page with the new conference added
         HomePage homePage = new HomePage(userDTO, this);
-        navigateTo(HOME_PAGE, homePage.createPageContent());
+        navigateTo(HOME_PAGE, homePage.createPageContent(), true);
 
         showSuccess(HOME_PAGE, "The '" + conferenceDTO.getName() + "' conference has successfully been added to your managed conferences.");
     }
@@ -191,11 +191,31 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
             return;
         }
 
-        // navigate to an updated view sessions page
-        onViewSessionsRequest(sessionDTO.getConferenceId(), conferenceName);
+
+        String conferenceId = sessionDTO.getConferenceId();
+
+        // get conference data
+        ResponseEntity<ConferenceDTO> conferenceResponse = organizerController.getManagedConference(conferenceId);
+        if (!conferenceResponse.isSuccess()) {
+            showError(getCurrentPageId(), conferenceResponse.getErrorMessage());
+            return;
+        }
+
+        // get sessions for conference
+        ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(sessionDTO.getConferenceId());
+        if (!sessionsResponse.isSuccess()) {
+            showError(MANAGE_CONFERENCE_PAGE, sessionsResponse.getErrorMessage());
+            return;
+        }
+
+        ConferenceDTO conference = conferenceResponse.getData();
+        List<SessionDTO> sessions = sessionsResponse.getData();
+
+        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conference.getName(), sessions);
+        navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), false);
 
         // display success message
-        showSuccess(getCurrentPageId(), String.format("Session '%s' has successfully been added!", sessionDTO.getName()));
+        showSuccess(getCurrentPageId(), String.format("Session '%s' has successfully been created!", sessionDTO.getName()));
     }
 
     @Override
@@ -213,14 +233,46 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
             return;
         }
 
+        // navigate to edit session page
         List<UserDTO> speakers = speakersResponse.getData();
         AddPage editSessionPage = new EditSessionPage(this, sessionDTO.getConferenceId(), speakers, sessionDTO);
-        navigateTo(EDIT_SESSION_PAGE, editSessionPage.createPageContent());
+        navigateTo(EDIT_SESSION_PAGE, editSessionPage.createPageContent(), true);
     }
 
     @Override
     public void onUpdateSessionFormRequest(SessionDTO updatedSessionDTO) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to updated session '%s' received.", updatedSessionDTO.getName()));
 
+        ResponseEntity<Void> updateSessionResponse = organizerController.updateSession(updatedSessionDTO);
+        if (!updateSessionResponse.isSuccess()) {
+            showError(getCurrentPageId(), updateSessionResponse.getErrorMessage());
+            return;
+        }
+
+        String conferenceId = updatedSessionDTO.getConferenceId();
+
+        // get conference data
+        ResponseEntity<ConferenceDTO> conferenceResponse = organizerController.getManagedConference(conferenceId);
+        if (!conferenceResponse.isSuccess()) {
+            showError(getCurrentPageId(), conferenceResponse.getErrorMessage());
+            return;
+        }
+
+        // get sessions for conference
+        ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(updatedSessionDTO.getConferenceId());
+        if (!sessionsResponse.isSuccess()) {
+            showError(MANAGE_CONFERENCE_PAGE, sessionsResponse.getErrorMessage());
+            return;
+        }
+
+        ConferenceDTO conference = conferenceResponse.getData();
+        List<SessionDTO> sessions = sessionsResponse.getData();
+
+        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conference.getName(), sessions);
+        navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), false);
+
+        // display success message
+        showSuccess(getCurrentPageId(), String.format("Session '%s' has successfully been updated!", updatedSessionDTO.getName()));
     }
 
     @Override
@@ -241,12 +293,21 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         List<UserDTO> conferenceAttendees = conferenceAttendeesResponse.getData();
         ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, conferenceName, conferenceAttendees);
-        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent());
+        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent(), true);
     }
 
     @Override
-    public void onViewSessionsRequest(String conferenceId, String conferenceName) {
-        LoggerUtil.getInstance().logInfo("Request to view sessions for conference '" + conferenceName + "' received.");
+    public void onViewSessionsRequest(String conferenceId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view sessions for conference with id '%s' received.", conferenceId));
+
+        // get conference data
+        ResponseEntity<ConferenceDTO> conferenceResponse = organizerController.getManagedConference(conferenceId);
+        if (!conferenceResponse.isSuccess()) {
+            showError(getCurrentPageId(), conferenceResponse.getErrorMessage());
+            return;
+        }
+
+        ConferenceDTO conference = conferenceResponse.getData();
 
         // get sessions for conference
         ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(conferenceId);
@@ -256,8 +317,8 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<SessionDTO> sessions = sessionsResponse.getData();
-        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conferenceName, sessions);
-        navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent());
+        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conference.getName(), sessions);
+        navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), true);
     }
 
     @Override
@@ -282,7 +343,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         List<FeedbackDTO> feedback = feedbackResponse.getData();
         ViewListPage<FeedbackDTO> viewFeedbackPage = new ViewFeedbackPage(this, sessionName, feedback);
-        navigateTo(VIEW_SESSION_FEEDBACK_PAGE, viewFeedbackPage.createPageContent());
+        navigateTo(VIEW_SESSION_FEEDBACK_PAGE, viewFeedbackPage.createPageContent(), true);
     }
 
     @Override
@@ -302,7 +363,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         List<UserDTO> attendees = sessionAttendeesResponse.getData();
         ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, sessionName, attendees);
-        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent());
+        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent(), true);
     }
 
     @Override
@@ -327,7 +388,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         float attendanceRecord = sessionDTO.getAttendanceRecord();
 
         ViewListPage<UserDTO> viewSessionAttendancePage = new ViewSessionAttendancePage(this, registeredAttendees, presentAttendees, sessionDTO.getName(), attendanceRecord);
-        navigateTo(VIEW_SESSION_ATTENDANCE_PAGE, viewSessionAttendancePage.createPageContent());
+        navigateTo(VIEW_SESSION_ATTENDANCE_PAGE, viewSessionAttendancePage.createPageContent(), true);
     }
 
     private void initializeHomePage() {
@@ -341,9 +402,9 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         cardLayout.show(contentPanel, HOME_PAGE);
     }
 
-    private void navigateTo(String pageId, Component newPageContent) {
+    private void navigateTo(String pageId, Component newPageContent, boolean pushToStack) {
         String currentPage = getCurrentPageId();
-        if (currentPage != null) {
+        if (currentPage != null && pushToStack) {
             navigationStack.push(currentPage);
         }
 
