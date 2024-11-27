@@ -9,9 +9,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SessionRepository extends BaseRepository<Session> {
+    private static SessionRepository instance;
 
-    public SessionRepository() {
+    private SessionRepository() {
         super("src/main/resources/data/sessions.json");
+    }
+
+    public static synchronized SessionRepository getInstance() {
+        if (instance == null) {
+            instance = new SessionRepository();
+        }
+        return instance;
     }
 
     public List<Optional<Session>> findAllById(Set<String> ids) {

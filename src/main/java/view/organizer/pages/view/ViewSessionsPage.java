@@ -21,7 +21,7 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
         addSessionButton = new JButton("Add Session");
 
         // set up listener
-        addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId, this.eventName));
+        addSessionButton.addActionListener(e -> organizerObserver.onAddSessionRequest(this.conferenceId));
     }
 
     @Override

@@ -120,7 +120,7 @@ public class AddSessionPage extends AddPage {
                 .setDescription(sessionDescription)
                 .build();
 
-        organizerObserver.onSubmitSessionFormRequest(sessionDTO, conferenceName);
+        organizerObserver.onSubmitSessionFormRequest(sessionDTO);
     }
 
     protected LocalDate extractLocalDate(Date date) {

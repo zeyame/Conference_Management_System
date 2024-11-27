@@ -9,8 +9,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserRepository extends BaseRepository<User> {
-    public UserRepository() {
+    private static UserRepository instance;
+
+    private UserRepository() {
         super("src/main/resources/data/users.json");
+    }
+
+    public static synchronized UserRepository getInstance() {
+        if (instance == null) {
+            instance = new UserRepository();
+        }
+        return instance;
     }
 
     public List<Optional<User>> findAllById(Set<String> ids) {

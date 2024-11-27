@@ -54,7 +54,6 @@ public class ConferenceService {
     }
 
     public ConferenceDTO getById(String id) {
-        System.out.println("Conference id received in conference service: " + id);
         return conferenceRepository
                 .findById(id)
                 .map(this::mapToDTO)

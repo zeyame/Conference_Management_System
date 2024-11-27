@@ -6,7 +6,7 @@ import util.email.EmailService;
 
 public class Main {
     public static void main(String[] args) {
-        new LoginUI(new MainController(new UserService(new UserRepository()), EmailService.getInstance()));
+        new LoginUI(new MainController(new UserService(UserRepository.getInstance()), EmailService.getInstance()));
     }
 }
 

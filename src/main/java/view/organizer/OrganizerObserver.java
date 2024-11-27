@@ -19,7 +19,7 @@ public interface OrganizerObserver {
     // Manage Conference Page events
     void onEditConferenceRequest();
     void onDeleteConferenceRequest();
-    void onViewAttendeesRequest(String conferenceId, String conferenceName);
+    void onViewAttendeesRequest(String conferenceId);
     void onViewSessionsRequest(String conferenceId);
     void onViewSpeakersRequest();
     void onViewConferenceFeedbackRequest(String conferenceId);
@@ -27,15 +27,15 @@ public interface OrganizerObserver {
 
     // View Sessions Page events
     void onManageSessionRequest(String sessionId);
-    void onAddSessionRequest(String conferenceId, String conferenceName);
+    void onAddSessionRequest(String conferenceId);
 
     // Add Session Page events
-    void onSubmitSessionFormRequest(SessionDTO sessionDTO, String conferenceName);
+    void onSubmitSessionFormRequest(SessionDTO sessionDTO);
 
     // Manage Session Page Events
-    void onViewSessionAttendeesRequest(String sessionId, String sessionName);
+    void onViewSessionAttendeesRequest(String sessionId);
     void onViewSessionAttendanceRequest(String sessionId);
-    void onViewSessionFeedbackRequest(String sessionId, String sessionName);
+    void onViewSessionFeedbackRequest(String sessionId);
     void onEditSessionRequest(SessionDTO sessionDTO);
 
     // Edit Session Page events

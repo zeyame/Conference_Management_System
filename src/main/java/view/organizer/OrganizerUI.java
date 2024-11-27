@@ -102,14 +102,10 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     public void onManageConferenceRequest(String conferenceId) {
         LoggerUtil.getInstance().logInfo("Request to manage a conference with id '" + conferenceId + "' received.");
 
-        ResponseEntity<ConferenceDTO> managedConferenceResponse = organizerController.getManagedConference(conferenceId);
-        if (!managedConferenceResponse.isSuccess()) {
-            showError(getCurrentPageId(), managedConferenceResponse.getErrorMessage());
-            return;
-        }
+        // fetching conference data
+        ConferenceDTO conferenceDTO = fetchConference(conferenceId);
 
         // navigating from the "Home Page" to the "Manage Conference Page" of the requested conference
-        ConferenceDTO conferenceDTO = managedConferenceResponse.getData();
         ManagePage manageConferencePage = new ManageConferencePage(this, conferenceDTO, userDTO);
         navigateTo(MANAGE_CONFERENCE_PAGE, manageConferencePage.createPageContent(), true);
     }
@@ -141,19 +137,20 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onAddSessionRequest(String conferenceId, String conferenceName) {
-        LoggerUtil.getInstance().logInfo("Request to add a new session to conference '" + conferenceId + "' received.");
+    public void onAddSessionRequest(String conferenceId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to add a new session to conference with id '%s' received.", conferenceId));
 
-        // get registered speakers that can be assigned to new session
-        ResponseEntity<List<UserDTO>> speakersResponse = organizerController.getRegisteredSpeakers();
-        if (!speakersResponse.isSuccess()) {
-            showError(getCurrentPageId(), speakersResponse.getErrorMessage());
+        // fetch conference data
+        ConferenceDTO conferenceDTO = fetchConference(conferenceId);
+        if (conferenceDTO == null) {
             return;
         }
 
-        List<UserDTO> speakers = speakersResponse.getData();
+        // get registered speakers that can be assigned to new session
+        List<UserDTO> speakers = fetchSpeakers();
+
         // navigate to a new Add Session Page
-        AddPage addSessionPage = new AddSessionPage(this, conferenceId, conferenceName, speakers);
+        AddPage addSessionPage = new AddSessionPage(this, conferenceId, conferenceDTO.getName(), speakers);
         navigateTo(ADD_SESSION_PAGE, addSessionPage.createPageContent(), true);
     }
 
@@ -182,7 +179,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onSubmitSessionFormRequest(SessionDTO sessionDTO, String conferenceName) {
+    public void onSubmitSessionFormRequest(SessionDTO sessionDTO) {
         LoggerUtil.getInstance().logInfo("Request to create session '" + sessionDTO.getName() + "' received.");
 
         ResponseEntity<Void> createSessionResponse = organizerController.createSession(sessionDTO);
@@ -191,27 +188,16 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
             return;
         }
 
-
-        String conferenceId = sessionDTO.getConferenceId();
-
-        // get conference data
-        ResponseEntity<ConferenceDTO> conferenceResponse = organizerController.getManagedConference(conferenceId);
-        if (!conferenceResponse.isSuccess()) {
-            showError(getCurrentPageId(), conferenceResponse.getErrorMessage());
+        // fetch conference data
+        ConferenceDTO conference = fetchConference(sessionDTO.getConferenceId());
+        if (conference == null) {
             return;
         }
 
         // get sessions for conference
-        ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(sessionDTO.getConferenceId());
-        if (!sessionsResponse.isSuccess()) {
-            showError(MANAGE_CONFERENCE_PAGE, sessionsResponse.getErrorMessage());
-            return;
-        }
+        List<SessionDTO> sessions = fetchSessions(conference.getId());
 
-        ConferenceDTO conference = conferenceResponse.getData();
-        List<SessionDTO> sessions = sessionsResponse.getData();
-
-        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conference.getName(), sessions);
+        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conference.getId(), conference.getName(), sessions);
         navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), false);
 
         // display success message
@@ -227,14 +213,8 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     public void onEditSessionRequest(SessionDTO sessionDTO) {
         LoggerUtil.getInstance().logInfo(String.format("Request to edit session '%s' received,", sessionDTO.getName()));
 
-        ResponseEntity<List<UserDTO>> speakersResponse = organizerController.getRegisteredSpeakers();
-        if (!speakersResponse.isSuccess()) {
-            showError(getCurrentPageId(), speakersResponse.getErrorMessage());
-            return;
-        }
+        List<UserDTO> speakers = fetchSpeakers();
 
-        // navigate to edit session page
-        List<UserDTO> speakers = speakersResponse.getData();
         AddPage editSessionPage = new EditSessionPage(this, sessionDTO.getConferenceId(), speakers, sessionDTO);
         navigateTo(EDIT_SESSION_PAGE, editSessionPage.createPageContent(), true);
     }
@@ -252,21 +232,13 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         String conferenceId = updatedSessionDTO.getConferenceId();
 
         // get conference data
-        ResponseEntity<ConferenceDTO> conferenceResponse = organizerController.getManagedConference(conferenceId);
-        if (!conferenceResponse.isSuccess()) {
-            showError(getCurrentPageId(), conferenceResponse.getErrorMessage());
+        ConferenceDTO conference = fetchConference(conferenceId);
+        if (conference == null) {
             return;
         }
 
         // get sessions for conference
-        ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(updatedSessionDTO.getConferenceId());
-        if (!sessionsResponse.isSuccess()) {
-            showError(MANAGE_CONFERENCE_PAGE, sessionsResponse.getErrorMessage());
-            return;
-        }
-
-        ConferenceDTO conference = conferenceResponse.getData();
-        List<SessionDTO> sessions = sessionsResponse.getData();
+        List<SessionDTO> sessions = fetchSessions(conferenceId);
 
         ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conference.getName(), sessions);
         navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), false);
@@ -281,8 +253,14 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onViewAttendeesRequest(String conferenceId, String conferenceName) {
-        LoggerUtil.getInstance().logInfo(String.format("Request to view attendees for conference '%s' received.", conferenceName));
+    public void onViewAttendeesRequest(String conferenceId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view attendees for conference with id '%s' received.", conferenceId));
+
+        // get conference data
+        ConferenceDTO conference = fetchConference(conferenceId);
+        if (conference == null) {
+            return;
+        }
 
         // get attendees for conference
         ResponseEntity<List<UserDTO>> conferenceAttendeesResponse = organizerController.getConferenceAttendees(conferenceId);
@@ -292,7 +270,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<UserDTO> conferenceAttendees = conferenceAttendeesResponse.getData();
-        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, conferenceName, conferenceAttendees);
+        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, conference.getName(), conferenceAttendees);
         navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent(), true);
     }
 
@@ -301,22 +279,14 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         LoggerUtil.getInstance().logInfo(String.format("Request to view sessions for conference with id '%s' received.", conferenceId));
 
         // get conference data
-        ResponseEntity<ConferenceDTO> conferenceResponse = organizerController.getManagedConference(conferenceId);
-        if (!conferenceResponse.isSuccess()) {
-            showError(getCurrentPageId(), conferenceResponse.getErrorMessage());
+        ConferenceDTO conference = fetchConference(conferenceId);
+        if (conference == null) {
             return;
         }
 
-        ConferenceDTO conference = conferenceResponse.getData();
+        // get conference sessions
+        List<SessionDTO> sessions = fetchSessions(conferenceId);
 
-        // get sessions for conference
-        ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(conferenceId);
-        if (!sessionsResponse.isSuccess()) {
-            showError(MANAGE_CONFERENCE_PAGE, sessionsResponse.getErrorMessage());
-            return;
-        }
-
-        List<SessionDTO> sessions = sessionsResponse.getData();
         ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, conferenceId, conference.getName(), sessions);
         navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), true);
     }
@@ -332,8 +302,14 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onViewSessionFeedbackRequest(String sessionId, String sessionName) {
-        LoggerUtil.getInstance().logInfo(String.format("Request to view feedback for session '%s' received.", sessionName));
+    public void onViewSessionFeedbackRequest(String sessionId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view feedback for session with id '%s' received.", sessionId));
+
+        // get session data
+        SessionDTO sessionDTO = fetchSession(sessionId);
+        if (sessionDTO == null) {
+            return;
+        }
 
         ResponseEntity<List<FeedbackDTO>> feedbackResponse = organizerController.getSessionFeedback(sessionId);
         if (!feedbackResponse.isSuccess()) {
@@ -342,7 +318,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<FeedbackDTO> feedback = feedbackResponse.getData();
-        ViewListPage<FeedbackDTO> viewFeedbackPage = new ViewFeedbackPage(this, sessionName, feedback);
+        ViewListPage<FeedbackDTO> viewFeedbackPage = new ViewFeedbackPage(this, sessionDTO.getName(), feedback);
         navigateTo(VIEW_SESSION_FEEDBACK_PAGE, viewFeedbackPage.createPageContent(), true);
     }
 
@@ -352,17 +328,17 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onViewSessionAttendeesRequest(String sessionId, String sessionName) {
-        LoggerUtil.getInstance().logInfo(String.format("Request to view registered attendees for session '%s' received.", sessionName));
+    public void onViewSessionAttendeesRequest(String sessionId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view registered attendees for session with id '%s' received.", sessionId));
 
-        ResponseEntity<List<UserDTO>> sessionAttendeesResponse = organizerController.getSessionAttendees(sessionId);
-        if (!sessionAttendeesResponse.isSuccess()) {
-            showError(getCurrentPageId(), sessionAttendeesResponse.getErrorMessage());
+        SessionDTO sessionDTO = fetchSession(sessionId);
+        if (sessionDTO == null) {
             return;
         }
 
-        List<UserDTO> attendees = sessionAttendeesResponse.getData();
-        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, sessionName, attendees);
+        List<UserDTO> attendees = fetchSessionAttendees(sessionId);
+
+        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, sessionDTO.getName(), attendees);
         navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent(), true);
     }
 
@@ -370,25 +346,66 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     public void onViewSessionAttendanceRequest(String sessionId) {
         LoggerUtil.getInstance().logInfo(String.format("Request to view attendance record for session with id '%s' received.", sessionId));
 
-        ResponseEntity<SessionDTO> sessionResponse = organizerController.getSessionDetails(sessionId);
-        if (!sessionResponse.isSuccess()) {
-            showError(getCurrentPageId(), sessionResponse.getErrorMessage());
+        SessionDTO sessionDTO = fetchSession(sessionId);
+        if (sessionDTO == null) {
             return;
         }
 
-        ResponseEntity<List<UserDTO>> sessionAttendeesResponse = organizerController.getSessionAttendees(sessionId);
-        if (!sessionAttendeesResponse.isSuccess()) {
-            showError(getCurrentPageId(), sessionAttendeesResponse.getErrorMessage());
-            return;
-        }
-
-        SessionDTO sessionDTO = sessionResponse.getData();
-        List<UserDTO> registeredAttendees = sessionAttendeesResponse.getData();
+        List<UserDTO> registeredAttendees = fetchSessionAttendees(sessionId);
         Set<String> presentAttendees = sessionDTO.getPresentAttendees();
         float attendanceRecord = sessionDTO.getAttendanceRecord();
 
         ViewListPage<UserDTO> viewSessionAttendancePage = new ViewSessionAttendancePage(this, registeredAttendees, presentAttendees, sessionDTO.getName(), attendanceRecord);
         navigateTo(VIEW_SESSION_ATTENDANCE_PAGE, viewSessionAttendancePage.createPageContent(), true);
+    }
+
+    private ConferenceDTO fetchConference(String conferenceId) {
+        ResponseEntity<ConferenceDTO> managedConferenceResponse = organizerController.getManagedConference(conferenceId);
+        if (!managedConferenceResponse.isSuccess()) {
+            showError(getCurrentPageId(), managedConferenceResponse.getErrorMessage());
+            return null;
+        }
+        return managedConferenceResponse.getData();
+    }
+
+    private List<SessionDTO> fetchSessions(String conferenceId) {
+        ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(conferenceId);
+        if (!sessionsResponse.isSuccess()) {
+            showError(MANAGE_CONFERENCE_PAGE, sessionsResponse.getErrorMessage());
+            return new ArrayList<>();
+        }
+        return sessionsResponse.getData();
+    }
+
+    private List<UserDTO> fetchSpeakers() {
+        ResponseEntity<List<UserDTO>> speakersResponse = organizerController.getRegisteredSpeakers();
+        if (!speakersResponse.isSuccess()) {
+            showError(getCurrentPageId(), speakersResponse.getErrorMessage());
+            return new ArrayList<>();
+        }
+
+        return speakersResponse.getData();
+    }
+
+    private SessionDTO fetchSession(String sessionId) {
+
+        ResponseEntity<SessionDTO> sessionResponse = organizerController.getSessionDetails(sessionId);
+        if (!sessionResponse.isSuccess()) {
+            showError(getCurrentPageId(), sessionResponse.getErrorMessage());
+            return null;
+        }
+
+        return sessionResponse.getData();
+    }
+
+    private List<UserDTO> fetchSessionAttendees(String sessionId) {
+        ResponseEntity<List<UserDTO>> sessionAttendeesResponse = organizerController.getSessionAttendees(sessionId);
+        if (!sessionAttendeesResponse.isSuccess()) {
+            showError(getCurrentPageId(), sessionAttendeesResponse.getErrorMessage());
+            return new ArrayList<>();
+        }
+
+        return sessionAttendeesResponse.getData();
     }
 
     private void initializeHomePage() {

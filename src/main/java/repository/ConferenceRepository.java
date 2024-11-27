@@ -7,8 +7,17 @@ import java.util.stream.Collectors;
 
 public class ConferenceRepository extends BaseRepository<Conference> {
 
-    public ConferenceRepository() {
+    private static ConferenceRepository instance;
+    private ConferenceRepository() {
         super("src/main/resources/data/conferences.json");
+    }
+
+    // ensures only one instance of the repository is used throughout
+    public static synchronized ConferenceRepository getInstance() {
+        if (instance == null) {
+            instance = new ConferenceRepository();
+        }
+        return instance;
     }
 
     public Optional<Conference> findByName(String name) {
