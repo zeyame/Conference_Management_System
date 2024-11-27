@@ -40,11 +40,10 @@ public class EmailService {
     }
 
     public void notifyAttendeesAndSpeakerOfSessionChange(SessionDTO sessionDTO, List<UserDTO> users) {
-        System.out.println("Number of users (attendees+speakers) received by email service: " + users.size());
         String subject = "A change to one of your registered sessions";
         users.forEach(user ->
                 CompletableFuture.runAsync(() ->
-                        sendEmail(user.getEmail(), user.getName(), subject, getSessionChangeBody(sessionDTO, user.getName()))
+                        sendEmail(user.getEmail(), user.getName(), subject, getSessionChangeBody(sessionDTO, user))
                 )
         );
 
@@ -87,29 +86,76 @@ public class EmailService {
     }
 
     private String getWelcomeMessageForAttendee(String attendeeName) {
-         return "Hello " + attendeeName + ",\n\n"
-                + "Welcome to our platform! We are excited that you took interest in the scientific conferences "
-                + "that the University of Hertfordshire has to offer.\n\n"
-                + "Please feel free to browse through the upcoming conferences and register for any that interest you.\n\n"
-                + "Kind regards,\n\n" + "The UH Team";
+        return "Dear " + attendeeName + ",\n\n"
+                + "Welcome to the University of Hertfordshire's Conference Platform!\n\n"
+                + "We are thrilled that you've chosen to explore the exciting and diverse scientific conferences we offer. "
+                + "Our platform is designed to connect you with cutting-edge research, inspiring speakers, and thought-provoking sessions.\n\n"
+                + "Feel free to browse through the list of upcoming conferences and register for those that capture your interest. "
+                + "This is a wonderful opportunity to expand your knowledge, network with professionals, and be a part of the academic community.\n\n"
+                + "Should you need any assistance, our team is here to help you every step of the way.\n\n"
+                + "We look forward to your participation!\n\n"
+                + "Best regards,\n\n"
+                + "The University of Hertfordshire Team";
     }
 
     private String getWelcomeMessageForOrganizer(String organizerName) {
-        return "";
+           return "Welcome to the Conference Management Platform, " + organizerName + "!\n\n"
+                + "We are thrilled to have you as part of our team! As an organizer, you play a vital role in curating "
+                + "exceptional events and bringing together participants for memorable experiences.\n\n"
+                + "On this platform, you can manage conferences, create engaging sessions, and collaborate with speakers and attendees. "
+                + "Your expertise and dedication will ensure the success of our events and strengthen our community.\n\n"
+                + "Feel free to explore the upcoming conferences, manage sessions, and utilize all the tools available to "
+                + "streamline your responsibilities. If you have any questions, don’t hesitate to reach out.\n\n"
+                + "Thank you for your commitment, and we look forward to seeing the incredible work you’ll do!\n\n"
+                + "Warm regards,\n\n"
+                + "The University of Hertfordshire Team";
     }
 
     private String getWelcomeMessageForSpeaker(String speakerName) {
-        return "";
+        return "Welcome to the Conference Management Platform, " + speakerName + "!\n\n"
+                + "We are delighted to have you join us as a speaker. Your expertise and insights play a key role in "
+                + "shaping enriching and inspiring sessions for our attendees.\n\n"
+                + "This platform will help you manage your speaking engagements, view session details, and connect with "
+                + "event organizers and participants. Feel free to explore the tools and features available to ensure your "
+                + "sessions are seamless and impactful.\n\nThank you for being a part of our mission to foster knowledge "
+                + "sharing and collaboration. We are excited to witness the value you bring to our events!\n\n"
+                + "Warm regards,\n\n"
+                + "The University of Hertfordshire Team";
     }
 
-    private String getSessionChangeBody(SessionDTO sessionDTO, String attendeeName) {
+    private String getSessionChangeBody(SessionDTO sessionDTO, UserDTO user) {
+        return switch (user.getRole()) {
+            case ATTENDEE -> getAttendeeSessionChangeMessage(sessionDTO, user.getName());
+            case SPEAKER -> getSpeakerSessionChangeMessage(sessionDTO, user.getName());
+            case ORGANIZER -> throw new IllegalArgumentException("User must either have attendee or speaker permissions.");
+        };
+    }
+
+    private String getAttendeeSessionChangeMessage(SessionDTO sessionDTO, String attendeeName) {
         return String.format("Hello %s,\n\nWe kindly inform you that an update has taken place to one of the sessions you are registered for. " +
                         "These are the updated session details:\n\n" +
                         "Name: %s\nSpeaker: %s\nDescription: %s\nRoom: %s\nDate: %s\nStart Time: %s\nEnd Time: %s\n\n" +
                         "We are sorry if this has caused any inconvenience and we hope that you can still make it to the session.\n\n" +
-                        "Kind Regards,\n\nThe UH Team", attendeeName, sessionDTO.getName(), sessionDTO.getSpeakerName(), sessionDTO.getDescription(),
-                                                        sessionDTO.getRoom(), sessionDTO.getDate(), sessionDTO.getStartTime(), sessionDTO.getEndTime());
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                attendeeName, sessionDTO.getName(), sessionDTO.getSpeakerName(),
+                sessionDTO.getDescription(), sessionDTO.getRoom(), sessionDTO.getDate(),
+                sessionDTO.getStartTime(), sessionDTO.getEndTime());
     }
 
+    private String getSpeakerSessionChangeMessage(SessionDTO sessionDTO, String speakerName) {
+        return String.format("Hello %s,\n\nWe kindly inform you that an update has taken place to one of the sessions you are assigned to speaker at. " +
+                        "These are the updated session details:\n\n" +
+                        "Name: %s\nSpeaker: %s\nDescription: %s\nRoom: %s\nDate: %s\nStart Time: %s\nEnd Time: %s\n\n" +
+                        "We want to let you know that this happened due to unforeseen circumstances we apologize if this has caused any inconvenience." +
+                        "We hope that you can still speak at the session, but if not, please contact the UH Conference Management team " +
+                        "so we can make the necessary adjustments.\n\n" +
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                speakerName, sessionDTO.getName(), sessionDTO.getSpeakerName(),
+                sessionDTO.getDescription(), sessionDTO.getRoom(), sessionDTO.getDate(),
+                sessionDTO.getStartTime(), sessionDTO.getEndTime());
+    }
 
 }
+
+
+
