@@ -7,9 +7,7 @@ import domain.model.User;
 import domain.model.UserRole;
 import dto.RegistrationDTO;
 import dto.UserDTO;
-import exception.InvalidUserRoleException;
-import exception.SavingDataException;
-import exception.UserNotFoundException;
+import exception.UserException;
 import repository.UserRepository;
 import util.CollectionUtils;
 import util.LoggerUtil;
@@ -28,8 +26,7 @@ public class UserService {
     // CREATE METHODS
     public void registerUser(RegistrationDTO validatedDTO) {
         if (validatedDTO == null) {
-            LoggerUtil.getInstance().logError("Registration DTO cannot be null.");
-            return;
+            throw new IllegalArgumentException("RegistrationDTO cannot be null.");
         }
 
         // creating user instance
@@ -39,29 +36,28 @@ public class UserService {
         boolean isSavedToFile = userRepository.save(user, user.getId());
         if (!isSavedToFile) {
             LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
-            throw new SavingDataException("An unexpected error occurred while saving data for user with email '" + validatedDTO.getEmail() + "'.");
+            throw UserException.savingFailure("An unexpected error has occurred while saving your data. Please try again later.");
         }
-        LoggerUtil.getInstance().logInfo("User with email '" + validatedDTO.getEmail() + "' has successfully been registered.");
+        LoggerUtil.getInstance().logInfo(String.format("User with email '%s' has successfully been registered.", validatedDTO.getEmail()));
     }
 
     public void addNewManagedConferenceForOrganizer(String organizerId, String conferenceId) {
         if (organizerId == null || conferenceId == null) {
-            LoggerUtil.getInstance().logError("Organizer id and conference id parameters cannot be null.");
-            return;
+            throw new IllegalArgumentException("Organizer and conference id parameters cannot be null.");
         }
 
         // retrieving user
         Optional<User> userOptional = userRepository.findById(organizerId);
         if (userOptional.isEmpty()) {
-            LoggerUtil.getInstance().logWarning("Id provided '" + organizerId + "' does not belong to any registered user.");
-            throw new UserNotFoundException("User with id '" + organizerId + "' does not exist.");
+            LoggerUtil.getInstance().logWarning(String.format("Id provided '%s' does not belong to any registered user.", organizerId));
+            throw UserException.notFound(String.format("User with id '%s' does not exist.", organizerId));
         }
 
         // validating user is an organizer
         User user = userOptional.get();
         if (user.getRole() != UserRole.ORGANIZER) {
-            LoggerUtil.getInstance().logWarning("Id provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
-            throw new InvalidUserRoleException("User with id '" + organizerId + "' does not have organizer permissions");
+            LoggerUtil.getInstance().logWarning(String.format("Id provided belongs to a user with the role of '%s'. Required role: Organizer.", user.getRole().getDisplayName()));
+            throw UserException.invalidRole(String.format("User with id '%s' does not have organizer permissions.", organizerId));
         }
 
         // updating organizer's data
@@ -70,28 +66,31 @@ public class UserService {
 
         boolean isUserUpdated = userRepository.save(organizer, organizerId);
         if (!isUserUpdated) {
-            throw new SavingDataException("Failed to save conference to your managed conferences. Please try again later.");
+            throw UserException.savingFailure("An unexpected error occurred when saving conference to your managed conferences. Please try again later.");
         }
     }
 
     public void assignNewSessionForSpeaker(String speakerId, String sessionId, LocalDateTime startTime, LocalDateTime endTime) {
-        if (speakerId == null || sessionId == null) {
-            LoggerUtil.getInstance().logError("Speaker id and session id parameters cannot be null.");
-            return;
+        if (speakerId == null || sessionId == null || speakerId.isEmpty() || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Speaker and session id cannot be null or empty.");
+        }
+
+        if (startTime == null || endTime == null) {
+            throw new IllegalArgumentException("Start and end times cannot be null.");
         }
 
         // retrieving user
         Optional<User> userOptional = userRepository.findById(speakerId);
         if (userOptional.isEmpty()) {
             LoggerUtil.getInstance().logError(String.format("Id provided '%s' does not belong to any registered user.", speakerId));
-            throw new UserNotFoundException(String.format("User with id '%s' does not exist.", speakerId));
+            throw UserException.notFound(String.format("User with id '%s' does not exist.", speakerId));
         }
 
         // validating user is a speaker
         User user = userOptional.get();
         if (user.getRole() != UserRole.SPEAKER) {
             LoggerUtil.getInstance().logError(String.format("Id provided belongs to a user with the role of '%s'.  Required role: Speaker.", user.getRole().getDisplayName()));
-            throw new InvalidUserRoleException(String.format("User with id '%s' does not have speaker permissions.", speakerId));
+            throw UserException.invalidRole(String.format("User with id '%s' does not have speaker permissions.", speakerId));
         }
 
         // update speaker's data by assigning new session
@@ -101,7 +100,7 @@ public class UserService {
         // saving updated speaker user
         boolean isUserUpdated = userRepository.save(speaker, speakerId);
         if (!isUserUpdated) {
-            throw new SavingDataException("Failed to save session to speaker's assigned session. Please try again later.");
+            throw UserException.savingFailure("Failed to save session to speaker's assigned sessions. Please try again later.");
         }
     }
 
@@ -109,7 +108,7 @@ public class UserService {
     // READ METHODS
     public List<UserDTO> findAllById(Set<String> ids) {
         if (ids == null) {
-            return Collections.emptyList();
+            throw new IllegalArgumentException("The set of ids cannot be null.");
         }
 
         // batch fetch all users matching the set of ids
@@ -131,12 +130,12 @@ public class UserService {
         return userRepository
                 .findById(id)
                 .map(User::getName)
-                .orElseThrow(() -> new UserNotFoundException(String.format("User with id '%s' does not exist.", id)));
+                .orElseThrow(() -> UserException.notFound(String.format("User with id '%s' does not exist.", id)));
     }
 
     public Map<String, String> findNamesByIds(Set<String> ids) {
         if (ids == null) {
-            return Collections.emptyMap();
+            throw new IllegalArgumentException("The set of ids cannot be null.");
         }
 
         Map<String, String> namesByIds = new HashMap<>();
@@ -153,24 +152,33 @@ public class UserService {
     }
 
     public UserDTO getBydId(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("User id cannot be null or empty.");
+        }
         return userRepository
                 .findById(id)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> new UserNotFoundException(String.format("User with id '%s' does not exist.", id)));
+                .orElseThrow(() -> UserException.notFound(String.format("User with id '%s' does not exist.", id)));
     }
 
     public UserDTO getByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("User email cannot be null or empty.");
+        }
         return userRepository
                 .findByEmail(email)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' could not be found."));
+                .orElseThrow(() -> UserException.notFound(String.format("User with email '%s' could not be found.", email)));
     }
 
     public UserDTO getAuthenticatedByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty.");
+        }
         return userRepository
                 .findByEmail(email)
                 .map(this::mapToAuthenticatedDTO)
-                .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' could not be found."));
+                .orElseThrow(() -> UserException.notFound(String.format("User with email '%s' could not be found.", email)));
     }
 
     public List<UserDTO> findAllSpeakers() {
@@ -182,20 +190,20 @@ public class UserService {
     }
 
     public Set<String> findManagedConferencesForOrganizer(String email) {
-        if (email == null) {
-            return Collections.emptySet();
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty.");
         }
 
         Optional<User> organizerOptional = userRepository.findByEmail(email);
         if (organizerOptional.isEmpty()) {
-            LoggerUtil.getInstance().logError(String.format("User with email '%s' does not exist.", email));
-            throw new UserNotFoundException((String.format("User with email '%s' does not exist.", email)));
+            LoggerUtil.getInstance().logError(String.format("Failed to find managed conferences: User with email '%s' does not exist.", email));
+            throw UserException.notFound((String.format("User with email '%s' does not exist.", email)));
         }
 
         User user = organizerOptional.get();
         if (user.getRole() != UserRole.ORGANIZER) {
-            LoggerUtil.getInstance().logWarning("Email provided belongs to a user with the role of " + user.getRole().getDisplayName() + ". Required role: Organizer.");
-            throw new InvalidUserRoleException(String.format("User with email '%s' does not have organizer permissions.", email));
+            LoggerUtil.getInstance().logWarning(String.format("Failed to find managed conferences for organizer: Email provided belongs to a user with the role of '%s'. Required role: Organizer.", user.getRole().getDisplayName()));
+            throw UserException.invalidRole(String.format("User with email '%s' does not have organizer permissions.", email));
         }
 
         Organizer organizer = (Organizer) user;
@@ -203,8 +211,8 @@ public class UserService {
     }
 
     public boolean isEmailRegistered(String email) {
-        if (email == null) {
-            return false;
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty.");
         }
 
         return userRepository
@@ -214,17 +222,18 @@ public class UserService {
 
     public boolean isSpeakerAvailable(String id, LocalDateTime sessionStart, LocalDateTime sessionEnd) {
         if (id == null || id.isEmpty() || sessionStart == null || sessionEnd == null) {
-            throw new IllegalArgumentException("Speaker id, session start and session end are all required for checking if a speaker available and cannot be null or empty.");
+            throw new IllegalArgumentException("Speaker id, session start and session end are all required for checking " +
+                    "if a speaker is available and cannot be null or empty.");
         }
 
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException(String.format("User with id '%s' does not exist.", id));
+            throw UserException.notFound(String.format("User with id '%s' does not exist.", id));
         }
 
         User user = userOptional.get();
         if (user.getRole() != UserRole.SPEAKER) {
-            throw new InvalidUserRoleException(String.format("User with id '%s' does not have speaker permissions.", id));
+            throw UserException.invalidRole(String.format("User with id '%s' does not have speaker permissions.", id));
         }
 
         Speaker speaker = (Speaker) user;
@@ -238,16 +247,21 @@ public class UserService {
 
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException(String.format("User with id '%s' does not exist.", id));
+            throw UserException.notFound(String.format("User with id '%s' does not exist.", id));
         }
 
         User user = userOptional.get();
         if (user.getRole() != UserRole.SPEAKER) {
-            throw new InvalidUserRoleException(String.format("User with id '%s' does not have speaker permissions.", id));
+            throw UserException.invalidRole(String.format("User with id '%s' does not have speaker permissions.", id));
         }
 
         Speaker speaker = (Speaker) user;
         speaker.unassignSession(sessionId);
+
+        boolean isSpeakerUpdated = userRepository.save(speaker, speaker.getId());
+        if (!isSpeakerUpdated) {
+            throw UserException.savingFailure("An unexpected error occurred when unassigning session from speaker's schedule. Please try again later.");
+        }
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully unassigned session with id '%s' from speaker '%s'.", sessionId, speaker.getName()));
     }

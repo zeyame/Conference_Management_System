@@ -1,6 +1,6 @@
 package util;
-import exception.UserLoginException;
-import exception.UserRegistrationException;
+import exception.PasswordException;
+import exception.UserException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Arrays;
@@ -24,8 +24,8 @@ public class PasswordUtil {
         try {
             hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         } catch (Exception e) {
-            LoggerUtil.getInstance().logError("An unexpected error occurred during the hashing password operation in the hashPassword method of the PasswordService class. " + e.getMessage());
-            throw UserRegistrationException.unexpectedError();
+            LoggerUtil.getInstance().logError("An unexpected error occurred when hashing user's password. " + e.getMessage());
+            throw PasswordException.hashingError("An unexpected error has occurred when hashing user's password.");
         } finally {
             // removing traces of the plain text password from memory
             Arrays.fill(plainPassword, '0');
@@ -46,7 +46,7 @@ public class PasswordUtil {
             return BCrypt.checkpw(password, hashedPassword);
         } catch (Exception e) {
             LoggerUtil.getInstance().logError("An unexpected error occurred during the password verification operation in the verifyPassword method of the PasswordService class. " + e.getMessage());
-            throw UserLoginException.unexpectedError();
+            throw PasswordException.verificationError("An unexpected error occurred when verifying user's password.");
         } finally {
             // removing traces of the plain text password from memory
             Arrays.fill(plainPassword, '0');

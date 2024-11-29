@@ -42,7 +42,7 @@ public abstract class BaseRepository<T> {
     }
 
 
-    public void deleteById(String id) {
+    public boolean deleteById(String id) {
         T entity = cache.get(id);
         removeFromMemory(id);
         boolean isSavedToFile = JsonFileHandler.saveDataWithRetry(cache, filePath, 3);
@@ -50,7 +50,9 @@ public abstract class BaseRepository<T> {
             // rolling back the delete so that in-memory storage is synced up with file storage
             saveInMemory(entity, id);
             LoggerUtil.getInstance().logError(String.format("Failed to delete entity with id '%s'. Entity's class: %s", id, entity.getClass().getSimpleName()));
+            return false;
         }
+        return true;
     }
 
 

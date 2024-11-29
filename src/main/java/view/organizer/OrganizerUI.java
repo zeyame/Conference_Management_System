@@ -253,6 +253,19 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
+    public void onDeleteSessionRequest(String sessionId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to delete session with id '%s' received.", sessionId));
+
+        ResponseEntity<Void> deleteSessionResponse = organizerController.deleteSession(sessionId);
+        if (!deleteSessionResponse.isSuccess()) {
+            showError(getCurrentPageId(), deleteSessionResponse.getErrorMessage());
+            return;
+        }
+
+
+    }
+
+    @Override
     public void onViewAttendeesRequest(String conferenceId) {
         LoggerUtil.getInstance().logInfo(String.format("Request to view attendees for conference with id '%s' received.", conferenceId));
 

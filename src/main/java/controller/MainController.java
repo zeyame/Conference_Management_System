@@ -2,9 +2,8 @@ package controller;
 
 import dto.RegistrationDTO;
 import dto.UserDTO;
-import exception.SavingDataException;
-import exception.UserLoginException;
-import exception.UserNotFoundException;
+import exception.PasswordException;
+import exception.UserException;
 import response.ResponseEntity;
 import service.UserService;
 import view.*;
@@ -49,14 +48,10 @@ public class MainController {
             boolean isPasswordValid = PasswordUtil.verifyPassword(password, hashedPassword);
 
             // log success if no exceptions thrown and return response
-            LoggerUtil.getInstance().logInfo("Login check carried out for user with email: '" + email + "'.");
+            LoggerUtil.getInstance().logInfo(String.format("Login check carried out for user with email '%s'.", email));
             return ResponseEntity.success(isPasswordValid);
-        } catch (UserNotFoundException e) {
-            LoggerUtil.getInstance().logError("Login failed: User with email '" + email + "' not found.");
-            return ResponseEntity.error("Email or password incorrect.");
-        } catch (UserLoginException | IllegalArgumentException e) {
-            LoggerUtil.getInstance().logError("Error validating login for email '" + email + "': " + e.getMessage());
-            return ResponseEntity.error("An unexpected error occurred. Please try again later.");
+        } catch (IllegalArgumentException | UserException e) {
+            return ResponseEntity.error(e.getMessage());
         }
     }
 
@@ -71,23 +66,15 @@ public class MainController {
             char[] hashedPasswordChars = hashedPassword.toCharArray();
             registrationDTO.setPassword(hashedPasswordChars);
 
-            LoggerUtil.getInstance().logInfo("Password for user with email '" + registrationDTO.getEmail() + "' was successfully hashed.");
-
             userService.registerUser(registrationDTO);
 
             emailService.sendWelcomeEmail(registrationDTO.getEmail(), registrationDTO.getName(), registrationDTO.getUserRole());
 
             LoggerUtil.getInstance().logInfo("Registration is successful for user: \n" + registrationDTO);
             return ResponseEntity.success();
-        }
-        // thrown by PasswordService.hashPassword()
-        catch (UserLoginException | IllegalArgumentException e) {
-            LoggerUtil.getInstance().logError("Registration failed: Hashing password for user with email '" + registrationDTO.getEmail() + "' failed.");
-            return ResponseEntity.error("An unexpected error occurred when registering you to the system. Please try again later.");
-        }
-        // thrown by userService.registerUser()
-        catch (SavingDataException e) {
-            return ResponseEntity.error("An unexpected error occurred when saving your data. Please try again later.");
+        } catch (PasswordException | UserException e) {
+            LoggerUtil.getInstance().logError("Failed to register user: " + e.getMessage());
+            return ResponseEntity.error("An unexpected error occurred when registering your data. Please try again later.");
         }
     }
 
@@ -100,8 +87,11 @@ public class MainController {
 
             LoggerUtil.getInstance().logInfo("User with email '" + email + "' has been successfully logged in.");
             return ResponseEntity.success();
-        } catch (UserNotFoundException e) {
-            LoggerUtil.getInstance().logError("User with email '" + email + "' could not be found. Login failed.");
+        } catch (IllegalArgumentException e) {
+            LoggerUtil.getInstance().logError("Login failed: " + e.getMessage());
+            return ResponseEntity.error("Login failed due to invalid data.");
+        } catch (UserException e) {
+            LoggerUtil.getInstance().logError(String.format("Login failed: User with email '%s' could not be found.", email));
             return ResponseEntity.error("Email or password incorrect.");
         }
     }

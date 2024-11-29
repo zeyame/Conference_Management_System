@@ -37,6 +37,7 @@ public interface OrganizerObserver {
     void onViewSessionAttendanceRequest(String sessionId);
     void onViewSessionFeedbackRequest(String sessionId);
     void onEditSessionRequest(SessionDTO sessionDTO);
+    void onDeleteSessionRequest(String sessionId);
 
     // Edit Session Page events
     void onUpdateSessionFormRequest(SessionDTO updatedSessionDTO);
