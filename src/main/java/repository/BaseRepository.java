@@ -1,9 +1,11 @@
 package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import domain.model.Conference;
 import util.LoggerUtil;
 import util.file.JsonFileHandler;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class BaseRepository<T> {
 
@@ -41,6 +43,11 @@ public abstract class BaseRepository<T> {
         return new ArrayList<>(cache.values());
     }
 
+    public List<Optional<T>> findAllById(Set<String> ids) {
+        return ids.stream()
+                .map(id -> Optional.ofNullable(cache.get(id)))
+                .collect(Collectors.toList());
+    }
 
     public boolean deleteById(String id) {
         T entity = cache.get(id);

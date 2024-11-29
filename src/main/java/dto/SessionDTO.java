@@ -5,6 +5,7 @@ import util.validation.SessionValidator;
 import util.validation.ValidationUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -132,6 +133,13 @@ public class SessionDTO {
                     this.date, this.startTime, this.endTime, true);
             return new SessionDTO(this);
         }
+    }
+
+    public boolean overlapsWith(LocalDateTime otherStart, LocalDateTime otherEnd) {
+        LocalDateTime sessionStart = LocalDateTime.of(this.date, this.startTime);
+        LocalDateTime sessionEnd = LocalDateTime.of(this.date, this.endTime);
+
+        return !sessionStart.isAfter(otherEnd) && !sessionEnd.isBefore(otherStart);
     }
 
     public String getId() {

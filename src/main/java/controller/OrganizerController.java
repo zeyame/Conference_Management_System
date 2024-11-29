@@ -8,7 +8,7 @@ import exception.*;
 import response.ResponseEntity;
 import service.ConferenceService;
 import service.FeedbackService;
-import service.SessionService;
+import service.session.SessionService;
 import service.UserService;
 import util.LoggerUtil;
 

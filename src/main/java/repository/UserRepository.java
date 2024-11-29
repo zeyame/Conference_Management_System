@@ -22,12 +22,6 @@ public class UserRepository extends BaseRepository<User> {
         return instance;
     }
 
-    public List<Optional<User>> findAllById(Set<String> ids) {
-        return ids.stream()
-                .map(id -> Optional.ofNullable(cache.get(id)))
-                .collect(Collectors.toList());
-    }
-
     public Optional<User> findByEmail(String email) {
         return cache.values()
                 .stream()

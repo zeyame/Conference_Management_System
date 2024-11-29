@@ -143,12 +143,12 @@ public class EmailService {
     }
 
     private String getSpeakerSessionChangeMessage(SessionDTO sessionDTO, String speakerName) {
-        return String.format("Hello %s,\n\nWe kindly inform you that an update has taken place to one of the sessions you are assigned to speaker at. " +
-                        "These are the updated session details:\n\n" +
+        return String.format("Hello %s,\n\nWe kindly inform you that an update has taken place to one of the sessions you are " +
+                        "assigned to speak at. These are the updated session details:\n\n" +
                         "Name: %s\nSpeaker: %s\nDescription: %s\nRoom: %s\nDate: %s\nStart Time: %s\nEnd Time: %s\n\n" +
-                        "We want to let you know that this happened due to unforeseen circumstances we apologize if this has caused any inconvenience." +
-                        "We hope that you can still speak at the session, but if not, please contact the UH Conference Management team " +
-                        "so we can make the necessary adjustments.\n\n" +
+                        "We want to let you know that this has happened due to unforeseen circumstances and we sincerely apologize " +
+                        "if this has caused any inconvenience. We hope that you can still speak at the session, but if not, " +
+                        "please contact the UH Conference Management team so we can make the necessary adjustments.\n\n" +
                         "Kind Regards,\n\nThe University of Hertfordshire Team",
                 speakerName, sessionDTO.getName(), sessionDTO.getSpeakerName(),
                 sessionDTO.getDescription(), sessionDTO.getRoom(), sessionDTO.getDate(),

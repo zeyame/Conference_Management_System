@@ -23,12 +23,6 @@ public class FeedbackRepository extends BaseRepository<Feedback> {
         return instance;
     }
 
-    public List<Optional<Feedback>> findAllById(Set<String> ids) {
-        return ids.stream()
-                .map(id -> Optional.ofNullable(cache.get(id)))
-                .collect(Collectors.toList());
-    }
-
     @Override
     protected TypeReference<Map<String, Feedback>> getTypeReference() {
         return new TypeReference<Map<String, Feedback>>() {};

@@ -22,10 +22,11 @@ public class SessionRepository extends BaseRepository<Session> {
         return instance;
     }
 
-    public List<Optional<Session>> findAllById(Set<String> ids) {
-        return ids.stream()
-                .map(id -> Optional.ofNullable(cache.get(id)))
-                .collect(Collectors.toList());
+    public Optional<Session> getByName(String name) {
+        return cache.values()
+                .stream()
+                .filter(session -> name.equals(session.getName()))
+                .findFirst();
     }
 
     @Override
