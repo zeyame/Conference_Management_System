@@ -201,6 +201,12 @@ public class UIComponentFactory {
             add(Box.createRigidArea(new Dimension(0, 20)));
         }
 
+        public void addRoleSelectionListener(Runnable handler) {
+            organizerRole.addActionListener(e -> handler.run());
+            speakerRole.addActionListener(e -> handler.run());
+            attendeeRole.addActionListener(e -> handler.run());
+        }
+
         public UserRole getSelectedRole() {
             if (organizerRole.isSelected()) return UserRole.ORGANIZER;
             else if (attendeeRole.isSelected()) return UserRole.ATTENDEE;

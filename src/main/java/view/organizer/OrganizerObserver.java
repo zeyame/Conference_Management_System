@@ -21,7 +21,7 @@ public interface OrganizerObserver {
     void onDeleteConferenceRequest();
     void onViewAttendeesRequest(String conferenceId);
     void onViewSessionsRequest(String conferenceId);
-    void onViewSpeakersRequest();
+    void onViewSpeakersRequest(String conferenceId);
     void onViewConferenceFeedbackRequest(String conferenceId);
     void onNavigateBackRequest();
 

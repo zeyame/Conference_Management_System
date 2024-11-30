@@ -5,16 +5,17 @@ import domain.model.UserRole;
 public class RegistrationDTO {
     private String email;
     private String name;
+    private String speakerBio;
     private char[] password;
     private UserRole userRole;
 
-    public RegistrationDTO() {}
 
-    public RegistrationDTO(String email, String name, char[] password, UserRole userRole) {
+    public RegistrationDTO(String email, String name, String speakerBio, char[] password, UserRole userRole) {
         this.email = email;
         this.name = name;
         this.password = password;
         this.userRole = userRole;
+        this.speakerBio = speakerBio;
     }
 
     public String getEmail() {
@@ -31,6 +32,14 @@ public class RegistrationDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSpeakerBio() {
+        return speakerBio;
+    }
+
+    public void setSpeakerBio(String speakerBio) {
+        this.speakerBio = speakerBio;
     }
 
     public char[] getPassword() {

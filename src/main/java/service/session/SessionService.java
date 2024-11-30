@@ -66,7 +66,7 @@ public class SessionService {
             speakerAssigned = true;
 
             // add a reference to the session to conference
-            conferenceService.registerSession(conferenceDTO.getId(), session.getId());
+            conferenceService.registerSession(conferenceDTO.getId(), mapToDTO(session, userService.getNameById(session.getSpeakerId())));
             conferenceUpdated = true;
 
             if (isUpdate) {

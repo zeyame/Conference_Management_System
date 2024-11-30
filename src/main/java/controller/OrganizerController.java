@@ -70,6 +70,17 @@ public class OrganizerController {
         return ResponseEntity.success(userService.findAllSpeakers());
     }
 
+    public ResponseEntity<List<UserDTO>> getSpeakersInConference(String conferenceId) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
+            Set<String> speakerIds = conferenceDTO.getSpeakers();
+            List<UserDTO> speakers = userService.findAllById(speakerIds);
+            return ResponseEntity.success(speakers);
+        } catch (ConferenceException e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
     public ResponseEntity<ConferenceDTO> getManagedConference(String conferenceId) {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);

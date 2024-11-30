@@ -78,7 +78,7 @@ public class SessionRollbackService {
 
     public void rollbackSessionRemovalFromConference(SessionDTO sessionDTO) {
         try {
-            conferenceService.registerSession(sessionDTO.getConferenceId(), sessionDTO.getId());
+            conferenceService.registerSession(sessionDTO.getConferenceId(), sessionDTO);
             LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully added back to conference.", sessionDTO.getId()));
         } catch (IllegalArgumentException | ConferenceException e) {
             LoggerUtil.getInstance().logError(String.format("Rollback failed: Could not add session '%s' to conference: %s", sessionDTO.getId(), e.getMessage()));

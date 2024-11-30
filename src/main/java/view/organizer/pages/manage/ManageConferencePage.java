@@ -90,7 +90,7 @@ public class ManageConferencePage extends ManagePage {
         deleteButton.addActionListener(e -> organizerObserver.onDeleteConferenceRequest());
         viewAttendeesButton.addActionListener(e -> organizerObserver.onViewAttendeesRequest(conferenceDTO.getId()));
         viewSessionsButton.addActionListener(e -> organizerObserver.onViewSessionsRequest(conferenceDTO.getId()));
-        viewSpeakersButton.addActionListener(e -> organizerObserver.onViewSpeakersRequest());
+        viewSpeakersButton.addActionListener(e -> organizerObserver.onViewSpeakersRequest(conferenceDTO.getId()));
         viewFeedbackButton.addActionListener(e -> organizerObserver.onViewConferenceFeedbackRequest(conferenceDTO.getId()));
     }
 }

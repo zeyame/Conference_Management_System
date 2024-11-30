@@ -7,16 +7,19 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Speaker extends User {
+    private final String bio;
     private final Map<LocalDateTime, AssignedSession> assignedSessions;          // K: Session Time, V: Session ID
 
     // no-arg constructor for JSON serialization/de-serialization
     private Speaker() {
         super(null, null, null, null, null);
+        this.bio = null;
         this.assignedSessions = new TreeMap<>();
     }
 
-    public Speaker(String id, String email, String name, String hashedPassword, UserRole role) {
+    public Speaker(String id, String email, String name, String bio, String hashedPassword, UserRole role) {
         super(id, email, name, hashedPassword, role);
+        this.bio = bio;
         this.assignedSessions = new TreeMap<>();
     }
 
@@ -76,6 +79,10 @@ public class Speaker extends User {
         public LocalDateTime getEndTime() {
             return this.endTime;
         }
+    }
+
+    public String getBio() {
+        return this.bio;
     }
 
     public Map<LocalDateTime, AssignedSession> getAssignedSessions() {

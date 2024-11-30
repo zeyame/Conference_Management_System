@@ -43,6 +43,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String VIEW_SESSIONS_PAGE = "View Sessions Page";
     private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
     private final String VIEW_SESSION_FEEDBACK_PAGE = "View Session Feedback Page";
+    private final String VIEW_SPEAKERS_PAGE = "View Speakers Page";
 
     // map used for quick retrieval of organizer subpages need for routing
     Map<String, Component> subpages = new HashMap<>();
@@ -314,8 +315,23 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onViewSpeakersRequest() {
+    public void onViewSpeakersRequest(String conferenceId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view speakers for conference with id '%s' received.", conferenceId));
 
+        ConferenceDTO conferenceDTO = fetchConference(conferenceId);
+        if (conferenceDTO == null) {
+            return;
+        }
+
+        ResponseEntity<List<UserDTO>> speakersResponse = organizerController.getSpeakersInConference(conferenceId);
+        if (!speakersResponse.isSuccess()) {
+            showError(getCurrentPageId(), speakersResponse.getErrorMessage());
+            return;
+        }
+
+        List<UserDTO> speakers = speakersResponse.getData();
+        ViewListPage<UserDTO> viewSpeakersPage = new ViewSpeakersPage(this, conferenceDTO.getName(), speakers);
+        navigateTo(VIEW_SPEAKERS_PAGE, viewSpeakersPage.createPageContent(), true);
     }
 
     @Override

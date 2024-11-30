@@ -27,10 +27,11 @@ public class RegistrationUI extends JFrame {
     private JButton registerButton;
 
     // fields
-    JTextField nameField;
-    JTextField emailField;
-    JPasswordField passwordField;
-    JPasswordField confirmPasswordField;
+    private JTextField nameField;
+    private JTextField emailField;
+    private JTextField speakerBioField;
+    private JPasswordField passwordField;
+    private JPasswordField confirmPasswordField;
 
     public RegistrationUI(MainController mainController) {
         this.mainController = mainController;
@@ -171,6 +172,7 @@ public class RegistrationUI extends JFrame {
     private void handleRegisterClick(ActionEvent e) {
         String email = emailField.getText();
         String name = nameField.getText();
+        String speakerBio = speakerBioField.getText();
         char[] password = passwordField.getPassword();
         char[] confirmPassword = confirmPasswordField.getPassword();
         UserRole userRole = roleSelectionPanel.getSelectedRole();
@@ -184,7 +186,7 @@ public class RegistrationUI extends JFrame {
         }
 
         // once form is validated, register user to the system
-        RegistrationDTO registrationDTO = new RegistrationDTO(email, name, password, userRole);
+        RegistrationDTO registrationDTO = new RegistrationDTO(email, name, speakerBio,password, userRole);
 
         ResponseEntity<Boolean> validationResponse = mainController.validateRegistration(registrationDTO);
         if (!validationResponse.isSuccess()) {

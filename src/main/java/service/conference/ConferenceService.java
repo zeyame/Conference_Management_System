@@ -2,7 +2,9 @@ package service.conference;
 
 import domain.factory.ConferenceFactory;
 import domain.model.Conference;
+import domain.model.Session;
 import dto.ConferenceDTO;
+import dto.SessionDTO;
 import exception.ConferenceException;
 import repository.ConferenceRepository;
 import util.CollectionUtils;
@@ -36,9 +38,9 @@ public class ConferenceService {
         return conference.getId();
     }
 
-    public void registerSession(String id, String sessionId) {
-        if (id == null || sessionId == null || id.isEmpty() || sessionId.isEmpty()) {
-            throw new IllegalArgumentException("Conference and session ids cannot be null or empty.");
+    public void registerSession(String id, SessionDTO sessionDTO) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("Conference id cannot be null or empty.");
         }
 
         Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
@@ -47,15 +49,18 @@ public class ConferenceService {
         }
 
         Conference conference = conferenceOptional.get();
-        conference.addSession(sessionId);
+        conference.addSession(sessionDTO.getId());
+        conference.addSpeaker(sessionDTO.getSpeakerId());
 
         boolean isConferenceUpdated = conferenceRepository.save(conference, conference.getId());
         if (!isConferenceUpdated) {
-            conference.removeSession(sessionId);
+            conference.removeSession(sessionDTO.getId());
+            conference.removeSpeaker(sessionDTO.getSpeakerId());
             throw ConferenceException.savingFailure(String.format("Unexpected error occurred when registering session to conference '%s'. Please try again later.",  conference.getName()));
         }
 
-        LoggerUtil.getInstance().logInfo(String.format("Successfully registered session with id '%s' to '%s'.", sessionId, conference.getName()));
+        LoggerUtil.getInstance().logInfo(String.format("Successfully registered session '%s' to '%s'.", sessionDTO.getName(), conference.getName()));
+
     }
 
     public ConferenceDTO getById(String id) {

@@ -105,6 +105,14 @@ public class Conference {
         this.sessions.remove(sessionId);
     }
 
+    public void addSpeaker(String speakerId) {
+        this.speakers.add(speakerId);
+    }
+
+    public void removeSpeaker(String speakerId) {
+        this.speakers.remove(speakerId);
+    }
+
     public String getId() {
         return this.id;
     }
