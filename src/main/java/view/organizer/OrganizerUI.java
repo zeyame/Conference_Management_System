@@ -256,13 +256,22 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     public void onDeleteSessionRequest(String sessionId) {
         LoggerUtil.getInstance().logInfo(String.format("Request to delete session with id '%s' received.", sessionId));
 
+        SessionDTO sessionDTO = fetchSession(sessionId);
+        if (sessionDTO == null) {
+            return;
+        }
+
         ResponseEntity<Void> deleteSessionResponse = organizerController.deleteSession(sessionId);
         if (!deleteSessionResponse.isSuccess()) {
             showError(getCurrentPageId(), deleteSessionResponse.getErrorMessage());
             return;
         }
 
+        List<SessionDTO> updatedSessions = fetchSessions(sessionDTO.getConferenceId());
+        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, sessionDTO.getConferenceId(), sessionDTO.getName(), updatedSessions);
 
+        navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), false);
+        showSuccess(VIEW_SESSIONS_PAGE, String.format("The session '%s' has successfully been deleted.", sessionDTO.getName()));
     }
 
     @Override
@@ -384,7 +393,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private List<SessionDTO> fetchSessions(String conferenceId) {
         ResponseEntity<List<SessionDTO>> sessionsResponse = organizerController.getConferenceSessions(conferenceId);
         if (!sessionsResponse.isSuccess()) {
-            showError(MANAGE_CONFERENCE_PAGE, sessionsResponse.getErrorMessage());
+            showError(getCurrentPageId(), sessionsResponse.getErrorMessage());
             return new ArrayList<>();
         }
         return sessionsResponse.getData();

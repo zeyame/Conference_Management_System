@@ -6,7 +6,7 @@ import view.organizer.OrganizerObserver;
 import javax.swing.*;
 import java.awt.*;
 
-public abstract class ManagePage {
+public abstract class ManagePage extends JPanel {
     // dependencies
     protected final OrganizerObserver organizerObserver;
 

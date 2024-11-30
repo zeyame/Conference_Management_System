@@ -10,13 +10,14 @@ import util.LoggerUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiPredicate;
 
 public class SessionValidator {
     private final UserService userService;
-    private final BiPredicate<String, String> isNameTaken;
+    private final BiPredicate<String, Set<String>> isNameTaken;
 
-    public SessionValidator(UserService userService, BiPredicate<String, String> isNameTaken) {
+    public SessionValidator(UserService userService, BiPredicate<String, Set<String>> isNameTaken) {
         this.userService = userService;
         this.isNameTaken = isNameTaken;
     }
@@ -26,9 +27,11 @@ public class SessionValidator {
             throw new IllegalArgumentException("SessionDTO and ConferenceDTO cannot be null.");
         }
 
+        Set<String> sessionIds = conferenceDTO.getSessions();
         if (isUpdate) {
             // removing session id from conference sessions, if it exists, for correct validation of session name and time in the case of updates
             removeSessionFromList(sessionDTO.getId(), conferenceSessions);
+            sessionIds.remove(sessionDTO.getId());
 
             // removing session from speaker's schedule for correct speaker availability validation in case of updates
             try {
@@ -39,17 +42,17 @@ public class SessionValidator {
             }
         }
 
-        validateSessionName(sessionDTO.getName(), conferenceDTO.getId(), this.isNameTaken);
+        validateSessionName(sessionDTO.getName(), sessionIds, this.isNameTaken);
         validateSpeakerAvailability(sessionDTO);
         validateSessionTime(sessionDTO, conferenceSessions, conferenceDTO.getStartDate());
     }
 
-    private void validateSessionName(String sessionName, String conferenceId, BiPredicate<String, String> isNameTaken) {
+    private void validateSessionName(String sessionName, Set<String> sessionIds, BiPredicate<String, Set<String>> isNameTaken) {
         if (sessionName == null || sessionName.isEmpty()) {
             throw new IllegalArgumentException("Session and conference names cannot be null or empty.");
         }
 
-        if (isNameTaken.test(sessionName, conferenceId)) {
+        if (isNameTaken.test(sessionName, sessionIds)) {
             LoggerUtil.getInstance().logError("Session name validation failed: Session name is taken.");
             throw SessionException.nameTaken("A session with this name is already registered to be held at this conference. Please choose a different name.");
         }

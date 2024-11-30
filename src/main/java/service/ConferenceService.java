@@ -54,6 +54,8 @@ public class ConferenceService {
             conference.removeSession(sessionId);
             throw ConferenceException.savingFailure(String.format("Unexpected error occurred when registering session to conference '%s'. Please try again later.",  conference.getName()));
         }
+
+        LoggerUtil.getInstance().logInfo(String.format("Successfully registered session with id '%s' to '%s'.", sessionId, conference.getName()));
     }
 
     public ConferenceDTO getById(String id) {
@@ -130,6 +132,8 @@ public class ConferenceService {
             conference.addSession(sessionId);
             throw ConferenceException.savingFailure(String.format("Unexpected error occurred when saving updated conference '%s'. Please try again later.",  conference.getName()));
         }
+
+        LoggerUtil.getInstance().logInfo(String.format("Successfully removed session with id '%s' from '%s'.", sessionId, conference.getName()));
     }
 
     private ConferenceDTO mapToDTO(Conference conference) {

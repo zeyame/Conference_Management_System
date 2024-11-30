@@ -1,5 +1,7 @@
 package domain.model;
 
+import util.LoggerUtil;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;

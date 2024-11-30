@@ -6,6 +6,7 @@ import view.organizer.OrganizerObserver;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class ManageSessionPage extends ManagePage {
     // dependencies
@@ -93,9 +94,31 @@ public class ManageSessionPage extends ManagePage {
     @Override
     protected void setUpListeners() {
         editButton.addActionListener(e -> organizerObserver.onEditSessionRequest(sessionDTO));
-//        deleteSessionButton.addActionListener(e -> organizerObserver.onDeleteSessionRequest());
+        deleteButton.addActionListener(this::handleDeleteSessionRequest);
         viewAttendeesButton.addActionListener(e -> organizerObserver.onViewSessionAttendeesRequest(sessionDTO.getId()));
         viewAttendanceButton.addActionListener(e -> organizerObserver.onViewSessionAttendanceRequest(sessionDTO.getId()));
         viewFeedbackButton.addActionListener(e -> organizerObserver.onViewSessionFeedbackRequest(sessionDTO.getId()));
     }
+
+    private void handleDeleteSessionRequest(ActionEvent event) {
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                String.format("Are you sure you want to delete the session '%s'?", sessionDTO.getName()),
+                "Confirm Session Deletion",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+            organizerObserver.onDeleteSessionRequest(sessionDTO.getId());
+        } else if (choice == JOptionPane.NO_OPTION) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Session deletion canceled.",
+                    "Canceled",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
 }

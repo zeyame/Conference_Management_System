@@ -73,7 +73,10 @@ public class SessionService {
 
             LoggerUtil.getInstance().logInfo(String.format("Session '%s' has successfully been created/updated.", session.getName()));
         } catch (RuntimeException e) {
-            handleException("Session creation/update", sessionDTO, sessionSaved, false, conferenceUpdated, speakerAssigned, false, e);
+            handleExceptionWithRollback("Session creation/update", sessionDTO, sessionSaved,
+                                    false, conferenceUpdated, speakerAssigned, false, e);
+
+            // throw original exception to be handled by the controller
             throw e;
         }
     }
@@ -136,37 +139,32 @@ public class SessionService {
                        .collect(Collectors.toList());
     }
 
-    public boolean isNameTaken(String name, String conferenceId) {
-        if (name == null || conferenceId == null || name.isEmpty() || conferenceId.isEmpty()) {
-            throw new IllegalArgumentException("Session name and conference id cannot be null or empty.");
+    public boolean isNameTaken(String name, Set<String> conferenceSessions) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Session name cannot be null or empty.");
         }
 
-        // checks if the session name exists in the entire session storage
-        SessionDTO sessionDTO = getByName(name);
-        if (sessionDTO == null) {
+        if (conferenceSessions == null || conferenceSessions.isEmpty()) {
             return false;
         }
 
-        String sessionId = sessionDTO.getId();
-
-        ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
-        Set<String> conferenceSessions = conferenceDTO.getSessions();
-
-        // batch fetch all sessions
+        // Fetch all sessions that belong to the conference
         List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(conferenceSessions);
 
-        // extract valid sessions
+        // Extract valid sessions
         List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
 
-        return sessions.stream()
-                .anyMatch(session -> !sessionId.equals(session.getId()) && name.equals(session.getName()));
+        // Check if any session in the conference matches the given name
+        return sessions.stream().anyMatch(session -> name.equals(session.getName()));
     }
+
 
     public void deleteById(String id) {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Session id cannot be null or empty.");
         }
 
+        // retrieve session
         Optional<Session> sessionOptional = sessionRepository.findById(id);
         if (sessionOptional.isEmpty()) {
             throw SessionException.notFound(String.format("Failed to delete session with id '%s' as it does not exist.", id));
@@ -191,7 +189,7 @@ public class SessionService {
             // Remove session from conference
             conferenceService.removeSession(session.getConferenceId(), session.getId());
         } catch (RuntimeException e) {
-            handleException("Session deletion", sessionDTO, false, sessionDeleted, false, false, sessionUnassignedFromSpeaker, e);
+            handleExceptionWithRollback("Session deletion", sessionDTO, false, sessionDeleted, false, false, sessionUnassignedFromSpeaker, e);
             throw SessionException.deletingFailure("An unexpected error occurred when deleting session. Please try again later.");
         }
     }
@@ -231,7 +229,7 @@ public class SessionService {
         }
     }
 
-    private void handleException(String operation, SessionDTO sessionDTO, boolean sessionSaved, boolean sessionDeleted,
+    private void handleExceptionWithRollback(String operation, SessionDTO sessionDTO, boolean sessionSaved, boolean sessionDeleted,
                                  boolean conferenceUpdated, boolean speakerAssigned, boolean speakerUnassigned,
                                  RuntimeException e) {
         LoggerUtil.getInstance().logError(String.format("%s failed: %s", operation, e.getMessage()));
