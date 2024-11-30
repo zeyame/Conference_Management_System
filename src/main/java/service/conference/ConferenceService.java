@@ -1,4 +1,4 @@
-package service;
+package service.conference;
 
 import domain.factory.ConferenceFactory;
 import domain.model.Conference;

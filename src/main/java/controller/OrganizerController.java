@@ -6,7 +6,7 @@ import dto.SessionDTO;
 import dto.UserDTO;
 import exception.*;
 import response.ResponseEntity;
-import service.ConferenceService;
+import service.conference.ConferenceService;
 import service.FeedbackService;
 import service.session.SessionService;
 import service.UserService;

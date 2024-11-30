@@ -7,7 +7,7 @@ import dto.SessionDTO;
 import dto.UserDTO;
 import exception.*;
 import repository.SessionRepository;
-import service.ConferenceService;
+import service.conference.ConferenceService;
 import service.UserService;
 import util.CollectionUtils;
 import util.LoggerUtil;
@@ -22,16 +22,18 @@ public class SessionService {
     private final ConferenceService conferenceService;
     private final EmailService emailService;
     private final SessionRepository sessionRepository;
-    private final SessionValidator sessionValidator;
+    private final SessionValidator validator;
     private final SessionRollbackService rollbackService;
+    private final SessionNotificationService notificationService;
 
     public SessionService(UserService userService, ConferenceService conferenceService, EmailService emailService, SessionRepository sessionRepository) {
         this.userService = userService;
         this.conferenceService = conferenceService;
         this.emailService = emailService;
         this.sessionRepository = sessionRepository;
-        this.sessionValidator = createSessionValidator();
+        this.validator = createSessionValidator();
         this.rollbackService = createSessionRollbackService();
+        this.notificationService = createSessionNotificationService();
     }
 
     public void createOrUpdate(SessionDTO sessionDTO, boolean isUpdate) {
@@ -48,7 +50,7 @@ public class SessionService {
             List<SessionDTO> conferenceSessions = findAllById(conferenceDTO.getSessions());
 
             // validate session data
-            sessionValidator.validateData(sessionDTO, conferenceDTO, conferenceSessions, isUpdate);
+            validator.validateData(sessionDTO, conferenceDTO, conferenceSessions, isUpdate);
 
             // convert DTO to domain object
             Session session = SessionFactory.create(sessionDTO);
@@ -68,13 +70,15 @@ public class SessionService {
             conferenceUpdated = true;
 
             if (isUpdate) {
-                notifyAttendeesAndSpeaker(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
+                notificationService.notifySessionChange(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
+            } else {
+                notificationService.notifySessionCreation(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
             }
 
             LoggerUtil.getInstance().logInfo(String.format("Session '%s' has successfully been created/updated.", session.getName()));
         } catch (RuntimeException e) {
             handleExceptionWithRollback("Session creation/update", sessionDTO, sessionSaved,
-                                    false, conferenceUpdated, speakerAssigned, false, e);
+                                    false, conferenceUpdated, false, speakerAssigned, false, e);
 
             // throw original exception to be handled by the controller
             throw e;
@@ -175,6 +179,7 @@ public class SessionService {
 
         boolean sessionDeleted = false;
         boolean sessionUnassignedFromSpeaker = false;
+        boolean sessionRemovalFromConference = false;
         try {
             // delete from repository
             sessionDeleted = sessionRepository.deleteById(id);
@@ -186,10 +191,13 @@ public class SessionService {
             userService.unassignSessionFromSpeaker(session.getSpeakerId(), session.getId());
             sessionUnassignedFromSpeaker = true;
 
-            // Remove session from conference
+            // remove session from conference
             conferenceService.removeSession(session.getConferenceId(), session.getId());
+            sessionRemovalFromConference = true;
+
+            notificationService.notifySessionDeletion(sessionDTO, sessionDTO.getRegisteredAttendees(), sessionDTO.getSpeakerId());
         } catch (RuntimeException e) {
-            handleExceptionWithRollback("Session deletion", sessionDTO, false, sessionDeleted, false, false, sessionUnassignedFromSpeaker, e);
+            handleExceptionWithRollback("Session deletion", sessionDTO, false, sessionDeleted, false, sessionRemovalFromConference, false, sessionUnassignedFromSpeaker, e);
             throw SessionException.deletingFailure("An unexpected error occurred when deleting session. Please try again later.");
         }
     }
@@ -211,6 +219,10 @@ public class SessionService {
         );
     }
 
+    private SessionNotificationService createSessionNotificationService() {
+        return new SessionNotificationService(this.userService, this.emailService);
+    }
+
     private void assignSessionToSpeaker(Session session) {
         if (session == null) {
             throw new IllegalArgumentException("Session cannot be null.");
@@ -230,41 +242,21 @@ public class SessionService {
     }
 
     private void handleExceptionWithRollback(String operation, SessionDTO sessionDTO, boolean sessionSaved, boolean sessionDeleted,
-                                 boolean conferenceUpdated, boolean speakerAssigned, boolean speakerUnassigned,
-                                 RuntimeException e) {
+                                 boolean conferenceUpdated, boolean sessionRemovedFromConference,
+                                 boolean speakerAssigned, boolean speakerUnassigned, RuntimeException e) {
         LoggerUtil.getInstance().logError(String.format("%s failed: %s", operation, e.getMessage()));
         try {
             // rollback any changes based on the flags
             if (sessionSaved) rollbackService.rollbackSessionSave(sessionDTO);
             if (sessionDeleted) rollbackService.rollbackSessionDeletion(sessionDTO);
             if (conferenceUpdated) rollbackService.rollbackConferenceUpdate(sessionDTO);
+            if (sessionRemovedFromConference) rollbackService.rollbackSessionRemovalFromConference(sessionDTO);
             if (speakerAssigned) rollbackService.rollbackSpeakerAssignment(sessionDTO);
             if (speakerUnassigned) rollbackService.rollbackSpeakerUnassignment(sessionDTO);
         } catch (SessionException rollbackException) {
             LoggerUtil.getInstance().logError("Rollback failed: " + rollbackException.getMessage());
         }
     }
-
-
-    private void notifyAttendeesAndSpeaker(SessionDTO sessionDTO, Set<String> attendeeIds, String speakerId) {
-        if (speakerId == null || speakerId.isEmpty()) {
-            throw new IllegalArgumentException("Speaker id cannot be null or empty.");
-        }
-
-        if (sessionDTO == null || attendeeIds == null) {
-            throw new IllegalArgumentException("SessionDTO and attendee ids cannot be null.");
-        }
-
-        try {
-            List<UserDTO> users = userService.findAllById(attendeeIds);
-            UserDTO user = userService.getBydId(speakerId);
-            users.add(user);
-            emailService.notifyAttendeesAndSpeakerOfSessionChange(sessionDTO, users);
-        } catch (UserException e) {
-            throw SessionException.notificationFailure("Could not notify speaker of session change due to invalid id.");
-        }
-    }
-
 
     // methods passed as references to rollback service to decouple it from session repository
     private boolean saveSession(SessionDTO sessionDTO) {

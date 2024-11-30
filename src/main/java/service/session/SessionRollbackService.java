@@ -1,11 +1,10 @@
 package service.session;
 
-import domain.model.Session;
 import dto.SessionDTO;
 import exception.ConferenceException;
 import exception.SessionException;
 import exception.UserException;
-import service.ConferenceService;
+import service.conference.ConferenceService;
 import service.UserService;
 import util.LoggerUtil;
 import java.time.LocalDateTime;
@@ -47,7 +46,7 @@ public class SessionRollbackService {
         try {
             userService.unassignSessionFromSpeaker(sessionDTO.getSpeakerId(), sessionDTO.getId());
             LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully unassigned from speaker.", sessionDTO.getId()));
-        } catch (UserException e) {
+        } catch (IllegalArgumentException | UserException e) {
             LoggerUtil.getInstance().logError(String.format("Rollback failed: Could not unassign session '%s' from speaker: %s", sessionDTO.getId(), e.getMessage()));
             throw SessionException.rollbackFailure("Failed to unassign session from speaker during rollback.");
         }
@@ -61,7 +60,7 @@ public class SessionRollbackService {
                     LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime())
             );
             LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully re-assigned to speaker.", sessionDTO.getId()));
-        } catch (UserException e) {
+        } catch (IllegalArgumentException | UserException e) {
             LoggerUtil.getInstance().logError(String.format("Rollback failed: Could not re-assign session '%s' to speaker: %s", sessionDTO.getId(), e.getMessage()));
             throw SessionException.rollbackFailure("Failed to re-assign session to speaker during rollback of session deletion.");
         }
@@ -71,9 +70,19 @@ public class SessionRollbackService {
         try {
             conferenceService.removeSession(sessionDTO.getConferenceId(), sessionDTO.getId());
             LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully removed from conference.", sessionDTO.getId()));
-        } catch (ConferenceException e) {
+        } catch (IllegalArgumentException | ConferenceException e) {
             LoggerUtil.getInstance().logError(String.format("Rollback failed: Could not remove session '%s' from conference: %s", sessionDTO.getId(), e.getMessage()));
             throw SessionException.rollbackFailure("Failed to remove session from conference during rollback.");
+        }
+    }
+
+    public void rollbackSessionRemovalFromConference(SessionDTO sessionDTO) {
+        try {
+            conferenceService.registerSession(sessionDTO.getConferenceId(), sessionDTO.getId());
+            LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully added back to conference.", sessionDTO.getId()));
+        } catch (IllegalArgumentException | ConferenceException e) {
+            LoggerUtil.getInstance().logError(String.format("Rollback failed: Could not add session '%s' to conference: %s", sessionDTO.getId(), e.getMessage()));
+            throw SessionException.rollbackFailure("Failed to add session to conference during rollback.");
         }
     }
 

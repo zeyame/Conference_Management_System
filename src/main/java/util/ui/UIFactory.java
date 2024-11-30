@@ -7,6 +7,7 @@ import repository.FeedbackRepository;
 import repository.SessionRepository;
 import repository.UserRepository;
 import service.*;
+import service.conference.ConferenceService;
 import service.session.SessionService;
 import util.email.EmailService;
 import view.attendee.AttendeeUI;
