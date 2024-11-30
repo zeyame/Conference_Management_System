@@ -58,7 +58,7 @@ public class FormValidator {
         }
     }
 
-    public static void validateRegistrationForm(String email, String name, char[] password, char[] confirmPassword, UserRole userRole) {
+    public static void validateRegistrationForm(String email, String name, String speakerBio, String employeeId, char[] password, char[] confirmPassword, UserRole userRole) {
         if (userRole == null) {
             throw new FormValidationException("A role must be selected.");
         }
@@ -69,6 +69,14 @@ public class FormValidator {
 
         if (!ValidationUtil.isNonEmpty(name)) {
             throw new FormValidationException("Name must not be empty.");
+        }
+
+        if (userRole == UserRole.SPEAKER && !ValidationUtil.isNonEmpty(speakerBio)) {
+            throw new FormValidationException("Bio must not be empty.");
+        }
+
+        if (userRole == UserRole.ORGANIZER && !ValidationUtil.isNonEmpty(employeeId)) {
+            throw new FormValidationException("Employee ID must not be empty.");
         }
 
         if (password == null || password.length == 0) {

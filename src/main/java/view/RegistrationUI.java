@@ -5,6 +5,7 @@ import domain.model.UserRole;
 import dto.RegistrationDTO;
 import exception.FormValidationException;
 import response.ResponseEntity;
+import util.LoggerUtil;
 import util.ui.UIComponentFactory;
 import util.validation.FormValidator;
 
@@ -22,6 +23,9 @@ public class RegistrationUI extends JFrame {
     // role selection panel to handle the user role
     private UIComponentFactory.RoleSelectionPanel roleSelectionPanel;
 
+    // main panel
+    private final JPanel mainPanel;
+
     // buttons
     private JButton loginButton;
     private JButton registerButton;
@@ -30,6 +34,7 @@ public class RegistrationUI extends JFrame {
     private JTextField nameField;
     private JTextField emailField;
     private JTextField speakerBioField;
+    private JTextField employeeIdField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
 
@@ -51,37 +56,48 @@ public class RegistrationUI extends JFrame {
         titlePanel.add(titleLabel);
 
         // main panel
-        JPanel mainPanel = UIComponentFactory.createMainPanel();
+        mainPanel = UIComponentFactory.createMainPanel();
 
         add(titlePanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
 
-        placeComponents(mainPanel);
-        setUpListeners();
+        placeComponents(mainPanel, false, false);
 
         setVisible(true);
     }
 
     // creating the UI components
-    private void placeComponents(JPanel mainPanel) {
-        // role selection
-        roleSelectionPanel = new UIComponentFactory.RoleSelectionPanel();
-        roleSelectionPanel.setBorder(BorderFactory.createEmptyBorder(60, 0, 0, 0));
+    private void placeComponents(JPanel mainPanel, boolean addSpeakerBio, boolean addEmployeeId) {
+        // clear existing components (except roleSelectionPanel)
+        mainPanel.removeAll();
+
+        //  retain existing roleSelectionPanel
+        if (roleSelectionPanel == null) {
+            roleSelectionPanel = new UIComponentFactory.RoleSelectionPanel();
+            roleSelectionPanel.setBorder(BorderFactory.createEmptyBorder(60, 0, 0, 0));
+            roleSelectionPanel.addRoleSelectionListener(this::handleRoleSelection);
+        }
 
         // registration form
-        JPanel registrationFormPanel = createRegistrationFormPanel();
+        JPanel registrationFormPanel = createRegistrationFormPanel(addSpeakerBio, addEmployeeId);
         registrationFormPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
         // login option
         JPanel loginOptionPanel = createLoginOptionPanel();
 
+        // add the retained roleSelectionPanel and other components
         mainPanel.add(roleSelectionPanel);
         mainPanel.add(registrationFormPanel);
         mainPanel.add(loginOptionPanel);
+
+        // refresh UI
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
-    private JPanel createRegistrationFormPanel() {
+    private JPanel createRegistrationFormPanel(boolean addSpeakerBio, boolean addEmployeeId) {
         final int FIELD_COLUMN_SIZE = 17;
+        int y = 0;
 
         JPanel registrationPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -89,7 +105,7 @@ public class RegistrationUI extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);  // add uniform padding around components
 
         // Name label and field
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0; gbc.gridy = y++;
         registrationPanel.add(new JLabel("Name"), gbc);
 
         gbc.gridx = 1;
@@ -97,15 +113,33 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(nameField, gbc);
 
         // Email label and field
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0; gbc.gridy = y++;
         registrationPanel.add(new JLabel("Email"), gbc);
 
         gbc.gridx = 1;
         emailField = new JTextField(FIELD_COLUMN_SIZE);
         registrationPanel.add(emailField, gbc);
 
+        if (addSpeakerBio) {
+            // bio label and field
+            gbc.gridx = 0; gbc.gridy = y++;
+            registrationPanel.add(new JLabel("Bio"), gbc);
+
+            gbc.gridx = 1;
+            speakerBioField = new JTextField(FIELD_COLUMN_SIZE);
+            registrationPanel.add(speakerBioField, gbc);
+        } else if (addEmployeeId) {
+            // employee id label and field
+            gbc.gridx = 0; gbc.gridy = y++;
+            registrationPanel.add(new JLabel("Employee ID"), gbc);
+
+            gbc.gridx = 1;
+            employeeIdField = new JTextField(FIELD_COLUMN_SIZE);
+            registrationPanel.add(employeeIdField, gbc);
+        }
+
         // Password label and field
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = y++;
         registrationPanel.add(new JLabel("Password"), gbc);
 
         gbc.gridx = 1;
@@ -113,7 +147,7 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(passwordField, gbc);
 
         // Confirm Password label and field
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = y++;
         registrationPanel.add(new JLabel("Confirm Password"), gbc);
 
         gbc.gridx = 1;
@@ -121,7 +155,7 @@ public class RegistrationUI extends JFrame {
         registrationPanel.add(confirmPasswordField, gbc);
 
         // Register button
-        gbc.gridx = 1; gbc.gridy = 4;
+        gbc.gridx = 1; gbc.gridy = y;
         gbc.anchor = GridBagConstraints.CENTER;
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
@@ -131,6 +165,7 @@ public class RegistrationUI extends JFrame {
         registerButton = new JButton("Register");
         registerButton.setPreferredSize(new Dimension(90, 30));
         registerButton.setFocusPainted(false);
+        registerButton.addActionListener(this::handleRegisterClick);
 
         buttonPanel.add(registerButton);
         registrationPanel.add(buttonPanel, gbc);
@@ -150,6 +185,7 @@ public class RegistrationUI extends JFrame {
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginButton.setMaximumSize(new Dimension(90, 27));
         loginButton.setFocusPainted(false);
+        loginButton.addActionListener(this::handleLoginClick);
 
         loginOptionPanel.add(loginMessage);
         loginOptionPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -158,10 +194,9 @@ public class RegistrationUI extends JFrame {
         return loginOptionPanel;
     }
 
-    // initializing component interactivity
-    private void setUpListeners() {
-        loginButton.addActionListener(this::handleLoginClick);
-        registerButton.addActionListener(this::handleRegisterClick);
+    private void handleRoleSelection() {
+        UserRole selectedRole = roleSelectionPanel.getSelectedRole();
+        placeComponents(mainPanel, selectedRole == UserRole.SPEAKER, selectedRole == UserRole.ORGANIZER);
     }
 
     private void handleLoginClick(ActionEvent e) {
@@ -170,23 +205,26 @@ public class RegistrationUI extends JFrame {
     }
 
     private void handleRegisterClick(ActionEvent e) {
+        LoggerUtil.getInstance().logInfo("Request to register user received.");
+
         String email = emailField.getText();
         String name = nameField.getText();
-        String speakerBio = speakerBioField.getText();
+        String speakerBio = speakerBioField != null ? speakerBioField.getText() : "";
+        String employeeId = employeeIdField != null ? employeeIdField.getText() : "";
         char[] password = passwordField.getPassword();
         char[] confirmPassword = confirmPasswordField.getPassword();
         UserRole userRole = roleSelectionPanel.getSelectedRole();
 
         // validate user input
         try {
-            FormValidator.validateRegistrationForm(email, name, password, confirmPassword, userRole);
+            FormValidator.validateRegistrationForm(email, name, speakerBio, employeeId, password, confirmPassword, userRole);
         } catch (FormValidationException exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         // once form is validated, register user to the system
-        RegistrationDTO registrationDTO = new RegistrationDTO(email, name, speakerBio,password, userRole);
+        RegistrationDTO registrationDTO = new RegistrationDTO(email, name, speakerBio, employeeId, password, userRole);
 
         ResponseEntity<Boolean> validationResponse = mainController.validateRegistration(registrationDTO);
         if (!validationResponse.isSuccess()) {
@@ -207,6 +245,8 @@ public class RegistrationUI extends JFrame {
         roleSelectionPanel.clearSelection();
         nameField.setText("");
         emailField.setText("");
+        if (speakerBioField != null) speakerBioField.setText("");
+        if (employeeIdField != null) employeeIdField.setText("");
         passwordField.setText("");
         confirmPasswordField.setText("");
     }

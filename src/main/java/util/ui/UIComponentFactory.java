@@ -181,6 +181,8 @@ public class UIComponentFactory {
             attendeeRole.setFocusPainted(false);
             speakerRole.setFocusPainted(false);
 
+            attendeeRole.setSelected(true);     // make attendee role as the default role
+
             // Group the radio buttons
             roleGroup = new ButtonGroup();
             roleGroup.add(organizerRole);
@@ -212,6 +214,15 @@ public class UIComponentFactory {
             else if (attendeeRole.isSelected()) return UserRole.ATTENDEE;
             else if (speakerRole.isSelected()) return UserRole.SPEAKER;
             else return null;
+        }
+
+        public void setSelectedRole(UserRole role) {
+            switch (role) {
+                case ORGANIZER -> organizerRole.setSelected(true);
+                case ATTENDEE -> attendeeRole.setSelected(true);
+                case SPEAKER -> speakerRole.setSelected(true);
+                default -> throw new IllegalArgumentException("User role must be one of: Organizer, Attendee, or Speaker.");
+            }
         }
 
         public void clearSelection() {

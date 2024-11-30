@@ -1,16 +1,24 @@
 package controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import domain.model.UserRole;
 import dto.RegistrationDTO;
 import dto.UserDTO;
 import exception.PasswordException;
 import exception.UserException;
+import org.mindrot.jbcrypt.BCrypt;
 import response.ResponseEntity;
 import service.UserService;
+import util.file.JsonFileHandler;
 import view.*;
 import util.email.EmailService;
 import util.LoggerUtil;
 import util.PasswordUtil;
 import util.ui.UIFactory;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class MainController {
     private final UserService userService;
@@ -22,6 +30,8 @@ public class MainController {
     }
 
     public ResponseEntity<Boolean> validateRegistration(RegistrationDTO registrationDTO) {
+        UserRole userRole = registrationDTO.getUserRole();
+
         // check if an account with email already exists
         String email = registrationDTO.getEmail();
         if (userService.isEmailRegistered(email)) {
@@ -33,6 +43,13 @@ public class MainController {
         String errorMessage = PasswordUtil.checkPasswordComplexity(password);
         if (errorMessage != null) {
             return ResponseEntity.error(errorMessage);
+        }
+
+        if (userRole == UserRole.ORGANIZER) {
+            String employeeId = registrationDTO.getEmployeeId();
+            if (!validateEmployeeId(employeeId)) {
+                return ResponseEntity.error("Invalid Employee ID.");
+            }
         }
         
         return ResponseEntity.success(true);
@@ -102,5 +119,18 @@ public class MainController {
 
     public void navigateToRegistrationPage() {
         new RegistrationUI(this);
+    }
+
+    private boolean validateEmployeeId(String employeeId) {
+        final String filePath = "src/main/resources/data/employeeids.json";
+        Optional<Set<String>> optionalEmployeeIds = JsonFileHandler.loadData(filePath, new TypeReference<Set<String>>() {});
+
+        if (optionalEmployeeIds.isEmpty()) {
+            LoggerUtil.getInstance().logError("Failed to load employee IDs from file: " + filePath);
+            return false;
+        }
+
+        Set<String> employeeIds = optionalEmployeeIds.get();
+        return employeeIds.contains(employeeId);
     }
 }
