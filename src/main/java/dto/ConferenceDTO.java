@@ -16,6 +16,7 @@ public class ConferenceDTO {
     private final Set<String> sessions;
     private final Set<String> attendees;
     private final Set<String> speakers;
+    private final Set<String> feedback;
 
     private ConferenceDTO(Builder builder) {
         this.id = builder.id;
@@ -27,6 +28,7 @@ public class ConferenceDTO {
         this.sessions = builder.sessions;
         this.attendees = builder.attendees;
         this.speakers = builder.speakers;
+        this.feedback = builder.feedback;
     }
 
     public static Builder builder(String organizerId, String name, String description, LocalDate startDate, LocalDate endDate) {
@@ -47,6 +49,7 @@ public class ConferenceDTO {
         private Set<String> sessions;
         private Set<String> attendees;
         private Set<String> speakers;
+        private Set<String> feedback;
 
         private Builder(String organizerId, String name, String description, LocalDate startDate, LocalDate endDate) {
             this.organizerId = organizerId;
@@ -60,6 +63,7 @@ public class ConferenceDTO {
             this.sessions = new HashSet<>();
             this.attendees = new HashSet<>();
             this.speakers = new HashSet<>();
+            this.feedback = new HashSet<>();
         }
 
         public Builder assignId(String id) {
@@ -67,18 +71,23 @@ public class ConferenceDTO {
             return this;
         }
 
-        public Builder sessions(Set<String> sessions) {
+        public Builder setSessions(Set<String> sessions) {
             this.sessions = sessions != null ? sessions : new HashSet<>();
             return this;
         }
 
-        public Builder attendees(Set<String> attendees) {
+        public Builder setAttendees(Set<String> attendees) {
             this.attendees = attendees != null ? attendees : new HashSet<>();
             return this;
         }
 
-        public Builder speakers(Set<String> speakers) {
+        public Builder setSpeakers(Set<String> speakers) {
             this.speakers = speakers != null ? speakers : new HashSet<>();
+            return this;
+        }
+
+        public Builder setFeedback(Set<String> feedback) {
+            this.feedback = feedback != null ? feedback : new HashSet<>();
             return this;
         }
 
@@ -116,4 +125,6 @@ public class ConferenceDTO {
     public Set<String> getSpeakers() {
         return new HashSet<>(this.speakers);        // defensive copy
     }
+
+    public Set<String> getFeedback() {return new HashSet<>(this.feedback);}
 }

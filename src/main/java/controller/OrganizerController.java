@@ -122,7 +122,18 @@ public class OrganizerController {
             LoggerUtil.getInstance().logInfo("Successfully retrieved sessions for '" + conferenceDTO.getName() + "'.");
             return ResponseEntity.success(sessions);
         } catch (ConferenceException e) {
-            return ResponseEntity.error("Could not find attendees for the conference with id '" + conferenceId + "' as it does not exist.");
+            return ResponseEntity.error(String.format("Could not find attendees for conference '%s' as it does not exist.", conferenceId));
+        }
+    }
+
+    public ResponseEntity<List<FeedbackDTO>> getConferenceFeedback(String conferenceId) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
+            Set<String> feedbackIds = conferenceDTO.getFeedback();
+            List<FeedbackDTO> feedbackDTOS = feedbackService.findAllById(feedbackIds);
+            return ResponseEntity.success(feedbackDTOS);
+        } catch (ConferenceException e) {
+            return ResponseEntity.error(String.format("Could not find feedback for the conference with id '%s' as it does not exist.", conferenceId));
         }
     }
 

@@ -241,6 +241,7 @@ public class RegistrationUI extends JFrame {
         clearFormData();
         JOptionPane.showMessageDialog(this, "Registration successful. You can now login.", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
+
     private void clearFormData() {
         roleSelectionPanel.clearSelection();
         nameField.setText("");

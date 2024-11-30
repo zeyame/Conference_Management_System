@@ -42,6 +42,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
     private final String VIEW_SESSIONS_PAGE = "View Sessions Page";
     private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
+    private final String VIEW_CONFERENCE_FEEDBACK_PAGE = "View Conference Feedback Page";
     private final String VIEW_SESSION_FEEDBACK_PAGE = "View Session Feedback Page";
     private final String VIEW_SPEAKERS_PAGE = "View Speakers Page";
 
@@ -336,7 +337,23 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     @Override
     public void onViewConferenceFeedbackRequest(String conferenceId) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to view feedback for conference '%s' received.", conferenceId));
 
+        // get conference data
+        ConferenceDTO conferenceDTO = fetchConference(conferenceId);
+        if (conferenceDTO == null) {
+            return;
+        }
+
+        ResponseEntity<List<FeedbackDTO>> feedbackResponse = organizerController.getConferenceFeedback(conferenceId);
+        if (!feedbackResponse.isSuccess()) {
+            showError(getCurrentPageId(), feedbackResponse.getErrorMessage());
+            return;
+        }
+
+        List<FeedbackDTO> feedbackDTOS = feedbackResponse.getData();
+        ViewListPage<FeedbackDTO> viewFeedbackPage = new ViewFeedbackPage(this, conferenceDTO.getName(), feedbackDTOS);
+        navigateTo(VIEW_CONFERENCE_FEEDBACK_PAGE, viewFeedbackPage.createPageContent(), true);
     }
 
     @Override

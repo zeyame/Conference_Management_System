@@ -20,6 +20,10 @@ public class FeedbackService {
     }
 
     public List<FeedbackDTO> findAllById(Set<String> ids) {
+        if (ids == null) {
+            throw new IllegalArgumentException("Feedback ids cannot be null.");
+        }
+
         // batch fetch all feedback
         List<Optional<Feedback>> feedbackOptionals = feedbackRepository.findAllById(ids);
 
@@ -34,7 +38,6 @@ public class FeedbackService {
         // attendee ids to names
         Map<String, String> attendeeIdsToNamesMap = userService.findNamesByIds(attendeeIds);
 
-        System.out.println("Attendee ids to name map size: " + attendeeIdsToNamesMap.size());
 
         return feedbackList.stream()
                 .map(feedback -> mapToDTO(feedback, attendeeIdsToNamesMap.get(feedback.getAttendeeId())))
@@ -42,7 +45,6 @@ public class FeedbackService {
     }
 
     private FeedbackDTO mapToDTO(Feedback feedback, String attendeeName) {
-        System.out.println(attendeeName);
         return new FeedbackDTO(
                 feedback.getId(),
                 feedback.getAttendeeId(),

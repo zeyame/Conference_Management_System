@@ -47,4 +47,15 @@ public class Feedback {
     public FeedbackType getType() {
         return this.type;
     }
+
+    @Override
+    public String toString() {
+        return "Feedback{" +
+                "id='" + id + '\'' +
+                ", attendeeId='" + attendeeId + '\'' +
+                ", rating=" + rating +
+                ", comment='" + comment + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

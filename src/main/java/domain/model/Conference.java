@@ -18,6 +18,7 @@ public class Conference {
     private final Set<String> sessions;
     private final Set<String> attendees;
     private final Set<String> speakers;
+    private final Set<String> feedback;
 
     // no-arg constructor for JSON serialization/de-serialization
     private Conference() {
@@ -27,9 +28,10 @@ public class Conference {
         this.description = null;
         this.startDate = null;
         this.endDate = null;
-        this.sessions = Collections.emptySet();
-        this.attendees = Collections.emptySet();
-        this.speakers = Collections.emptySet();
+        this.sessions = new HashSet<>();
+        this.attendees = new HashSet<>();
+        this.speakers = new HashSet<>();
+        this.feedback = new HashSet<>();
     }
     private Conference(Builder builder) {
         this.id = builder.id;
@@ -41,6 +43,7 @@ public class Conference {
         this.sessions = builder.sessions;
         this.attendees = builder.attendees;
         this.speakers = builder.speakers;
+        this.feedback = builder.feedback;
     }
 
     public static Builder builder(String id, String organizerId, String name, String description, LocalDate startDate, LocalDate endDate) {
@@ -61,6 +64,7 @@ public class Conference {
         private Set<String> sessions;
         private Set<String> attendees;
         private Set<String> speakers;
+        private Set<String> feedback;
 
         private Builder(String id, String organizerId, String name, String description, LocalDate startDate, LocalDate endDate) {
             this.id = id;
@@ -74,6 +78,7 @@ public class Conference {
             this.sessions = new HashSet<>();
             this.attendees = new HashSet<>();
             this.speakers = new HashSet<>();
+            this.feedback = new HashSet<>();
         }
 
         public Builder setSessions(Set<String> sessions) {
@@ -88,6 +93,11 @@ public class Conference {
 
         public Builder setSpeakers(Set<String> speakers) {
             this.speakers = speakers != null ? speakers : new HashSet<>();
+            return this;
+        }
+
+        public Builder setFeedback(Set<String> feedback) {
+            this.feedback = feedback != null ? feedback : new HashSet<>();
             return this;
         }
 
@@ -147,14 +157,34 @@ public class Conference {
     }
 
     public Set<String> getSessions() {
-        return new HashSet<>(sessions);         // defensive copy
+        return new HashSet<>(this.sessions);         // defensive copy
     }
 
     public Set<String> getAttendees() {
-        return new HashSet<>(attendees);        // defensive copy
+        return new HashSet<>(this.attendees);        // defensive copy
     }
 
     public Set<String> getSpeakers() {
-        return new HashSet<>(speakers);         // defensive copy
+        return new HashSet<>(this.speakers);         // defensive copy
+    }
+
+    public Set<String> getFeedback() {
+        return new HashSet<>(this.feedback);
+    }
+
+    @Override
+    public String toString() {
+        return "Conference{" +
+                "id='" + id + '\'' +
+                ", organizerId='" + organizerId + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", sessions=" + sessions +
+                ", attendees=" + attendees +
+                ", speakers=" + speakers +
+                ", feedback=" + feedback +
+                '}';
     }
 }

@@ -147,9 +147,10 @@ public class ConferenceService {
 
         return ConferenceDTO.builder(organizerId, name, description, startDate, endDate)
                 .assignId(conference.getId())
-                .sessions(conference.getSessions())
-                .attendees(conference.getAttendees())
-                .speakers(conference.getSpeakers())
+                .setSessions(conference.getSessions())
+                .setAttendees(conference.getAttendees())
+                .setSpeakers(conference.getSpeakers())
+                .setFeedback(conference.getFeedback())
                 .build();
     }
 }
