@@ -71,10 +71,12 @@ public class SessionService {
 
             LoggerUtil.getInstance().logInfo(String.format("Session '%s' has been successfully created.", session.getName()));
         } catch (RuntimeException e) {
-            handleExceptionWithRollback("Session creation", sessionDTO, sessionSaved,
-                    false, conferenceUpdated, false, speakerAssigned, false, e);
+            LoggerUtil.getInstance().logError(String.format("Failed to create session '%s': %s", sessionDTO.getName(), e.getMessage()));
 
-            throw e;
+            // rolling back changes
+            rollbackCreateOrUpdate(sessionDTO, sessionSaved, speakerAssigned, conferenceUpdated);
+
+            throw SessionException.creationFailure(String.format("An error occurred when creating session: %s", e.getMessage()));
         }
     }
 
@@ -84,14 +86,15 @@ public class SessionService {
         }
 
         boolean sessionSaved = false;
-        boolean conferenceUpdated = false;
         boolean speakerAssigned = false;
+        boolean conferenceUpdated = false;
 
         try {
+            // get existing sessions in conference to use for validation
             ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
             List<SessionDTO> conferenceSessions = findAllById(conferenceDTO.getSessions());
 
-            // Validate session data for update
+            // validate session data for update
             validator.validateData(sessionDTO, conferenceDTO, conferenceSessions, true);
 
             // convert DTO to domain object and save
@@ -113,10 +116,12 @@ public class SessionService {
 
             LoggerUtil.getInstance().logInfo(String.format("Session '%s' has been successfully updated.", session.getName()));
         } catch (RuntimeException e) {
-            handleExceptionWithRollback("Session update", sessionDTO, sessionSaved,
-                    false, conferenceUpdated, false, speakerAssigned, false, e);
+            LoggerUtil.getInstance().logError(String.format("Failed to update session '%s': %s", sessionDTO.getName(), e.getMessage()));
 
-            throw e;
+            // rolling back changes
+            rollbackCreateOrUpdate(sessionDTO, sessionSaved, speakerAssigned, conferenceUpdated);
+
+            throw SessionException.updateFailure(String.format("An error occurred when updating session: %s", e.getMessage()));
         }
     }
 
@@ -214,8 +219,8 @@ public class SessionService {
         SessionDTO sessionDTO = mapToDTO(session, userService.getNameById(session.getSpeakerId()));
 
         boolean sessionDeleted = false;
+        boolean sessionRemovedFromConference = false;
         boolean sessionUnassignedFromSpeaker = false;
-        boolean sessionRemovalFromConference = false;
         try {
             // delete from repository
             sessionDeleted = sessionRepository.deleteById(id);
@@ -229,12 +234,17 @@ public class SessionService {
 
             // remove session from conference
             conferenceService.removeSession(session.getConferenceId(), session.getId());
-            sessionRemovalFromConference = true;
+            sessionRemovedFromConference = true;
 
             notificationService.notifySessionDeletion(sessionDTO, sessionDTO.getRegisteredAttendees(), sessionDTO.getSpeakerId());
         } catch (RuntimeException e) {
-            handleExceptionWithRollback("Session deletion", sessionDTO, false, sessionDeleted, false, sessionRemovalFromConference, false, sessionUnassignedFromSpeaker, e);
-            throw SessionException.deletingFailure("An unexpected error occurred when deleting session. Please try again later.");
+            LoggerUtil.getInstance().logError(String.format("Failed to delete session with id '%s': %s", id, e.getMessage()));
+
+            // rolling back changes
+            rollbackDeletion(sessionDTO, sessionDeleted, sessionRemovedFromConference, sessionUnassignedFromSpeaker);
+
+            // throwing original exception that caused the error
+            throw SessionException.deletingFailure("An error occurred when deleting session: " + e.getMessage());
         }
     }
 
@@ -277,24 +287,27 @@ public class SessionService {
         }
     }
 
-    private void handleExceptionWithRollback(String operation, SessionDTO sessionDTO, boolean sessionSaved, boolean sessionDeleted,
-                                 boolean conferenceUpdated, boolean sessionRemovedFromConference,
-                                 boolean speakerAssigned, boolean speakerUnassigned, RuntimeException e) {
-        LoggerUtil.getInstance().logError(String.format("%s failed: %s", operation, e.getMessage()));
+    private void rollbackCreateOrUpdate(SessionDTO sessionDTO, boolean sessionSaved, boolean speakerAssigned, boolean conferenceUpdated) {
         try {
-            // rollback any changes based on the flags
             if (sessionSaved) rollbackService.rollbackSessionSave(sessionDTO);
-            if (sessionDeleted) rollbackService.rollbackSessionDeletion(sessionDTO);
-            if (conferenceUpdated) rollbackService.rollbackConferenceUpdate(sessionDTO);
-            if (sessionRemovedFromConference) rollbackService.rollbackSessionRemovalFromConference(sessionDTO);
             if (speakerAssigned) rollbackService.rollbackSpeakerAssignment(sessionDTO);
-            if (speakerUnassigned) rollbackService.rollbackSpeakerUnassignment(sessionDTO);
+            if (conferenceUpdated) rollbackService.rollbackConferenceUpdate(sessionDTO);
         } catch (SessionException rollbackException) {
-            LoggerUtil.getInstance().logError("Rollback failed: " + rollbackException.getMessage());
+            LoggerUtil.getInstance().logError("Rolling back session creation failed: " + rollbackException.getMessage());
         }
     }
 
-    // methods passed as references to rollback service to decouple it from session repository
+    private void rollbackDeletion(SessionDTO sessionDTO, boolean sessionDeleted, boolean speakerUnassigned, boolean sessionRemovedFromConference) {
+        try {
+            if (sessionDeleted) rollbackService.rollbackSessionDeletion(sessionDTO);
+            if (speakerUnassigned) rollbackService.rollbackSpeakerUnassignment(sessionDTO);
+            if (sessionRemovedFromConference) rollbackService.rollbackSessionRemovalFromConference(sessionDTO);
+        } catch (SessionException rollbackException) {
+            LoggerUtil.getInstance().logError("Rolling back session deletion failed: " + rollbackException.getMessage());
+        }
+    }
+
+    // helper methods passed as references to rollback service to decouple it from session repository
     private boolean saveSession(SessionDTO sessionDTO) {
         Session session = SessionFactory.create(sessionDTO);
         return sessionRepository.save(session, session.getId());

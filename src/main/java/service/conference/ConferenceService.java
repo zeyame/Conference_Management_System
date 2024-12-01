@@ -33,34 +33,57 @@ public class ConferenceService {
             throw new IllegalArgumentException("ConferenceDTO cannot be null.");
         }
 
-        boolean conferenceSaved = false;
+        boolean isSaved = false;
         try {
             validateData(conferenceDTO);
 
             // creating conference
             Conference conference = ConferenceFactory.createConference(conferenceDTO);
 
-            // attempting to save validated conference to file storage with retries if necessary
-            conferenceSaved = conferenceRepository.save(conference, conference.getId());
-            if (!conferenceSaved) {
-                throw ConferenceException.savingFailure("An unexpected error occurred while saving conference data. Please try again later.");
-            }
+            // saving conference to storage
+            save(conference);
+            isSaved = true;
 
             // add reference to conference in organizer's managed conferences
             assignConferenceToOrganizer(conference);
 
             LoggerUtil.getInstance().logInfo(String.format("Conference '%s' has successfully been created.", conference.getName()));
         } catch (ConferenceException e) {
-            if (conferenceSaved) {
-                rollbackSave(conferenceDTO);
-            }
+            if (isSaved) rollbackSave(conferenceDTO);
 
             // throw original exception to be handled by controller
             throw e;
         }
     }
 
-    public void update(ConferenceDTO conferenceDTO) {}
+    public void update(ConferenceDTO conferenceDTO) {
+        if (conferenceDTO == null || conferenceDTO.getId() == null || conferenceDTO.getId().isEmpty()) {
+            throw new IllegalArgumentException("ConferenceDTO and its ID cannot be null or empty for updates.");
+        }
+
+        boolean isDeleted = false;
+        try {
+            // delete conference from repository for accurate validation
+            delete(conferenceDTO.getId());
+            isDeleted = true;
+
+            // validate data
+            validateData(conferenceDTO);
+
+            // create a new conference with updated data
+            Conference conference = ConferenceFactory.createConference(conferenceDTO);
+
+            // save new conference
+            save(conference);
+
+        } catch (ConferenceException e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to update conference '%s': %s", conferenceDTO.getName(), e.getMessage()));
+
+            if (isDeleted) rollbackDeletion(conferenceDTO);
+
+            throw ConferenceException.updatingFailure(String.format("Error occurred when updating conference data: %s", e.getMessage()));
+        }
+    }
 
     public void registerSession(String id, SessionDTO sessionDTO) {
         if (id == null || id.isEmpty()) {
@@ -80,7 +103,7 @@ public class ConferenceService {
         if (!isConferenceUpdated) {
             conference.removeSession(sessionDTO.getId());
             conference.removeSpeaker(sessionDTO.getSpeakerId());
-            throw ConferenceException.savingFailure(String.format("Unexpected error occurred when registering session to conference '%s'. Please try again later.",  conference.getName()));
+            throw ConferenceException.registeringSession(String.format("Unexpected error occurred when registering session to conference '%s'. Please try again later.",  conference.getName()));
         }
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully registered session '%s' to '%s'.", sessionDTO.getName(), conference.getName()));
@@ -114,14 +137,8 @@ public class ConferenceService {
                 .collect(Collectors.toList());
     }
 
-    public boolean isNameTaken(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Conference name cannot be null or empty.");
-        }
 
-        return conferenceRepository.findByName(name).isPresent();
-    }
-
+    // YET TO EXPAND THIS METHOD
     public void deleteById(String id) {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Conference id cannot be null or empty");
@@ -151,12 +168,25 @@ public class ConferenceService {
         LoggerUtil.getInstance().logInfo(String.format("Successfully removed session with id '%s' from '%s'.", sessionId, conference.getName()));
     }
 
+    private void save(Conference conference) {
+        boolean saved = conferenceRepository.save(conference, conference.getId());
+        if (!saved) {
+            throw ConferenceException.savingFailure("An unexpected error occurred when try to save conference data. Please try again later.");
+        }
+    }
+
+    private void delete(String id) {
+        boolean deleted = conferenceRepository.deleteById(id);
+        if (!deleted) {
+            throw ConferenceException.deletingFailure("An unexpected error occurred when try to delete conference. Please try again later.");
+        }
+    }
+
     private void validateData(ConferenceDTO conferenceDTO) {
         if (conferenceDTO == null) {
             throw new IllegalArgumentException("ConferenceDTO cannot be null.");
         }
 
-        // implement validation logic
         String name = conferenceDTO.getName();
         LocalDate startDate = conferenceDTO.getStartDate(), endDate = conferenceDTO.getEndDate();
 
@@ -173,9 +203,17 @@ public class ConferenceService {
                     " period you selected. Please choose different dates.");
         }
 
-        LoggerUtil.getInstance().logInfo("Validation successful for conference: " + name + " with dates: " + startDate + " - " + endDate);
+        LoggerUtil.getInstance().logInfo(String.format("Validation successful for conference '%s'.", conferenceDTO.getName()));
     }
 
+
+    private boolean isNameTaken(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Conference name cannot be null or empty.");
+        }
+
+        return conferenceRepository.findByName(name).isPresent();
+    }
 
     private boolean isTimePeriodAvailable(LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
@@ -203,9 +241,19 @@ public class ConferenceService {
     }
 
     private void rollbackSave(ConferenceDTO conferenceDTO) {
-        boolean conferenceDeleted = conferenceRepository.deleteById(conferenceDTO.getId());
-        if (!conferenceDeleted) {
-            LoggerUtil.getInstance().logError("Failed to delete conference during rollback save operation.");
+        try {
+            delete(conferenceDTO.getId());
+        } catch (ConferenceException e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to delete conference when rolling back conference creation: %s", e.getMessage()));
+        }
+    }
+
+    private void rollbackDeletion(ConferenceDTO conferenceDTO) {
+        try {
+            Conference conference = ConferenceFactory.createConference(conferenceDTO);
+            save(conference);
+        } catch (ConferenceException e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to save conference when rolling back conference deletion: %s", e.getMessage()));
         }
     }
 
