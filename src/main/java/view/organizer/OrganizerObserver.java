@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface OrganizerObserver {
 
+    void onNavigateBackRequest();
+
     // Home Page events
     List<ConferenceDTO> onGetManagedConferencesRequest(String email);
     void onManageConferenceRequest(String conferenceId);
@@ -17,13 +19,15 @@ public interface OrganizerObserver {
     void onSubmitConferenceFormRequest(ConferenceDTO conferenceDTO);
 
     // Manage Conference Page events
-    void onEditConferenceRequest();
+    void onEditConferenceRequest(ConferenceDTO conferenceDTO);
     void onDeleteConferenceRequest();
     void onViewAttendeesRequest(String conferenceId);
     void onViewSessionsRequest(String conferenceId);
     void onViewSpeakersRequest(String conferenceId);
     void onViewConferenceFeedbackRequest(String conferenceId);
-    void onNavigateBackRequest();
+
+    // Edit Conference Page Events
+    void onUpdateConferenceRequest(ConferenceDTO conferenceDTO);
 
     // View Sessions Page events
     void onManageSessionRequest(String sessionId);
@@ -40,6 +44,6 @@ public interface OrganizerObserver {
     void onDeleteSessionRequest(String sessionId);
 
     // Edit Session Page events
-    void onUpdateSessionFormRequest(SessionDTO updatedSessionDTO);
+    void onUpdateSessionRequest(SessionDTO updatedSessionDTO);
 
 }

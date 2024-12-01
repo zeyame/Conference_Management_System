@@ -41,7 +41,7 @@ public class UserService {
         LoggerUtil.getInstance().logInfo(String.format("User with email '%s' has successfully been registered.", validatedDTO.getEmail()));
     }
 
-    public void addNewManagedConferenceForOrganizer(String organizerId, String conferenceId) {
+    public void assignConferenceToOrganizer(String organizerId, String conferenceId) {
         if (organizerId == null || conferenceId == null) {
             throw new IllegalArgumentException("Organizer and conference id parameters cannot be null.");
         }

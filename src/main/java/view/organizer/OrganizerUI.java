@@ -10,10 +10,7 @@ import view.UserUI;
 import view.organizer.pages.*;
 import util.LoggerUtil;
 import util.ui.UIComponentFactory;
-import view.organizer.pages.add.AddConferencePage;
-import view.organizer.pages.add.AddPage;
-import view.organizer.pages.add.AddSessionPage;
-import view.organizer.pages.add.EditSessionPage;
+import view.organizer.pages.add.*;
 import view.organizer.pages.manage.ManageConferencePage;
 import view.organizer.pages.manage.ManagePage;
 import view.organizer.pages.manage.ManageSessionPage;
@@ -38,7 +35,8 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String MANAGE_SESSION_PAGE = "Manage Session Page";
     private final String ADD_CONFERENCE_PAGE = "Add Conference Page";
     private final String ADD_SESSION_PAGE = "Add Session Page";
-    private final String EDIT_SESSION_PAGE = "Edit Session Page";
+    private final String UPDATE_CONFERENCE_PAGE = "Update Conference Page";
+    private final String UPDATE_SESSION_PAGE = "Update Session Page";
     private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
     private final String VIEW_SESSIONS_PAGE = "View Sessions Page";
     private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
@@ -159,13 +157,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     @Override
     public void onSubmitConferenceFormRequest(ConferenceDTO conferenceDTO) {
-        LoggerUtil.getInstance().logInfo("Request to create conference received. Proceeding with validation.");
-
-        ResponseEntity<Void> validationResponse = organizerController.validateConferenceData(conferenceDTO);
-        if (!validationResponse.isSuccess()) {
-            showError(ADD_CONFERENCE_PAGE, validationResponse.getErrorMessage());
-            return;
-        }
+        LoggerUtil.getInstance().logInfo(String.format("Request to create conference '%s' received.", conferenceDTO.getName()));
 
         ResponseEntity<Void> createConferenceResponse = organizerController.createConference(conferenceDTO);
         if (!createConferenceResponse.isSuccess()) {
@@ -174,7 +166,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         // navigate back to an updated home page with the new conference added
-        HomePage homePage = new HomePage(userDTO, this);
+        HomePage homePage = new HomePage(this, userDTO);
         navigateTo(HOME_PAGE, homePage.createPageContent(), true);
 
         showSuccess(HOME_PAGE, "The '" + conferenceDTO.getName() + "' conference has successfully been added to your managed conferences.");
@@ -207,8 +199,11 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onEditConferenceRequest() {
+    public void onEditConferenceRequest(ConferenceDTO conferenceDTO) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to edit conference '%s' received.", conferenceDTO.getName()));
 
+        AddPage updateConferencePage = new UpdateConferencePage(this, userDTO, conferenceDTO);
+        navigateTo(UPDATE_CONFERENCE_PAGE, updateConferencePage.createPageContent(), true);
     }
 
     @Override
@@ -217,12 +212,28 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         List<UserDTO> speakers = fetchSpeakers();
 
-        AddPage editSessionPage = new EditSessionPage(this, sessionDTO.getConferenceId(), speakers, sessionDTO);
-        navigateTo(EDIT_SESSION_PAGE, editSessionPage.createPageContent(), true);
+        AddPage updateSessionPage = new UpdateSessionPage(this, sessionDTO.getConferenceId(), speakers, sessionDTO);
+        navigateTo(UPDATE_SESSION_PAGE, updateSessionPage.createPageContent(), true);
     }
 
     @Override
-    public void onUpdateSessionFormRequest(SessionDTO updatedSessionDTO) {
+    public void onUpdateConferenceRequest(ConferenceDTO conferenceDTO) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to update conference '%s' received.", conferenceDTO.getName()));
+
+        ResponseEntity<Void> updateConferenceResponse = organizerController.updateConference(conferenceDTO);
+        if (!updateConferenceResponse.isSuccess()) {
+            showError(getCurrentPageId(), updateConferenceResponse.getErrorMessage());
+            return;
+        }
+
+        HomePage homePage = new HomePage(this, userDTO);
+        navigateTo(HOME_PAGE, homePage.createPageContent(), false);
+
+        showSuccess(getCurrentPageId(), String.format("Conference '%s' has successfully been updated.", conferenceDTO.getName()));
+    }
+
+    @Override
+    public void onUpdateSessionRequest(SessionDTO updatedSessionDTO) {
         LoggerUtil.getInstance().logInfo(String.format("Request to updated session '%s' received.", updatedSessionDTO.getName()));
 
         ResponseEntity<Void> updateSessionResponse = organizerController.updateSession(updatedSessionDTO);
@@ -465,7 +476,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
     private void initializeHomePage() {
         // initialize home page
-        HomePage homePage = new HomePage(userDTO, this);
+        HomePage homePage = new HomePage(this, userDTO);
         JPanel homeContent = homePage.createPageContent();
         subpages.put(HOME_PAGE, homeContent);
         contentPanel.add(homeContent, HOME_PAGE);

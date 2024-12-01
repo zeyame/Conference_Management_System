@@ -21,7 +21,7 @@ public class UIFactory {
     private UIFactory() {}
     public static UserUI createUserUI(UserDTO userDTO) {
         return switch (userDTO.getRole()) {
-            case ORGANIZER -> new OrganizerUI(new OrganizerController(new UserService(UserRepository.getInstance()), new ConferenceService(ConferenceRepository.getInstance()), new SessionService(new UserService(UserRepository.getInstance()), new ConferenceService(ConferenceRepository.getInstance()), EmailService.getInstance(), SessionRepository.getInstance()), new FeedbackService(new UserService(UserRepository.getInstance()), FeedbackRepository.getInstance())), userDTO);
+            case ORGANIZER -> new OrganizerUI(new OrganizerController(new UserService(UserRepository.getInstance()), new ConferenceService(new UserService(UserRepository.getInstance()), ConferenceRepository.getInstance()), new SessionService(new UserService(UserRepository.getInstance()), new ConferenceService(new UserService(UserRepository.getInstance()), ConferenceRepository.getInstance()), EmailService.getInstance(), SessionRepository.getInstance()), new FeedbackService(new UserService(UserRepository.getInstance()), FeedbackRepository.getInstance())), userDTO);
             case ATTENDEE -> new AttendeeUI(userDTO);
             case SPEAKER -> new SpeakerUI(userDTO);
         };

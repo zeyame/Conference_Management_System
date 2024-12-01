@@ -28,25 +28,30 @@ public class OrganizerController {
         this.feedbackService = feedbackService;
     }
 
-    // FIX THIS - MOVE VALIDATION TO CONFERENCE SERVICE,
     public ResponseEntity<Void> createConference(ConferenceDTO conferenceDTO) {
-        String conferenceId = null;
         try {
-            conferenceId = conferenceService.create(conferenceDTO);
-            userService.addNewManagedConferenceForOrganizer(conferenceDTO.getOrganizerId(), conferenceId);
+            conferenceService.create(conferenceDTO);
             return ResponseEntity.success();
         } catch (ConferenceException e) {
-            LoggerUtil.getInstance().logError("Error occurred during conference creation or adding conference to organizer's managed conferences: " + e.getMessage());
-            return ResponseEntity.error("An error occurred while creating the conference. Please try again later.");
-        } catch (Exception e) {
-            LoggerUtil.getInstance().logError("An unexpected error occurred during conference creation: " + e.getMessage());
-            return ResponseEntity.error("An unexpected error occurred. Please try again later.");
+            LoggerUtil.getInstance().logError("Error occurred during conference creation: " + e.getMessage());
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
+    public ResponseEntity<Void> updateConference(ConferenceDTO updatedConferenceDTO) {
+        try {
+            conferenceService.update(updatedConferenceDTO);
+            return ResponseEntity.success();
+        } catch (ConferenceException e) {
+            LoggerUtil.getInstance().logError("Error occurred during conference update: " + e.getMessage());
+            return ResponseEntity.error(e.getMessage());
         }
     }
 
     public ResponseEntity<Void> createSession(SessionDTO sessionDTO) {
         try {
-            sessionService.createOrUpdate(sessionDTO, false);
+            sessionService.create(sessionDTO);
+            LoggerUtil.getInstance().logInfo(String.format("Session '%s' was created successfully.", sessionDTO.getName()));
             return ResponseEntity.success();
         } catch (SessionException e) {
             return ResponseEntity.error(e.getMessage());
@@ -55,12 +60,9 @@ public class OrganizerController {
 
     public ResponseEntity<Void> updateSession(SessionDTO updatedSessionDTO) {
         try {
-            sessionService.createOrUpdate(updatedSessionDTO, true);
+            sessionService.update(updatedSessionDTO);
             LoggerUtil.getInstance().logInfo(String.format("Session '%s' was updated successfully.", updatedSessionDTO.getName()));
             return ResponseEntity.success();
-        } catch (ConferenceException e) {
-            LoggerUtil.getInstance().logError("Failed to update session '%s' as conference id does not exist.");
-            return ResponseEntity.error("Failed to update session data due to invalid conference id provided.");
         } catch (SessionException e) {
             return ResponseEntity.error(e.getMessage());
         }
@@ -171,27 +173,6 @@ public class OrganizerController {
             LoggerUtil.getInstance().logError(String.format("Could not retrieve feedback for session wit id '%s' as it does not exist.", sessionId));
             return ResponseEntity.error(String.format("Session with id '%s' does not exist.", sessionId));
         }
-    }
-
-    public ResponseEntity<Void> validateConferenceData(ConferenceDTO conferenceDTO) {
-        // implement validation logic
-        String name = conferenceDTO.getName();
-        LocalDate startDate = conferenceDTO.getStartDate(), endDate = conferenceDTO.getEndDate();
-
-        // ensure conference name is available
-        if (conferenceService.isNameTaken(name)) {
-            LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Conference name '" + name + "' is already taken.");
-            return ResponseEntity.error("The provided conference name is already taken.");
-        }
-
-        // ensure selected time period is available
-        if (!conferenceService.isTimePeriodAvailable(startDate, endDate)) {
-            LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Dates provided for the conference are not available..");
-            return ResponseEntity.error("Another conference is already registered to take place within the time period provided. Please choose different dates.");
-        }
-
-        LoggerUtil.getInstance().logInfo("Validation successful for conference: " + name + " with dates: " + startDate + " - " + endDate);
-        return ResponseEntity.success();
     }
 
     public ResponseEntity<Void> deleteSession(String sessionId) {

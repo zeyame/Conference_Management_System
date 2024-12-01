@@ -12,7 +12,7 @@ public class ConferenceFactory {
     private ConferenceFactory() {}
 
     public static Conference createConference(ConferenceDTO conferenceDTO) {
-        String id = IdGenerator.generateUniqueId();
+        String id = conferenceDTO.getId() != null ? conferenceDTO.getId() : IdGenerator.generateUniqueId();
         String organizerId = conferenceDTO.getOrganizerId();
         String name = conferenceDTO.getName();
         String description = conferenceDTO.getDescription();

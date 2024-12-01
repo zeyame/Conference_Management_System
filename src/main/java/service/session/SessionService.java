@@ -4,7 +4,6 @@ import domain.factory.SessionFactory;
 import domain.model.Session;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
-import dto.UserDTO;
 import exception.*;
 import repository.SessionRepository;
 import service.conference.ConferenceService;
@@ -36,9 +35,52 @@ public class SessionService {
         this.notificationService = createSessionNotificationService();
     }
 
-    public void createOrUpdate(SessionDTO sessionDTO, boolean isUpdate) {
+    public void create(SessionDTO sessionDTO) {
         if (sessionDTO == null) {
             throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
+        boolean sessionSaved = false;
+        boolean conferenceUpdated = false;
+        boolean speakerAssigned = false;
+
+        try {
+            // get existing sessions in conference
+            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
+            List<SessionDTO> conferenceSessions = findAllById(conferenceDTO.getSessions());
+
+            // validate session data for creation
+            validator.validateData(sessionDTO, conferenceDTO, conferenceSessions, false);
+
+            // convert DTO to domain object and save
+            Session session = SessionFactory.create(sessionDTO);
+            sessionSaved = sessionRepository.save(session, session.getId());
+            if (!sessionSaved) {
+                throw SessionException.savingFailure("An unexpected error occurred while saving session data.");
+            }
+
+            // assign session to speaker
+            assignSessionToSpeaker(session);
+            speakerAssigned = true;
+
+            // add session to conference
+            conferenceService.registerSession(conferenceDTO.getId(), mapToDTO(session, userService.getNameById(session.getSpeakerId())));
+            conferenceUpdated = true;
+
+            notificationService.notifySessionCreation(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
+
+            LoggerUtil.getInstance().logInfo(String.format("Session '%s' has been successfully created.", session.getName()));
+        } catch (RuntimeException e) {
+            handleExceptionWithRollback("Session creation", sessionDTO, sessionSaved,
+                    false, conferenceUpdated, false, speakerAssigned, false, e);
+
+            throw e;
+        }
+    }
+
+    public void update(SessionDTO sessionDTO) {
+        if (sessionDTO == null || sessionDTO.getId() == null || sessionDTO.getId().isEmpty()) {
+            throw new IllegalArgumentException("SessionDTO and its ID cannot be null or empty for updates.");
         }
 
         boolean sessionSaved = false;
@@ -49,41 +91,35 @@ public class SessionService {
             ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
             List<SessionDTO> conferenceSessions = findAllById(conferenceDTO.getSessions());
 
-            // validate session data
-            validator.validateData(sessionDTO, conferenceDTO, conferenceSessions, isUpdate);
+            // Validate session data for update
+            validator.validateData(sessionDTO, conferenceDTO, conferenceSessions, true);
 
-            // convert DTO to domain object
+            // convert DTO to domain object and save
             Session session = SessionFactory.create(sessionDTO);
-
-            // attempting to save validated session to file storage with retries
             sessionSaved = sessionRepository.save(session, session.getId());
             if (!sessionSaved) {
                 throw SessionException.savingFailure("An unexpected error occurred while saving session data.");
             }
 
-            // assign session to speaker
+            // Assign session to speaker
             assignSessionToSpeaker(session);
             speakerAssigned = true;
 
-            // add a reference to the session to conference
+            // Update session in conference
             conferenceService.registerSession(conferenceDTO.getId(), mapToDTO(session, userService.getNameById(session.getSpeakerId())));
             conferenceUpdated = true;
 
-            if (isUpdate) {
-                notificationService.notifySessionChange(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
-            } else {
-                notificationService.notifySessionCreation(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
-            }
+            notificationService.notifySessionChange(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
 
-            LoggerUtil.getInstance().logInfo(String.format("Session '%s' has successfully been created/updated.", session.getName()));
+            LoggerUtil.getInstance().logInfo(String.format("Session '%s' has been successfully updated.", session.getName()));
         } catch (RuntimeException e) {
-            handleExceptionWithRollback("Session creation/update", sessionDTO, sessionSaved,
-                                    false, conferenceUpdated, false, speakerAssigned, false, e);
+            handleExceptionWithRollback("Session update", sessionDTO, sessionSaved,
+                    false, conferenceUpdated, false, speakerAssigned, false, e);
 
-            // throw original exception to be handled by the controller
             throw e;
         }
     }
+
 
     public SessionDTO getById(String id) {
         if (id == null || id.isEmpty()) {

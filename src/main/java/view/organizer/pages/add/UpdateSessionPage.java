@@ -13,10 +13,10 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
-public class EditSessionPage extends AddSessionPage {
+public class UpdateSessionPage extends AddSessionPage {
     private final SessionDTO existingSession;
 
-    public EditSessionPage(OrganizerObserver organizerObserver, String conferenceId, List<UserDTO> speakers, SessionDTO existingSession) {
+    public UpdateSessionPage(OrganizerObserver organizerObserver, String conferenceId, List<UserDTO> speakers, SessionDTO existingSession) {
         super(organizerObserver, conferenceId, null, speakers);
         this.existingSession = existingSession;
 
@@ -49,8 +49,8 @@ public class EditSessionPage extends AddSessionPage {
         }
 
         SessionDTO updatedSessionDTO = SessionDTO.builder(conferenceId, speaker.getId(), speaker.getName(),
-                        sessionName,
-                        room, date, startTime, endTime)
+                        sessionName, room, date,
+                        startTime, endTime)
                 .setId(existingSession.getId())
                 .setDescription(sessionDescription)
                 .setRegisteredAttendees(existingSession.getRegisteredAttendees())
@@ -58,7 +58,7 @@ public class EditSessionPage extends AddSessionPage {
                 .setFeedback(existingSession.getFeedback())
                 .build();
 
-        organizerObserver.onUpdateSessionFormRequest(updatedSessionDTO);
+        organizerObserver.onUpdateSessionRequest(updatedSessionDTO);
     }
 
 
@@ -66,9 +66,9 @@ public class EditSessionPage extends AddSessionPage {
         nameField.setText(existingSession.getName());
         descriptionField.setText(existingSession.getDescription());
         roomField.setText(existingSession.getRoom());
-        dateSpinner.setValue(java.sql.Date.valueOf(existingSession.getDate()));
-        startTimeSpinner.setValue(java.sql.Time.valueOf(existingSession.getStartTime()));
-        endTimeSpinner.setValue(java.sql.Time.valueOf(existingSession.getEndTime()));
+        dateSpinner.setValue(existingSession.getDate());
+        startTimeSpinner.setValue(existingSession.getStartTime());
+        endTimeSpinner.setValue(existingSession.getEndTime());
 
         // Set the selected speaker
         for (int i = 0; i < speakerDropdown.getItemCount(); i++) {

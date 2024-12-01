@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ConferenceDTO {
-    private final String id;
+    private String id;
     private final String organizerId;
     private final String name;
     private final String description;
@@ -66,7 +66,7 @@ public class ConferenceDTO {
             this.feedback = new HashSet<>();
         }
 
-        public Builder assignId(String id) {
+        public Builder setId(String id) {
             this.id = id;
             return this;
         }
@@ -101,6 +101,7 @@ public class ConferenceDTO {
     public String getId() {
         return this.id;
     }
+    public void setId(String id) {this.id = id;}
     public String getOrganizerId() {
         return this.organizerId;
     }

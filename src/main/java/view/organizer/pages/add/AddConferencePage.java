@@ -17,11 +17,11 @@ import java.util.Date;
 
 public class AddConferencePage extends AddPage {
     // dependencies
-    private final UserDTO userDTO;
+    protected final UserDTO userDTO;
 
     // conference form fields
-    private final JSpinner startDateSpinner;
-    private final JSpinner endDateSpinner;
+    protected final JSpinner startDateSpinner;
+    protected final JSpinner endDateSpinner;
 
     public AddConferencePage(OrganizerObserver organizerObserver, UserDTO userDTO) {
         super(organizerObserver);
@@ -68,7 +68,7 @@ public class AddConferencePage extends AddPage {
         submitButton.addActionListener(this::handleSubmitConferenceDetails);
     }
 
-    private void handleSubmitConferenceDetails(ActionEvent e) {
+    protected void handleSubmitConferenceDetails(ActionEvent e) {
         String conferenceName = nameField.getText();
         String conferenceDescription = descriptionField.getText();
         LocalDate startDate = extractLocalDate((Date) startDateSpinner.getValue());
@@ -92,7 +92,7 @@ public class AddConferencePage extends AddPage {
         // publish event to organizer ui that user wants to submit the conference form
         organizerObserver.onSubmitConferenceFormRequest(conferenceDTO);
     }
-    private LocalDate extractLocalDate(Date date) {
+    protected LocalDate extractLocalDate(Date date) {
         return date.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();

@@ -11,7 +11,7 @@ import java.util.*;
 
 public class SessionDTO {
 
-    private final String id;
+    private String id;
     private final String conferenceId;
     private final String speakerId;
     private final String speakerName;
@@ -145,6 +145,8 @@ public class SessionDTO {
     public String getId() {
         return this.id;
     }
+
+    public void setId(String id) {this.id = id;}
 
     public String getConferenceId() {
         return this.conferenceId;

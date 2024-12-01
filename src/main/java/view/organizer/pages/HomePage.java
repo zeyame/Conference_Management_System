@@ -11,13 +11,13 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 public class HomePage {
-    private final UserDTO userDTO;
     private final OrganizerObserver organizerObserver;
+    private final UserDTO userDTO;
     private final JButton addConferenceButton;
 
-    public HomePage(UserDTO userDTO, OrganizerObserver organizerObserver) {
-        this.userDTO = userDTO;
+    public HomePage(OrganizerObserver organizerObserver, UserDTO userDTO) {
         this.organizerObserver = organizerObserver;
+        this.userDTO = userDTO;
 
         // initialize components
         this.addConferenceButton = new JButton("Add Conference");

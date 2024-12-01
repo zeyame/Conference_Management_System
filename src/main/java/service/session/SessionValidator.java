@@ -23,8 +23,8 @@ public class SessionValidator {
     }
 
     public void validateData(SessionDTO sessionDTO, ConferenceDTO conferenceDTO, List<SessionDTO> conferenceSessions, boolean isUpdate) {
-        if (sessionDTO == null || conferenceDTO == null) {
-            throw new IllegalArgumentException("SessionDTO and ConferenceDTO cannot be null.");
+        if (sessionDTO == null || conferenceDTO == null || conferenceSessions == null) {
+            throw new IllegalArgumentException("SessionDTO, ConferenceDTO, and conference sessions cannot be null.");
         }
 
         Set<String> sessionIds = conferenceDTO.getSessions();

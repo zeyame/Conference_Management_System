@@ -26,6 +26,10 @@ public class SessionRollbackService {
     }
 
     public void rollbackSessionSave(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
         boolean sessionDeleted = deleteSessionAction.test(sessionDTO.getId());
         if (!sessionDeleted) {
             LoggerUtil.getInstance().logError(String.format("Rollback failed: Could not delete session '%s' from repository.", sessionDTO.getId()));
@@ -34,6 +38,10 @@ public class SessionRollbackService {
         LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully deleted from repository.", sessionDTO.getId()));
     }
     public void rollbackSessionDeletion(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
         boolean sessionRestored = saveSessionAction.test(sessionDTO);
         if (!sessionRestored) {
             LoggerUtil.getInstance().logError(String.format("Rollback failed: Could not restore session '%s' to repository.", sessionDTO.getId()));
@@ -43,6 +51,10 @@ public class SessionRollbackService {
     }
 
     public void rollbackSpeakerAssignment(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
         try {
             userService.unassignSessionFromSpeaker(sessionDTO.getSpeakerId(), sessionDTO.getId());
             LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully unassigned from speaker.", sessionDTO.getId()));
@@ -53,6 +65,10 @@ public class SessionRollbackService {
     }
 
     public void rollbackSpeakerUnassignment(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
         try {
             userService.assignNewSessionForSpeaker(
                     sessionDTO.getSpeakerId(), sessionDTO.getId(),
@@ -67,6 +83,10 @@ public class SessionRollbackService {
     }
 
     public void rollbackConferenceUpdate(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
         try {
             conferenceService.removeSession(sessionDTO.getConferenceId(), sessionDTO.getId());
             LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully removed from conference.", sessionDTO.getId()));
@@ -77,6 +97,10 @@ public class SessionRollbackService {
     }
 
     public void rollbackSessionRemovalFromConference(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
         try {
             conferenceService.registerSession(sessionDTO.getConferenceId(), sessionDTO);
             LoggerUtil.getInstance().logInfo(String.format("Rollback: Session '%s' successfully added back to conference.", sessionDTO.getId()));

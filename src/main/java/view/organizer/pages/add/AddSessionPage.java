@@ -42,7 +42,7 @@ public class AddSessionPage extends AddPage {
         this.endTimeSpinner = UIComponentFactory.createTimeSpinner();
         initializeJComboBox();
 
-        // Set up event listeners
+        // set up event listeners
         setUpListeners();
     }
 
