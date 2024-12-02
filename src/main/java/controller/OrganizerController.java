@@ -184,4 +184,13 @@ public class OrganizerController {
         }
     }
 
+    public ResponseEntity<Void> deleteConference(String conferenceId) {
+        try {
+            conferenceService.deleteById(conferenceId);
+            return ResponseEntity.success();
+        } catch (ConferenceException e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
 }

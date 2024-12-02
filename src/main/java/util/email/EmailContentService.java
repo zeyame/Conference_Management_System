@@ -1,12 +1,13 @@
 package util.email;
 
 import domain.model.UserRole;
+import dto.ConferenceDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
 
 public class EmailContentService {
 
-
+    // WELCOME BODY MESSAGE
     public static String getWelcomeMessage(String userName, UserRole role) {
         return switch (role) {
             case ORGANIZER -> getWelcomeMessageForOrganizer(userName);
@@ -15,6 +16,7 @@ public class EmailContentService {
         };
     }
 
+    // SESSION BODY MESSAGE
     public static String getSessionCreationBody(SessionDTO sessionDTO, UserDTO userDTO) {
         return switch (userDTO.getRole()) {
             case ATTENDEE -> getAttendeeSessionCreationMessage(sessionDTO, userDTO.getName());
@@ -35,6 +37,31 @@ public class EmailContentService {
         return switch (userDTO.getRole()) {
             case ATTENDEE -> getAttendeeSessionDeletionMessage(sessionDTO, userDTO.getName());
             case SPEAKER -> getSpeakerSessionDeletionMessage(sessionDTO, userDTO.getName());
+            case ORGANIZER -> throw new IllegalArgumentException("User must either have attendee or speaker permissions.");
+        };
+    }
+
+    // CONFERENCE BODY MESSAGES
+    public static String getConferenceCreationBody(ConferenceDTO conferenceDTO, UserDTO userDTO) {
+        return switch (userDTO.getRole()) {
+            case ATTENDEE -> getAttendeeConferenceCreationMessage(conferenceDTO, userDTO.getName());
+            case SPEAKER -> getSpeakerConferenceCreationMessage(conferenceDTO, userDTO.getName());
+            case ORGANIZER -> throw new IllegalArgumentException("User must either have attendee or speaker permissions.");
+        };
+    }
+
+    public static String getConferenceChangeBody(ConferenceDTO conferenceDTO, UserDTO userDTO) {
+        return switch (userDTO.getRole()) {
+            case ATTENDEE -> getAttendeeConferenceChangeMessage(conferenceDTO, userDTO.getName());
+            case SPEAKER -> getSpeakerConferenceChangeMessage(conferenceDTO, userDTO.getName());
+            case ORGANIZER -> throw new IllegalArgumentException("User must either have attendee or speaker permissions.");
+        };
+    }
+
+    public static String getConferenceDeletionBody(ConferenceDTO conferenceDTO, UserDTO userDTO) {
+        return switch (userDTO.getRole()) {
+            case ATTENDEE -> getAttendeeConferenceDeletionMessage(conferenceDTO, userDTO.getName());
+            case SPEAKER -> getSpeakerConferenceDeletionMessage(conferenceDTO, userDTO.getName());
             case ORGANIZER -> throw new IllegalArgumentException("User must either have attendee or speaker permissions.");
         };
     }
@@ -150,8 +177,61 @@ public class EmailContentService {
                 sessionDTO.getStartTime(), sessionDTO.getEndTime());
     }
 
+    // CONFERENCE CREATION MESSAGES
+    private static String getAttendeeConferenceCreationMessage(ConferenceDTO conferenceDTO, String attendeeName) {
+        return String.format("Hello %s,\n\nWe are thrilled to inform you about a new conference:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We hope you will join us to explore the exciting topics and engage with fellow attendees.\n\n" +
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                attendeeName, conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
+    }
+
+    private static String getSpeakerConferenceCreationMessage(ConferenceDTO conferenceDTO, String speakerName) {
+        return String.format("Hello %s,\n\nWe are delighted to invite you as a speaker to a new conference:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We look forward to your contribution and insights at this exciting event.\n\n" +
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                speakerName, conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
+    }
 
 
+    // CONFERENCE CHANGE MESSAGES
+    private static String getAttendeeConferenceChangeMessage(ConferenceDTO conferenceDTO, String attendeeName) {
+        return String.format("Hello %s,\n\nPlease note that there has been a change to the conference details:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We apologize for any inconvenience caused and look forward to your continued participation.\n\n" +
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                attendeeName, conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
+    }
 
+    private static String getSpeakerConferenceChangeMessage(ConferenceDTO conferenceDTO, String speakerName) {
+        return String.format("Hello %s,\n\nPlease be informed that there has been a change to the conference you are speaking at:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We apologize for any inconvenience caused and look forward to your participation.\n\n" +
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                speakerName, conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
+    }
 
+    // CONFERENCE DELETION MESSAGES
+    private static String getAttendeeConferenceDeletionMessage(ConferenceDTO conferenceDTO, String attendeeName) {
+        return String.format("Hello %s,\n\nWe regret to inform you that the following conference has been cancelled:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We sincerely apologize for any inconvenience caused and hope to see you at future events.\n\n" +
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                attendeeName, conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
+    }
+
+    private static String getSpeakerConferenceDeletionMessage(ConferenceDTO conferenceDTO, String speakerName) {
+        return String.format("Hello %s,\n\nWe regret to inform you that the following conference, where you were scheduled to speak, has been cancelled:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We sincerely apologize for any inconvenience caused and hope to work with you in future events.\n\n" +
+                        "Kind Regards,\n\nThe University of Hertfordshire Team",
+                speakerName, conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
+    }
 }

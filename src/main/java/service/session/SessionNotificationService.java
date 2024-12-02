@@ -14,18 +14,13 @@ import java.util.concurrent.CompletableFuture;
 
 public class SessionNotificationService {
 
-    private final UserService userService;
-    private final EmailService emailService;
-    public SessionNotificationService(UserService userService, EmailService emailService) {
-        this.userService = userService;
-        this.emailService = emailService;
-    }
+    private static final EmailService emailService = EmailService.getInstance();
 
-    public void notifySessionCreation(SessionDTO sessionDTO, Set<String> attendeeIds, String speakerId) {
+    // no arg constructor to suppress instantiability
+    private SessionNotificationService() {}
+    public static void notifySessionCreation(SessionDTO sessionDTO, List<UserDTO> attendees, UserDTO speaker) {
         final String subject = "New Session";
         try {
-            List<UserDTO> attendees = userService.findAllById(attendeeIds);
-            UserDTO speaker = userService.getBydId(speakerId);
 
             // notify attendees
             attendees.forEach(attendee ->
@@ -45,12 +40,9 @@ public class SessionNotificationService {
         }
     }
 
-    public void notifySessionChange(SessionDTO sessionDTO, Set<String> attendeeIds, String speakerId) {
+    public static void notifySessionChange(SessionDTO sessionDTO, List<UserDTO> attendees, UserDTO speaker) {
         String subject = "Session Change";
         try {
-            List<UserDTO> attendees = userService.findAllById(attendeeIds);
-            UserDTO speaker = userService.getBydId(speakerId);
-
             // notify attendees
             attendees.forEach(attendee ->
                     CompletableFuture.runAsync(() ->
@@ -66,16 +58,13 @@ public class SessionNotificationService {
             );
         } catch (Exception e) {
             LoggerUtil.getInstance().logError("Notification failure: " + e.getMessage());
-            throw SessionException.notificationFailure("An unexpected error occurred when notifying users of session changes.");
+            throw new SessionException("An unexpected error occurred when notifying users of session changes.");
         }
     }
 
-    public void notifySessionDeletion(SessionDTO sessionDTO, Set<String> attendeeIds, String speakerId) {
+    public static void notifySessionDeletion(SessionDTO sessionDTO, List<UserDTO> attendees, UserDTO speaker) {
         String subject = "Session Cancelled";
         try {
-            List<UserDTO> attendees = userService.findAllById(attendeeIds);
-            UserDTO speaker = userService.getBydId(speakerId);
-
             // notify attendees
             attendees.forEach(attendee ->
                     CompletableFuture.runAsync(() ->
@@ -91,7 +80,7 @@ public class SessionNotificationService {
             );
         } catch (Exception e) {
             LoggerUtil.getInstance().logError("Notification failure: " + e.getMessage());
-            throw SessionException.notificationFailure("An unexpected error occurred when notifying users of session cancellation.");
+            throw new SessionException("An unexpected error occurred when notifying users of session cancellation.");
         }
     }
 

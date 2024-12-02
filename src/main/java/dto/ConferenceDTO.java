@@ -13,10 +13,10 @@ public class ConferenceDTO {
     private final String description;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final Set<String> sessions;
-    private final Set<String> attendees;
-    private final Set<String> speakers;
-    private final Set<String> feedback;
+    private Set<String> sessions;
+    private Set<String> attendees;
+    private Set<String> speakers;
+    private Set<String> feedback;
 
     private ConferenceDTO(Builder builder) {
         this.id = builder.id;
@@ -120,12 +120,28 @@ public class ConferenceDTO {
     public Set<String> getSessions() {
         return new HashSet<>(this.sessions);         // defensive copy
     }
+
+    public void setSessions(Set<String> sessions) {
+        this.sessions = sessions != null ? sessions : new HashSet<>();
+    }
+
     public Set<String> getAttendees() {
         return new HashSet<>(this.attendees);       // defensive copy
+    }
+
+    public void setAttendees(Set<String> attendees) {
+        this.attendees = attendees != null ? attendees : new HashSet<>();
     }
     public Set<String> getSpeakers() {
         return new HashSet<>(this.speakers);        // defensive copy
     }
+    public void setSpeakers(Set<String> speakers) {
+        this.speakers = speakers != null ? speakers : new HashSet<>();
+    }
 
     public Set<String> getFeedback() {return new HashSet<>(this.feedback);}
+
+    public void setFeedback(Set<String> feedback) {
+        this.feedback = feedback != null ? feedback : new HashSet<>();
+    }
 }

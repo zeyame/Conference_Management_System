@@ -20,7 +20,7 @@ public interface OrganizerObserver {
 
     // Manage Conference Page events
     void onEditConferenceRequest(ConferenceDTO conferenceDTO);
-    void onDeleteConferenceRequest();
+    void onDeleteConferenceRequest(String conferenceId);
     void onViewAttendeesRequest(String conferenceId);
     void onViewSessionsRequest(String conferenceId);
     void onViewSpeakersRequest(String conferenceId);

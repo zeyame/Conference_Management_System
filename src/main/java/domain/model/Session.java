@@ -11,6 +11,7 @@ public class Session {
     private final String id;
     private final String conferenceId;
     private final String speakerId;
+    private final String speakerName;
     private final String name;
     private String description;
     private final String room;
@@ -27,6 +28,7 @@ public class Session {
         this.id = null;
         this.conferenceId = null;
         this.speakerId = null;
+        this.speakerName = null;
         this.name = null;
         this.description = null;
         this.room = null;
@@ -43,6 +45,7 @@ public class Session {
         this.id = builder.id;
         this.conferenceId = builder.conferenceId;
         this.speakerId = builder.speakerId;
+        this.speakerName = builder.speakerName;
         this.name = builder.name;
         this.description = builder.description;
         this.room = builder.room;
@@ -55,8 +58,8 @@ public class Session {
         this.attendanceRecord = getAttendanceRecord();
     }
 
-    public static Builder builder(String id, String conferenceId, String speakerId, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        return new Builder(id, conferenceId, speakerId, name, room, date, startTime, endTime);
+    public static Builder builder(String id, String conferenceId, String speakerId, String speakerName, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return new Builder(id, conferenceId, speakerId, speakerName, name, room, date, startTime, endTime);
     }
 
 
@@ -65,6 +68,7 @@ public class Session {
         private final String id;
         private final String conferenceId;
         private final String speakerId;
+        private final String speakerName;
         private final String name;
         private final String room;
         private final LocalDate date;
@@ -77,10 +81,11 @@ public class Session {
         private Set<String> presentAttendees;
         private Set<String> feedback;
 
-        private Builder(String id, String conferenceId, String speakerId, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        private Builder(String id, String conferenceId, String speakerId, String speakerName, String name, String room, LocalDate date, LocalTime startTime, LocalTime endTime) {
             this.id = id;
             this.conferenceId = conferenceId;
             this.speakerId = speakerId;
+            this.speakerName = speakerName;
             this.name = name;
             this.room = room;
             this.date = date;
@@ -141,6 +146,8 @@ public class Session {
     public String getSpeakerId() {
         return this.speakerId;
     }
+
+    public String getSpeakerName() {return this.speakerName;}
 
     public String getName() {
         return this.name;

@@ -2,6 +2,7 @@ package service;
 
 import domain.model.Feedback;
 import dto.FeedbackDTO;
+import exception.FeedbackException;
 import repository.FeedbackRepository;
 import util.CollectionUtils;
 
@@ -12,11 +13,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class FeedbackService {
-    private final UserService userService;
+    private ServiceMediator serviceMediator;
     private final FeedbackRepository feedbackRepository;
-    public FeedbackService(UserService userService, FeedbackRepository feedbackRepository) {
-        this.userService = userService;
+    public FeedbackService(FeedbackRepository feedbackRepository) {
         this.feedbackRepository = feedbackRepository;
+    }
+
+    public void setServiceMediator(ServiceMediator serviceMediator) {
+        this.serviceMediator = serviceMediator;
     }
 
     public List<FeedbackDTO> findAllById(Set<String> ids) {
@@ -30,25 +34,27 @@ public class FeedbackService {
         // extract valid feedback objects
         List<Feedback> feedbackList = CollectionUtils.extractValidEntities(feedbackOptionals);
 
-        // get attendee ids of feedback list
-        Set<String> attendeeIds = feedbackList.stream()
-                .map(Feedback::getAttendeeId)
-                .collect(Collectors.toSet());
-
-        // attendee ids to names
-        Map<String, String> attendeeIdsToNamesMap = userService.findNamesByIds(attendeeIds);
-
-
         return feedbackList.stream()
-                .map(feedback -> mapToDTO(feedback, attendeeIdsToNamesMap.get(feedback.getAttendeeId())))
+                .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
-    private FeedbackDTO mapToDTO(Feedback feedback, String attendeeName) {
+    public void deleteById(String id ) {
+        boolean isDeleted = feedbackRepository.deleteById(id);
+        if (!isDeleted) {
+            throw new FeedbackException(String.format("Failed to delete feedback with id '%s'.", id));
+        }
+    }
+
+    public void deleteAllById(Set<String> ids) {
+        ids.forEach(this::deleteById);
+    }
+
+    private FeedbackDTO mapToDTO(Feedback feedback) {
         return new FeedbackDTO(
                 feedback.getId(),
                 feedback.getAttendeeId(),
-                attendeeName,
+                feedback.getAttendeeName(),
                 feedback.getRating(),
                 feedback.getComment(),
                 feedback.getType()

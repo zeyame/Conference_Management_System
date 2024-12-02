@@ -22,7 +22,7 @@ public class SessionRepository extends BaseRepository<Session> {
         return instance;
     }
 
-    public Optional<Session> getByName(String name) {
+    public Optional<Session> findByName(String name) {
         return cache.values()
                 .stream()
                 .filter(session -> name.equals(session.getName()))

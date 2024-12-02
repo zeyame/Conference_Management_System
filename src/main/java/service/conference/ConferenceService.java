@@ -6,26 +6,34 @@ import domain.model.Session;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
 import exception.ConferenceException;
+import exception.SessionException;
 import exception.UserException;
 import repository.ConferenceRepository;
 import response.ResponseEntity;
+import service.ServiceMediator;
 import service.UserService;
 import util.CollectionUtils;
 import util.LoggerUtil;
+import util.validation.ConferenceValidator;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ConferenceService {
-    private final UserService userService;
+    private ServiceMediator serviceMediator;
     private final ConferenceRepository conferenceRepository;
 
-    public ConferenceService(UserService userService, ConferenceRepository conferenceRepository) {
-        this.userService = userService;
+    public ConferenceService(ConferenceRepository conferenceRepository) {
         this.conferenceRepository = conferenceRepository;
+    }
+
+    public void setServiceMediator(ServiceMediator serviceMediator) {
+        this.serviceMediator = serviceMediator;
     }
 
     public void create(ConferenceDTO conferenceDTO) {
@@ -34,8 +42,14 @@ public class ConferenceService {
         }
 
         boolean isSaved = false;
+        boolean assignedToOrganizer = false;
         try {
-            validateData(conferenceDTO);
+            // prepare data for validation
+            List<ConferenceDTO> conferenceDTOs = findAll();
+            List<SessionDTO> sessionDTOs = serviceMediator.findSessionsByIds(conferenceDTO.getSessions());
+
+            // validate data
+            ConferenceValidatorService.validateData(conferenceDTO, conferenceDTOs, sessionDTOs, false);
 
             // creating conference
             Conference conference = ConferenceFactory.createConference(conferenceDTO);
@@ -46,13 +60,24 @@ public class ConferenceService {
 
             // add reference to conference in organizer's managed conferences
             assignConferenceToOrganizer(conference);
+            assignedToOrganizer = true;
+
+            // notify attendees and all speakers of new upcoming conference
+            ConferenceNotificationService.notifyConferenceCreation(
+                    conferenceDTO,
+                    serviceMediator.findAllAttendees(),
+                    serviceMediator.findAllSpeakers()
+            );
 
             LoggerUtil.getInstance().logInfo(String.format("Conference '%s' has successfully been created.", conference.getName()));
         } catch (ConferenceException e) {
-            if (isSaved) rollbackSave(conferenceDTO);
+            if (isSaved) rollbackCreateOrUpdate(conferenceDTO, isSaved, assignedToOrganizer);
+
+            // rollback changes
+            rollbackCreateOrUpdate(conferenceDTO, isSaved, assignedToOrganizer);
 
             // throw original exception to be handled by controller
-            throw e;
+            throw new ConferenceException(String.format("An error occurred when creating conference: %s", e.getMessage()));
         }
     }
 
@@ -61,38 +86,52 @@ public class ConferenceService {
             throw new IllegalArgumentException("ConferenceDTO and its ID cannot be null or empty for updates.");
         }
 
-        boolean isDeleted = false;
+        boolean isSaved = false;
         try {
-            // delete conference from repository for accurate validation
-            delete(conferenceDTO.getId());
-            isDeleted = true;
+            // fetch existing conference for merging
+            Optional<Conference> conferenceOptional = conferenceRepository.findById(conferenceDTO.getId());
+            if (conferenceOptional.isEmpty()) {
+                throw new ConferenceException("Conference not found.");
+            }
+
+            Conference existingConference = conferenceOptional.get();
+            // merge data
+            mergeData(existingConference, conferenceDTO);
 
             // validate data
-            validateData(conferenceDTO);
+            List<ConferenceDTO> conferenceDTOs = findAll();
+            List<SessionDTO> sessionDTOs = serviceMediator.findSessionsByIds(conferenceDTO.getSessions());
+            ConferenceValidatorService.validateData(conferenceDTO, conferenceDTOs, sessionDTOs, true);
 
-            // create a new conference with updated data
-            Conference conference = ConferenceFactory.createConference(conferenceDTO);
+            // Create and save updated conference
+            Conference updatedConference = ConferenceFactory.createConference(conferenceDTO);
+            save(updatedConference);
+            isSaved = true;
 
-            // save new conference
-            save(conference);
+            // Notify attendees and speakers
+            ConferenceNotificationService.notifyConferenceChange(
+                    conferenceDTO,
+                    serviceMediator.findAllUsersById(conferenceDTO.getAttendees()),
+                    serviceMediator.findAllUsersById(conferenceDTO.getSpeakers())
+            );
 
-        } catch (ConferenceException e) {
+        } catch (Exception e) {
             LoggerUtil.getInstance().logError(String.format("Failed to update conference '%s': %s", conferenceDTO.getName(), e.getMessage()));
-
-            if (isDeleted) rollbackDeletion(conferenceDTO);
-
-            throw ConferenceException.updatingFailure(String.format("Error occurred when updating conference data: %s", e.getMessage()));
+            rollbackCreateOrUpdate(conferenceDTO, isSaved, false);
+            throw new ConferenceException(String.format("Error occurred when updating conference data: %s", e.getMessage()));
         }
     }
 
-    public void registerSession(String id, SessionDTO sessionDTO) {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Conference id cannot be null or empty.");
-        }
 
-        Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
+    public void registerSession(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+        String conferenceId = sessionDTO.getConferenceId();
+
+        Optional<Conference> conferenceOptional = conferenceRepository.findById(conferenceId);
         if (conferenceOptional.isEmpty()) {
-            throw ConferenceException.notFound(String.format("Conference with id '%s' does not exist.", id));
+            throw new ConferenceException(String.format("Conference with id '%s' does not exist.", conferenceId));
         }
 
         Conference conference = conferenceOptional.get();
@@ -103,7 +142,7 @@ public class ConferenceService {
         if (!isConferenceUpdated) {
             conference.removeSession(sessionDTO.getId());
             conference.removeSpeaker(sessionDTO.getSpeakerId());
-            throw ConferenceException.registeringSession(String.format("Unexpected error occurred when registering session to conference '%s'. Please try again later.",  conference.getName()));
+            throw new ConferenceException(String.format("Unexpected error occurred when registering session to conference '%s'. Please try again later.",  conference.getName()));
         }
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully registered session '%s' to '%s'.", sessionDTO.getName(), conference.getName()));
@@ -118,7 +157,14 @@ public class ConferenceService {
         return conferenceRepository
                 .findById(id)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> ConferenceException.notFound(String.format("Conference with id '%s' could not be found.", id)));
+                .orElseThrow(() -> new ConferenceException(String.format("Conference with id '%s' could not be found.", id)));
+    }
+
+    public List<ConferenceDTO> findAll() {
+        return conferenceRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     public List<ConferenceDTO> findAllById(Set<String> ids) {
@@ -138,12 +184,40 @@ public class ConferenceService {
     }
 
 
-    // YET TO EXPAND THIS METHOD
     public void deleteById(String id) {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Conference id cannot be null or empty");
         }
-        conferenceRepository.deleteById(id);
+
+        // get conference data
+        Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
+        if (conferenceOptional.isEmpty()) {
+            throw new ConferenceException(String.format("Conference with id '%s' does not exist.", id));
+        }
+
+        Conference conference = conferenceOptional.get();
+        Set<String> attendees = conference.getAttendees(), speakers = conference.getSpeakers();
+
+        try {
+            // delete all sessions within conference
+            serviceMediator.deleteAllSessionsById(conference.getSessions());
+
+            // delete all feedback within conference
+            serviceMediator.deleteAllFeedbackById(conference.getFeedback());
+
+            // delete conference from repository
+            conferenceRepository.deleteById(id);
+
+            // notify attendees and speakers of cancellation
+            ConferenceNotificationService.notifyConferenceDeletion(
+                    mapToDTO(conference),
+                    serviceMediator.findAllUsersById(attendees),
+                    serviceMediator.findAllUsersById(speakers)
+            );
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to delete conference '%s': %s", conference.getName(), e.getMessage()));
+            throw new ConferenceException(e.getMessage());
+        }
     }
 
     public void removeSession(String id, String sessionId) {
@@ -153,7 +227,7 @@ public class ConferenceService {
 
         Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
         if (conferenceOptional.isEmpty()) {
-            throw ConferenceException.notFound(String.format("Conference with id '%s' does not exist.", id));
+            throw new ConferenceException(String.format("Conference with id '%s' does not exist.", id));
         }
 
         Conference conference = conferenceOptional.get();
@@ -162,98 +236,52 @@ public class ConferenceService {
         boolean isConferenceUpdated = conferenceRepository.save(conference, conference.getId());
         if (!isConferenceUpdated) {
             conference.addSession(sessionId);
-            throw ConferenceException.savingFailure(String.format("Unexpected error occurred when saving updated conference '%s'. Please try again later.",  conference.getName()));
+            throw new ConferenceException(String.format("Unexpected error occurred when saving updated conference '%s'. Please try again later.",  conference.getName()));
         }
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully removed session with id '%s' from '%s'.", sessionId, conference.getName()));
     }
 
+
+    // helpers
     private void save(Conference conference) {
         boolean saved = conferenceRepository.save(conference, conference.getId());
         if (!saved) {
-            throw ConferenceException.savingFailure("An unexpected error occurred when try to save conference data. Please try again later.");
+            throw new ConferenceException("An unexpected error occurred when try to save conference data. Please try again later.");
         }
     }
 
     private void delete(String id) {
         boolean deleted = conferenceRepository.deleteById(id);
         if (!deleted) {
-            throw ConferenceException.deletingFailure("An unexpected error occurred when try to delete conference. Please try again later.");
+            throw new ConferenceException("An unexpected error occurred when try to delete conference. Please try again later.");
         }
-    }
-
-    private void validateData(ConferenceDTO conferenceDTO) {
-        if (conferenceDTO == null) {
-            throw new IllegalArgumentException("ConferenceDTO cannot be null.");
-        }
-
-        String name = conferenceDTO.getName();
-        LocalDate startDate = conferenceDTO.getStartDate(), endDate = conferenceDTO.getEndDate();
-
-        // ensure conference name is available
-        if (isNameTaken(name)) {
-            LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Conference name '" + name + "' is already taken.");
-            throw ConferenceException.nameTaken(String.format("Conference name '%s' is already taken.", name));
-        }
-
-        // ensure selected time period is available
-        if (!isTimePeriodAvailable(startDate, endDate)) {
-            LoggerUtil.getInstance().logWarning("Validation failed for conference creation. Dates provided for the conference are not available..");
-            throw ConferenceException.timeUnavailable("Another conference is already registered to be held within the time" +
-                    " period you selected. Please choose different dates.");
-        }
-
-        LoggerUtil.getInstance().logInfo(String.format("Validation successful for conference '%s'.", conferenceDTO.getName()));
-    }
-
-
-    private boolean isNameTaken(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Conference name cannot be null or empty.");
-        }
-
-        return conferenceRepository.findByName(name).isPresent();
-    }
-
-    private boolean isTimePeriodAvailable(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException("Conference start and end dates cannot be null");
-        }
-
-        List<Conference> conferences = conferenceRepository.findAll();
-        return conferences.stream()
-                .noneMatch(conference ->
-                        (startDate.isBefore(conference.getEndDate()) && endDate.isAfter(conference.getStartDate())) ||
-                                endDate.equals(conference.getStartDate()) ||
-                                startDate.equals(conference.getEndDate())
-                );
     }
 
     private void assignConferenceToOrganizer(Conference conference) {
         try {
-            userService.assignConferenceToOrganizer(conference.getOrganizerId(), conference.getId());
+            serviceMediator.assignConferenceToOrganizer(conference.getId(), conference.getOrganizerId());
         } catch (IllegalArgumentException | UserException e) {
             LoggerUtil.getInstance().logError(String.format("Failed to assign conference '%s' to organizer with id '%s': %s",
                     conference.getName(), conference.getOrganizerId(), e.getMessage()));
-            throw ConferenceException.assignmentToOrganizer("Unable to assign the conference to the organizer. " +
+            throw new ConferenceException("Unable to assign the conference to the organizer. " +
                     "Please ensure the organizer ID is valid and belongs to a user with organizer permissions.");
         }
     }
 
-    private void rollbackSave(ConferenceDTO conferenceDTO) {
+    private void rollbackCreateOrUpdate(ConferenceDTO conferenceDTO, boolean isSaved, boolean assignedToOrganzer) {
         try {
-            delete(conferenceDTO.getId());
-        } catch (ConferenceException e) {
-            LoggerUtil.getInstance().logError(String.format("Failed to delete conference when rolling back conference creation: %s", e.getMessage()));
-        }
-    }
+            // roll back save
+            if (isSaved) {
+                delete(conferenceDTO.getId());
+            }
 
-    private void rollbackDeletion(ConferenceDTO conferenceDTO) {
-        try {
-            Conference conference = ConferenceFactory.createConference(conferenceDTO);
-            save(conference);
-        } catch (ConferenceException e) {
-            LoggerUtil.getInstance().logError(String.format("Failed to save conference when rolling back conference deletion: %s", e.getMessage()));
+            // roll back assigning conference to organizer
+            if (assignedToOrganzer) {
+                serviceMediator.unassignConferenceFromOrganizer(conferenceDTO.getId(), conferenceDTO.getOrganizerId());
+            }
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to delete conference when rolling back conference creation: %s", e.getMessage()));
         }
     }
 
@@ -268,5 +296,12 @@ public class ConferenceService {
                 .setSpeakers(conference.getSpeakers())
                 .setFeedback(conference.getFeedback())
                 .build();
+    }
+
+    private void mergeData(Conference existingConference, ConferenceDTO conferenceDTO) {
+        conferenceDTO.setSessions(existingConference.getSessions());
+        conferenceDTO.setAttendees(existingConference.getAttendees());
+        conferenceDTO.setSpeakers(existingConference.getSpeakers());
+        conferenceDTO.setFeedback(existingConference.getFeedback());
     }
 }

@@ -15,8 +15,10 @@ public class SessionFactory {
 
     public static Session create(SessionDTO sessionDTO) {
         String id = sessionDTO.getId() != null ? sessionDTO.getId() : IdGenerator.generateUniqueId();
+        sessionDTO.setId(id);
         String conferenceId = sessionDTO.getConferenceId();
         String speakerId = sessionDTO.getSpeakerId();
+        String speakerName = sessionDTO.getSpeakerName();
         String name = sessionDTO.getName();
         String description = sessionDTO.getDescription();
         String room = sessionDTO.getRoom();
@@ -27,7 +29,7 @@ public class SessionFactory {
         Set<String> presentAttendees = sessionDTO.getPresentAttendees();
         Set<String> feedback = sessionDTO.getFeedback();
 
-        return Session.builder(id, conferenceId, speakerId, name, room, date, startTime, endTime)
+        return Session.builder(id, conferenceId, speakerId, speakerName, name, room, date, startTime, endTime)
                 .setDescription(description)
                 .setRegisteredAttendees(registeredAttendees)
                 .setPresentAttendees(presentAttendees)

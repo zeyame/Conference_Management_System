@@ -44,7 +44,7 @@ public class FormValidator {
         if (!ValidationUtil.isNonEmpty(description)) {
             throw new FormValidationException("Conference Description must not be empty.");
         }
-        if (!ValidationUtil.areDatesValid(startDate, endDate)) {
+        if (!ValidationUtil.isDateValid(startDate) || !ValidationUtil.areDatesValid(startDate, endDate)) {
             throw new FormValidationException("Start Date must be before End Date and not in the past.");
         }
     }

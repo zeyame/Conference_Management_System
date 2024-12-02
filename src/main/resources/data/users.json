@@ -1,1 +1,32 @@
-{"d4a3528d-167f-4017-b975-8aac9e671b14":{"id":"d4a3528d-167f-4017-b975-8aac9e671b14","email":"rayhuntr1@gmail.com","name":"Zeyad","hashedPassword":"$2a$10$lxUEMWKNMbGCXGSezTBhke0zKZ0XHc90.i0dmip4X9IZkFUA7beaS","managedConferences":["67fe5161-0555-4cb1-848e-e7d06aaf81ee"],"role":"Organizer"}}
+{
+  "97d0c2a1-263c-4a1b-8729-46f6e6f06c7e": {
+    "id": "97d0c2a1-263c-4a1b-8729-46f6e6f06c7e",
+    "email": "zeyame14@gmail.com",
+    "name": "David J. Malan",
+    "hashedPassword": "$2a$10$Q7iplmRB1EHzwCwLTMDxUOlMsf96arFG/Q.7r9ubv/dhkc7/Hx39K",
+    "bio": "CS Wiz",
+    "assignedSessions": {},
+    "role": "Speaker"
+  },
+  "d4a3528d-167f-4017-b975-8aac9e671b14": {
+    "id": "d4a3528d-167f-4017-b975-8aac9e671b14",
+    "email": "rayhuntr1@gmail.com",
+    "name": "Zeyad",
+    "hashedPassword": "$2a$10$lxUEMWKNMbGCXGSezTBhke0zKZ0XHc90.i0dmip4X9IZkFUA7beaS",
+    "managedConferences": [
+      "4db53322-b242-47d5-8f71-ba7fa89fda19",
+      "67fe5161-0555-4cb1-848e-e7d06aaf81ee",
+      "a645489b-9af0-4448-a1e3-105a33558909",
+      "e2cbf883-7eb2-470b-af12-b16acb41e175"
+    ],
+    "role": "Organizer"
+  },
+  "d0272526-e8b6-459c-a86b-16dc917d965c": {
+    "id": "d0272526-e8b6-459c-a86b-16dc917d965c",
+    "email": "shelfquest1@gmail.com",
+    "name": "Zeyad",
+    "hashedPassword": "$2a$10$5Qq/b6gRFqlVjbUrf3ht6.7Rq2vlf0Qp1QL/KKyxZbZPsNvdQRmPO",
+    "role": "Attendee",
+    "schedule": {}
+  }
+}

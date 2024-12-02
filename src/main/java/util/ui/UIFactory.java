@@ -17,11 +17,38 @@ import view.UserUI;
 
 public class UIFactory {
 
-    // private no-arg constructor to suppress instantiability
-    private UIFactory() {}
+    private UIFactory() {
+    }
+
     public static UserUI createUserUI(UserDTO userDTO) {
+        // creating repositories
+        UserRepository userRepository = UserRepository.getInstance();
+        ConferenceRepository conferenceRepository = ConferenceRepository.getInstance();
+        SessionRepository sessionRepository = SessionRepository.getInstance();
+        FeedbackRepository feedbackRepository = FeedbackRepository.getInstance();
+
+        // creating services
+        ConferenceService conferenceService = new ConferenceService(conferenceRepository);
+        SessionService sessionService = new SessionService(sessionRepository);
+        FeedbackService feedbackService = new FeedbackService(feedbackRepository);
+        UserService userService = new UserService(userRepository);
+
+        // creating service mediator and linking it to services
+        ServiceMediator serviceMediator = new ServiceMediator(userService, conferenceService, sessionService, feedbackService);
+        conferenceService.setServiceMediator(serviceMediator);
+        sessionService.setServiceMediator(serviceMediator);
+        feedbackService.setServiceMediator(serviceMediator);
+
+        // creating organizer controller for OrganizerUI
+        OrganizerController organizerController = new OrganizerController(
+                userService,
+                conferenceService,
+                sessionService,
+                feedbackService
+        );
+
         return switch (userDTO.getRole()) {
-            case ORGANIZER -> new OrganizerUI(new OrganizerController(new UserService(UserRepository.getInstance()), new ConferenceService(new UserService(UserRepository.getInstance()), ConferenceRepository.getInstance()), new SessionService(new UserService(UserRepository.getInstance()), new ConferenceService(new UserService(UserRepository.getInstance()), ConferenceRepository.getInstance()), EmailService.getInstance(), SessionRepository.getInstance()), new FeedbackService(new UserService(UserRepository.getInstance()), FeedbackRepository.getInstance())), userDTO);
+            case ORGANIZER -> new OrganizerUI(organizerController, userDTO);
             case ATTENDEE -> new AttendeeUI(userDTO);
             case SPEAKER -> new SpeakerUI(userDTO);
         };

@@ -4,35 +4,28 @@ import domain.factory.SessionFactory;
 import domain.model.Session;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
+import dto.UserDTO;
 import exception.*;
 import repository.SessionRepository;
-import service.conference.ConferenceService;
-import service.UserService;
+import service.ServiceMediator;
 import util.CollectionUtils;
 import util.LoggerUtil;
-import util.email.EmailService;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class SessionService {
 
-    private final UserService userService;
-    private final ConferenceService conferenceService;
-    private final EmailService emailService;
+    private ServiceMediator serviceMediator;
     private final SessionRepository sessionRepository;
-    private final SessionValidator validator;
-    private final SessionRollbackService rollbackService;
-    private final SessionNotificationService notificationService;
 
-    public SessionService(UserService userService, ConferenceService conferenceService, EmailService emailService, SessionRepository sessionRepository) {
-        this.userService = userService;
-        this.conferenceService = conferenceService;
-        this.emailService = emailService;
+    public SessionService(SessionRepository sessionRepository) {
         this.sessionRepository = sessionRepository;
-        this.validator = createSessionValidator();
-        this.rollbackService = createSessionRollbackService();
-        this.notificationService = createSessionNotificationService();
+    }
+
+    public void setServiceMediator(ServiceMediator serviceMediator) {
+        this.serviceMediator = serviceMediator;
     }
 
     public void create(SessionDTO sessionDTO) {
@@ -45,29 +38,35 @@ public class SessionService {
         boolean speakerAssigned = false;
 
         try {
-            // get existing sessions in conference
-            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
+            // prepare data for validation - conference data, conference sessions
+            ConferenceDTO conferenceDTO = serviceMediator.getConferenceById(sessionDTO.getConferenceId());
             List<SessionDTO> conferenceSessions = findAllById(conferenceDTO.getSessions());
 
             // validate session data for creation
-            validator.validateData(sessionDTO, conferenceDTO, conferenceSessions, false);
+            SessionValidatorService.validateData(sessionDTO, conferenceDTO, conferenceSessions, false);
 
             // convert DTO to domain object and save
             Session session = SessionFactory.create(sessionDTO);
             sessionSaved = sessionRepository.save(session, session.getId());
             if (!sessionSaved) {
-                throw SessionException.savingFailure("An unexpected error occurred while saving session data.");
+                throw new SessionException("An unexpected error occurred while saving session data.");
             }
 
             // assign session to speaker
-            assignSessionToSpeaker(session);
+            serviceMediator.assignNewSessionForSpeaker(sessionDTO);
             speakerAssigned = true;
 
             // add session to conference
-            conferenceService.registerSession(conferenceDTO.getId(), mapToDTO(session, userService.getNameById(session.getSpeakerId())));
+            serviceMediator.registerSessionInConference(sessionDTO);
             conferenceUpdated = true;
 
-            notificationService.notifySessionCreation(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
+
+            // notify all system attendees and assign speaker of session creation
+            SessionNotificationService.notifySessionCreation(
+                    sessionDTO,
+                    serviceMediator.findAllUsersById(sessionDTO.getRegisteredAttendees()),
+                    serviceMediator.getUserById(sessionDTO.getSpeakerId())
+            );
 
             LoggerUtil.getInstance().logInfo(String.format("Session '%s' has been successfully created.", session.getName()));
         } catch (RuntimeException e) {
@@ -76,7 +75,7 @@ public class SessionService {
             // rolling back changes
             rollbackCreateOrUpdate(sessionDTO, sessionSaved, speakerAssigned, conferenceUpdated);
 
-            throw SessionException.creationFailure(String.format("An error occurred when creating session: %s", e.getMessage()));
+            throw new SessionException(String.format("An error occurred when creating session: %s", e.getMessage()));
         }
     }
 
@@ -90,38 +89,42 @@ public class SessionService {
         boolean conferenceUpdated = false;
 
         try {
-            // get existing sessions in conference to use for validation
-            ConferenceDTO conferenceDTO = conferenceService.getById(sessionDTO.getConferenceId());
+            // prepare data for validation
+            ConferenceDTO conferenceDTO = serviceMediator.getConferenceById(sessionDTO.getConferenceId());
             List<SessionDTO> conferenceSessions = findAllById(conferenceDTO.getSessions());
 
             // validate session data for update
-            validator.validateData(sessionDTO, conferenceDTO, conferenceSessions, true);
+            SessionValidatorService.validateData(sessionDTO, conferenceDTO, conferenceSessions, true);
 
             // convert DTO to domain object and save
             Session session = SessionFactory.create(sessionDTO);
             sessionSaved = sessionRepository.save(session, session.getId());
             if (!sessionSaved) {
-                throw SessionException.savingFailure("An unexpected error occurred while saving session data.");
+                throw new SessionException("An unexpected error occurred while saving session data.");
             }
 
             // Assign session to speaker
-            assignSessionToSpeaker(session);
+            serviceMediator.assignNewSessionForSpeaker(sessionDTO);
             speakerAssigned = true;
 
             // Update session in conference
-            conferenceService.registerSession(conferenceDTO.getId(), mapToDTO(session, userService.getNameById(session.getSpeakerId())));
+            serviceMediator.registerSessionInConference(sessionDTO);
             conferenceUpdated = true;
 
-            notificationService.notifySessionChange(sessionDTO, session.getRegisteredAttendees(), session.getSpeakerId());
+            SessionNotificationService.notifySessionChange(
+                    sessionDTO,
+                    serviceMediator.findAllUsersById(sessionDTO.getRegisteredAttendees()),
+                    serviceMediator.getUserById(sessionDTO.getSpeakerId())
+            );
 
             LoggerUtil.getInstance().logInfo(String.format("Session '%s' has been successfully updated.", session.getName()));
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             LoggerUtil.getInstance().logError(String.format("Failed to update session '%s': %s", sessionDTO.getName(), e.getMessage()));
 
             // rolling back changes
             rollbackCreateOrUpdate(sessionDTO, sessionSaved, speakerAssigned, conferenceUpdated);
 
-            throw SessionException.updateFailure(String.format("An error occurred when updating session: %s", e.getMessage()));
+            throw new SessionException(String.format("An error occurred when updating session: %s", e.getMessage()));
         }
     }
 
@@ -131,32 +134,9 @@ public class SessionService {
             throw new IllegalArgumentException("Session id cannot be null or empty.");
         }
 
-        Optional<Session> sessionOptional = sessionRepository.findById(id);
-        if (sessionOptional.isEmpty()) {
-            throw SessionException.notFound(String.format("Session with id '%s' could not be found.", id));
-        }
-
-        Session session = sessionOptional.get();
-        String speakerName = userService.getNameById(session.getSpeakerId());
-
-        return mapToDTO(session, speakerName);
-    }
-
-    public SessionDTO getByName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Session name cannot be null or empty.");
-        }
-
-        Optional<Session> sessionOptional = sessionRepository.getByName(name);
-        if (sessionOptional.isEmpty()) {
-            throw SessionException.notFound(String.format("A session with the name '%s' does not exist.", name));
-        }
-
-        Session session = sessionOptional.get();
-
-        String speakerName = userService.getNameById(session.getSpeakerId());
-
-        return mapToDTO(session, speakerName);
+        return sessionRepository.findById(id)
+                .map(this::mapToDTO)
+                .orElseThrow(() -> new SessionException(String.format("Session with id '%s' could not be found.", id)));
     }
 
     public List<SessionDTO> findAllById(Set<String> ids) {
@@ -170,39 +150,11 @@ public class SessionService {
         // extract valid sessions
         List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
 
-        // retrieve the speaker id for each session
-        Set<String> speakerIds = sessions.stream()
-                .map(Session::getSpeakerId)
-                .collect(Collectors.toSet());
-
-        // retrieve the speaker name corresponding to each speaker id
-        Map<String, String> speakerIdToNameMap = userService.findNamesByIds(speakerIds);
-
         // map the session objects to session data transfer objects (DTO)
         return sessions.stream()
-                       .map(session -> mapToDTO(session, speakerIdToNameMap.get(session.getSpeakerId())))
+                       .map(this::mapToDTO)
                        .collect(Collectors.toList());
     }
-
-    public boolean isNameTaken(String name, Set<String> conferenceSessions) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Session name cannot be null or empty.");
-        }
-
-        if (conferenceSessions == null || conferenceSessions.isEmpty()) {
-            return false;
-        }
-
-        // Fetch all sessions that belong to the conference
-        List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(conferenceSessions);
-
-        // Extract valid sessions
-        List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
-
-        // Check if any session in the conference matches the given name
-        return sessions.stream().anyMatch(session -> name.equals(session.getName()));
-    }
-
 
     public void deleteById(String id) {
         if (id == null || id.isEmpty()) {
@@ -212,86 +164,61 @@ public class SessionService {
         // retrieve session
         Optional<Session> sessionOptional = sessionRepository.findById(id);
         if (sessionOptional.isEmpty()) {
-            throw SessionException.notFound(String.format("Failed to delete session with id '%s' as it does not exist.", id));
+            throw new SessionException(String.format("Failed to delete session with id '%s' as it does not exist.", id));
         }
 
         Session session = sessionOptional.get();
-        SessionDTO sessionDTO = mapToDTO(session, userService.getNameById(session.getSpeakerId()));
+        SessionDTO sessionDTO = mapToDTO(session);
 
         boolean sessionDeleted = false;
         boolean sessionRemovedFromConference = false;
         boolean sessionUnassignedFromSpeaker = false;
         try {
-            // delete from repository
-            sessionDeleted = sessionRepository.deleteById(id);
-            if (!sessionDeleted) {
-                throw SessionException.deletingFailure("An unexpected error occurred when deleting session. Please try again later.");
-            }
-
-            // remove session from speaker schedule
-            userService.unassignSessionFromSpeaker(session.getSpeakerId(), session.getId());
+            // remove session reference from speaker schedule
+            serviceMediator.unassignSessionFromSpeaker(session.getId(), session.getSpeakerId());
             sessionUnassignedFromSpeaker = true;
 
-            // remove session from conference
-            conferenceService.removeSession(session.getConferenceId(), session.getId());
+            // remove session reference from conference
+            serviceMediator.removeSessionFromConference(session.getId(), session.getConferenceId());
             sessionRemovedFromConference = true;
 
-            notificationService.notifySessionDeletion(sessionDTO, sessionDTO.getRegisteredAttendees(), sessionDTO.getSpeakerId());
-        } catch (RuntimeException e) {
+            // delete session from repository
+            sessionDeleted = sessionRepository.deleteById(id);
+            if (!sessionDeleted) {
+                throw new SessionException("An unexpected error occurred when deleting session. Please try again later.");
+            }
+
+            // notify attendees and speaker of session cancellation
+            SessionNotificationService.notifySessionDeletion(
+                    sessionDTO, serviceMediator.findAllUsersById(sessionDTO.getRegisteredAttendees()),
+                    serviceMediator.getUserById(sessionDTO.getSpeakerId()));
+
+        } catch (Exception e) {
             LoggerUtil.getInstance().logError(String.format("Failed to delete session with id '%s': %s", id, e.getMessage()));
 
             // rolling back changes
             rollbackDeletion(sessionDTO, sessionDeleted, sessionRemovedFromConference, sessionUnassignedFromSpeaker);
 
             // throwing original exception that caused the error
-            throw SessionException.deletingFailure("An error occurred when deleting session: " + e.getMessage());
+            throw new SessionException("An error occurred when deleting session: " + e.getMessage());
         }
     }
 
-
-    private SessionRollbackService createSessionRollbackService() {
-        return new SessionRollbackService(
-                this.userService,
-                this.conferenceService,
-                this::deleteSession,
-                this::saveSession
-        );
-    }
-
-    private SessionValidator createSessionValidator() {
-        return new SessionValidator(
-                this.userService,
-                this::isNameTaken
-        );
-    }
-
-    private SessionNotificationService createSessionNotificationService() {
-        return new SessionNotificationService(this.userService, this.emailService);
-    }
-
-    private void assignSessionToSpeaker(Session session) {
-        if (session == null) {
-            throw new IllegalArgumentException("Session cannot be null.");
+    public void deleteAllById(Set<String> ids) {
+        if (ids == null) {
+            throw new IllegalArgumentException("Ids cannot be null.");
         }
 
-        try {
-            userService.assignNewSessionForSpeaker(
-                    session.getSpeakerId(),
-                    session.getId(),
-                    LocalDateTime.of(session.getDate(), session.getStartTime()),
-                    LocalDateTime.of(session.getDate(), session.getEndTime())
-            );
-        } catch (IllegalArgumentException | UserException e) {
-            LoggerUtil.getInstance().logError(String.format("Failed to assign session to speaker: %s", e.getMessage()));
-            throw SessionException.assignmentToSpeaker("An unexpected error occurred when assigning session to speaker. Please try again later.");
-        }
+        // deleting each session and all its associated references
+        ids.forEach(this::deleteById);
     }
 
+    // helper rollback methods
     private void rollbackCreateOrUpdate(SessionDTO sessionDTO, boolean sessionSaved, boolean speakerAssigned, boolean conferenceUpdated) {
         try {
-            if (sessionSaved) rollbackService.rollbackSessionSave(sessionDTO);
-            if (speakerAssigned) rollbackService.rollbackSpeakerAssignment(sessionDTO);
-            if (conferenceUpdated) rollbackService.rollbackConferenceUpdate(sessionDTO);
+            if (sessionSaved) SessionRollbackService.rollbackSessionSave(sessionDTO.getId(), this::delete);
+            if (speakerAssigned) SessionRollbackService.rollbackSpeakerAssignment(sessionDTO.getId(), sessionDTO.getSpeakerId(), serviceMediator::unassignSessionFromSpeaker);
+            if (conferenceUpdated) SessionRollbackService.rollbackConferenceUpdate(sessionDTO.getId(), sessionDTO.getConferenceId(), serviceMediator::removeSessionFromConference);
         } catch (SessionException rollbackException) {
             LoggerUtil.getInstance().logError("Rolling back session creation failed: " + rollbackException.getMessage());
         }
@@ -299,30 +226,40 @@ public class SessionService {
 
     private void rollbackDeletion(SessionDTO sessionDTO, boolean sessionDeleted, boolean speakerUnassigned, boolean sessionRemovedFromConference) {
         try {
-            if (sessionDeleted) rollbackService.rollbackSessionDeletion(sessionDTO);
-            if (speakerUnassigned) rollbackService.rollbackSpeakerUnassignment(sessionDTO);
-            if (sessionRemovedFromConference) rollbackService.rollbackSessionRemovalFromConference(sessionDTO);
+            if (sessionDeleted) SessionRollbackService.rollbackSessionDeletion(sessionDTO, this::save);
+            if (speakerUnassigned) SessionRollbackService.rollbackSpeakerUnassignment(sessionDTO, serviceMediator::assignNewSessionForSpeaker);
+            if (sessionRemovedFromConference) SessionRollbackService.rollbackSessionRemovalFromConference(sessionDTO, serviceMediator::registerSessionInConference);
         } catch (SessionException rollbackException) {
             LoggerUtil.getInstance().logError("Rolling back session deletion failed: " + rollbackException.getMessage());
         }
     }
 
-    // helper methods passed as references to rollback service to decouple it from session repository
-    private boolean saveSession(SessionDTO sessionDTO) {
+
+    // helper save and delete
+    private void save(SessionDTO sessionDTO) {
+        if (sessionDTO == null) {
+            throw new IllegalArgumentException("SessionDTO cannot be null.");
+        }
+
         Session session = SessionFactory.create(sessionDTO);
-        return sessionRepository.save(session, session.getId());
+        boolean saved = sessionRepository.save(session, session.getId());
+        if (!saved) {
+            throw new SessionException("An error occurred when saving session.");
+        }
     }
 
-    private boolean deleteSession(String id) {
-        return sessionRepository.deleteById(id);
+    private void delete(String id) {
+        boolean isDeleted = sessionRepository.deleteById(id);
+        if (!isDeleted) {
+            throw new SessionException("An error occurred when deleting session.");
+        }
     }
 
-
-    private SessionDTO mapToDTO(Session session, String speakerName) {
+    private SessionDTO mapToDTO(Session session) {
         return SessionDTO.builder(
                 session.getConferenceId(),
                 session.getSpeakerId(),
-                speakerName,
+                session.getSpeakerName(),
                 session.getName(),
                 session.getRoom(),
                 session.getDate(),

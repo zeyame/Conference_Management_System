@@ -6,6 +6,7 @@ public class Feedback {
 
     private final String id;
     private final String attendeeId;
+    private final String attendeeName;
     private final int rating;
     private final String comment;
     @JsonProperty("type")
@@ -15,14 +16,16 @@ public class Feedback {
     private Feedback() {
         this.id = null;
         this.attendeeId = null;
+        this.attendeeName = null;
         this.rating = 0;
         this.comment = null;
         this.type = null;
     }
 
-    public Feedback(String id, String attendeeId, int rating, String comment, FeedbackType type) {
+    public Feedback(String id, String attendeeId, String attendeeName, int rating, String comment, FeedbackType type) {
         this.id = id;
         this.attendeeId = attendeeId;
+        this.attendeeName = attendeeName;
         this.rating = rating;
         this.comment = comment;
         this.type = type;
@@ -35,6 +38,8 @@ public class Feedback {
     public String getAttendeeId() {
         return this.attendeeId;
     }
+
+    public String getAttendeeName() {return this.attendeeName;}
 
     public int getRating() {
         return this.rating;

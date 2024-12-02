@@ -46,7 +46,6 @@ public class Speaker extends User {
         startTimeToRemove.ifPresent(assignedSessions::remove);
     }
 
-
     public static class AssignedSession {
         private final String id;
         private final LocalDateTime startTime;

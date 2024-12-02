@@ -66,9 +66,9 @@ public class UpdateSessionPage extends AddSessionPage {
         nameField.setText(existingSession.getName());
         descriptionField.setText(existingSession.getDescription());
         roomField.setText(existingSession.getRoom());
-        dateSpinner.setValue(existingSession.getDate());
-        startTimeSpinner.setValue(existingSession.getStartTime());
-        endTimeSpinner.setValue(existingSession.getEndTime());
+        dateSpinner.setValue(java.sql.Date.valueOf(existingSession.getDate()));
+        startTimeSpinner.setValue(java.sql.Time.valueOf(existingSession.getStartTime()));
+        endTimeSpinner.setValue(java.sql.Time.valueOf(existingSession.getEndTime()));
 
         // Set the selected speaker
         for (int i = 0; i < speakerDropdown.getItemCount(); i++) {
