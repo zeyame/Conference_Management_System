@@ -1,9 +1,13 @@
 package util.ui;
 
 import domain.model.UserRole;
+import dto.ConferenceDTO;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.function.Consumer;
 
 public class UIComponentFactory {
 
@@ -112,7 +116,7 @@ public class UIComponentFactory {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); // Add padding above and below
 
-        button.setPreferredSize(new Dimension(180, 35));
+        button.setPreferredSize(new Dimension(240, 35));
         button.setFocusPainted(false);
         buttonPanel.add(button);
 
@@ -150,6 +154,34 @@ public class UIComponentFactory {
         gbc.anchor = GridBagConstraints.WEST;
         return gbc;
     }
+
+
+    public static JPanel createConferencePanel(ConferenceDTO conference, ActionListener listener, String buttonText) {
+        JPanel conferencePanel = new JPanel();
+        conferencePanel.setLayout(new BoxLayout(conferencePanel, BoxLayout.Y_AXIS));
+
+        // name of conference
+        JLabel nameLabel = new JLabel(conference.getName());
+        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 16));
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // start date of conference
+        JLabel dateLabel = new JLabel("Date: " + conference.getStartDate().toString());
+        dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // manage conference button
+        JButton manageButton = new JButton(buttonText);
+        manageButton.setFocusPainted(false);
+        manageButton.putClientProperty("conferenceId", conference.getId());
+        manageButton.addActionListener(listener);
+
+        conferencePanel.add(nameLabel);
+        conferencePanel.add(dateLabel);
+        conferencePanel.add(manageButton);
+
+        return conferencePanel;
+    }
+
 
 
     // nested static class to create and manage the role selection panel used in LoginUI and RegistrationUI

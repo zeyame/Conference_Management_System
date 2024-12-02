@@ -1,5 +1,6 @@
 package util.ui;
 
+import controller.AttendeeController;
 import controller.OrganizerController;
 import dto.UserDTO;
 import repository.ConferenceRepository;
@@ -47,9 +48,12 @@ public class UIFactory {
                 feedbackService
         );
 
+        // creating attendee controller for AttendeeUI
+        AttendeeController attendeeController = new AttendeeController(userService, conferenceService);
+
         return switch (userDTO.getRole()) {
             case ORGANIZER -> new OrganizerUI(organizerController, userDTO);
-            case ATTENDEE -> new AttendeeUI(userDTO);
+            case ATTENDEE -> new AttendeeUI(attendeeController, userDTO);
             case SPEAKER -> new SpeakerUI(userDTO);
         };
     }

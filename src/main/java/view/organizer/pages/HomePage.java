@@ -65,8 +65,8 @@ public class HomePage {
 
         // publishing an event to organizer observer to fetch managed conferences for organizer
         List<ConferenceDTO> conferences = organizerObserver.onGetManagedConferencesRequest(userDTO.getEmail());
-        for (ConferenceDTO conference : conferences) {
-            conferencesPanel.add(createConferencePanel(conference));
+        for (ConferenceDTO conferenceDTO : conferences) {
+            conferencesPanel.add(UIComponentFactory.createConferencePanel(conferenceDTO, this::handleManageConferenceButton, "Manage Conference"));
             conferencesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
 
@@ -74,32 +74,6 @@ public class HomePage {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getVerticalScrollBar().setUnitIncrement(7);
         return scrollPane;
-    }
-
-    private JPanel createConferencePanel(ConferenceDTO conference) {
-        JPanel conferencePanel = new JPanel();
-        conferencePanel.setLayout(new BoxLayout(conferencePanel, BoxLayout.Y_AXIS));
-
-        // name of conference
-        JLabel nameLabel = new JLabel(conference.getName());
-        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 16));
-        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
-
-        // start date of conference
-        JLabel dateLabel = new JLabel("Date: " + conference.getStartDate().toString());
-        dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
-
-        // manage conference button
-        JButton manageButton = new JButton("Manage Conference");
-        manageButton.setFocusPainted(false);
-        manageButton.putClientProperty("conferenceId", conference.getId());
-        manageButton.addActionListener(this::handleManageConferenceButton);
-
-        conferencePanel.add(nameLabel);
-        conferencePanel.add(dateLabel);
-        conferencePanel.add(manageButton);
-
-        return conferencePanel;
     }
 
     private void handleManageConferenceButton(ActionEvent e) {

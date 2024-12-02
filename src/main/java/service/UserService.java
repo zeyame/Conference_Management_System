@@ -1,10 +1,7 @@
 package service;
 
 import domain.factory.UserFactory;
-import domain.model.Organizer;
-import domain.model.Speaker;
-import domain.model.User;
-import domain.model.UserRole;
+import domain.model.*;
 import dto.RegistrationDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
@@ -227,6 +224,25 @@ public class UserService {
         return userRepository
                 .findByEmail(email)
                 .isPresent();
+    }
+
+    public Set<String> findRegisteredConferencesForAttendee(String attendeeId) {
+        if (attendeeId == null || attendeeId.isEmpty()) {
+            throw new IllegalArgumentException("Attendee Id cannot be null or empty.");
+        }
+
+        Optional<User> userOptional = userRepository.findById(attendeeId);
+        if (userOptional.isEmpty()) {
+            throw new UserException(String.format("User with id '%s' does not exist.", attendeeId));
+        }
+
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.ATTENDEE) {
+            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", attendeeId));
+        }
+
+        Attendee attendee = (Attendee) user;
+        return attendee.getRegisteredConferences();
     }
 
     public void unassignConferenceFromOrgaizer(String id, String conferenceId) {

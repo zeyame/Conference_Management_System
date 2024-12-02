@@ -20,13 +20,6 @@ public class ConferenceRepository extends BaseRepository<Conference> {
         return instance;
     }
 
-    public Optional<Conference> findByName(String name) {
-        return cache.values()
-                .stream()
-                .filter(conference -> conference.getName().equalsIgnoreCase(name))
-                .findAny();
-    }
-
     @Override
     protected TypeReference<Map<String, Conference>> getTypeReference() {
         return new TypeReference<Map<String, Conference>>() {};

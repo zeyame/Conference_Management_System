@@ -183,6 +183,16 @@ public class ConferenceService {
                 .collect(Collectors.toList());
     }
 
+    public List<ConferenceDTO> findAllUpcoming() {
+        List<Conference> conferences = conferenceRepository.findAll();
+
+        return conferences.stream()
+                .filter(conference -> conference != null &&
+                        LocalDateTime.of(conference.getStartDate(), LocalTime.MIN).isAfter(LocalDateTime.now()))
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
 
     public void deleteById(String id) {
         if (id == null || id.isEmpty()) {
