@@ -13,8 +13,6 @@ public class ConferenceFactory {
     private ConferenceFactory() {}
 
     public static Conference createConference(ConferenceDTO conferenceDTO) {
-        System.out.println("ConferenceDTO sessions: " + conferenceDTO.getSessions().toString());
-
         String id = conferenceDTO.getId() != null ? conferenceDTO.getId() : IdGenerator.generateUniqueId();
         conferenceDTO.setId(id);
         String organizerId = conferenceDTO.getOrganizerId();

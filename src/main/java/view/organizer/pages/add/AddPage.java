@@ -37,7 +37,7 @@ public abstract class AddPage {
         mainContentPanel.removeAll();
 
         // create header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel("", backButton);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel("", backButton, 0);
 
         // create center panel for the form
         JPanel centerPanel = new JPanel();

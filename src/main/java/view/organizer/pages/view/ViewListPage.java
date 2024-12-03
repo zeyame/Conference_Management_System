@@ -34,7 +34,7 @@ public abstract class ViewListPage<T> {
     public JPanel createPageContent() {
         // creating main components
         JPanel headerPanel = UIComponentFactory
-                .createHeaderPanel(getPageTitle(), backButton);
+                .createHeaderPanel(getPageTitle(), backButton, 350);
         JScrollPane scrollPane = createItemsScrollPane();
         scrollPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

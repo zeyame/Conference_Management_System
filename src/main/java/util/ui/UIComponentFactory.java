@@ -46,7 +46,7 @@ public class UIComponentFactory {
         return welcomePanel;
     }
 
-    public static JPanel createHeaderPanel(String title, JButton backButton) {
+    public static JPanel createHeaderPanel(String title, JButton backButton, int leftPadding) {
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0,0));
@@ -54,7 +54,7 @@ public class UIComponentFactory {
         headerPanel.add(backButton);
 
         // spacing between back button and title
-        headerPanel.add(Box.createRigidArea(new Dimension(390, 0)));
+        headerPanel.add(Box.createRigidArea(new Dimension(leftPadding, 0)));
 
         JLabel headerLabel = new JLabel(title);
         headerLabel.setFont(new Font("Sans serif", Font.BOLD, 24));
