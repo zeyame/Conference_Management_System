@@ -13,17 +13,19 @@ import java.util.List;
 public class HomePage {
     private final OrganizerObserver organizerObserver;
     private final UserDTO userDTO;
+    private final List<ConferenceDTO> managedConferences;
     private final JButton addConferenceButton;
 
     public HomePage(OrganizerObserver organizerObserver, UserDTO userDTO) {
         this.organizerObserver = organizerObserver;
         this.userDTO = userDTO;
+        this.managedConferences = organizerObserver.onGetManagedConferencesRequest(userDTO.getEmail());
 
         // initialize components
         this.addConferenceButton = new JButton("Add Conference");
 
         // set up listener
-        this.addConferenceButton.addActionListener(e -> organizerObserver.onAddConferenceRequest(userDTO.getName()));
+        this.addConferenceButton.addActionListener(e -> organizerObserver.onAddConferenceRequest(this.userDTO.getName()));
     }
 
     public JPanel createPageContent() {
@@ -33,7 +35,7 @@ public class HomePage {
         homePanel.add(createHomePageHeader(), BorderLayout.NORTH);
 
         // add scrollable container with conferences
-        JScrollPane scrollPane = createConferenceScrollPane();
+        JScrollPane scrollPane = UIComponentFactory.createConferenceScrollPane(managedConferences, this::handleManageConferenceButton, "Manage Conference");
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         homePanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -56,24 +58,6 @@ public class HomePage {
         headerPanel.add(headerLabel, BorderLayout.CENTER);
 
         return headerPanel;
-    }
-
-    private JScrollPane createConferenceScrollPane() {
-        JPanel conferencesPanel = new JPanel();
-        conferencesPanel.setLayout(new BoxLayout(conferencesPanel, BoxLayout.Y_AXIS));
-        conferencesPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
-
-        // publishing an event to organizer observer to fetch managed conferences for organizer
-        List<ConferenceDTO> conferences = organizerObserver.onGetManagedConferencesRequest(userDTO.getEmail());
-        for (ConferenceDTO conferenceDTO : conferences) {
-            conferencesPanel.add(UIComponentFactory.createConferencePanel(conferenceDTO, this::handleManageConferenceButton, "Manage Conference"));
-            conferencesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        }
-
-        JScrollPane scrollPane = new JScrollPane(conferencesPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(7);
-        return scrollPane;
     }
 
     private void handleManageConferenceButton(ActionEvent e) {

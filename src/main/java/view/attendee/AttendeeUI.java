@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayDeque;
 
-public class AttendeeUI extends JFrame implements UserUI {
+public class AttendeeUI extends JFrame implements UserUI, Navigator {
 
     private final AttendeeController attendeeController;
     private final UserDTO userDTO;
@@ -57,14 +57,35 @@ public class AttendeeUI extends JFrame implements UserUI {
         initializeHomePage();
     }
 
+
+    // USER UI INTERFACE
     @Override
     public void display() {
         setVisible(true);
         toFront();
     }
 
+
+    // NAVIGATOR INTERFACE
+    @Override
+    public void navigateTo(JPanel page) {
+        navigationManager.navigateTo(page);
+    }
+
+    @Override
+    public void navigateBack() {
+        navigationManager.navigateBack();
+    }
+
+    @Override
+    public boolean canNavigateBack() {
+        return navigationManager.canNavigateBack();
+    }
+
+
     private void initializeHomePage() {
-        HomePage attendeeHomePage = new HomePage(userDTO, this.eventMediator);
+        HomePage attendeeHomePage = new HomePage(userDTO, this.eventMediator, this);
         navigationManager.navigateTo(attendeeHomePage);
     }
+
 }

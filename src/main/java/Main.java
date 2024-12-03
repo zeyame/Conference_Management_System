@@ -1,7 +1,7 @@
 import controller.MainController;
 import repository.UserRepository;
 import service.UserService;
-import view.LoginUI;
+import view.authentication.LoginUI;
 import util.email.EmailService;
 
 public class Main {

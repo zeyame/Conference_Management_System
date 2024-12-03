@@ -5,6 +5,7 @@ import dto.ConferenceDTO;
 import response.ResponseEntity;
 import util.LoggerUtil;
 import view.attendee.DataCallback.HomePageDataCallback;
+import view.attendee.DataCallback.ViewRegisteredConferencesCallback;
 
 import java.util.List;
 
@@ -31,6 +32,18 @@ public class AttendeeConferenceManager implements ConferenceEventObserver {
     @Override
     public void onConferenceSelected(String conferenceId) {
 
+    }
+
+    @Override
+    public void onGetRegisteredConferences(String attendeeId, ViewRegisteredConferencesCallback viewRegisteredConferencesCallback) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to get registered conferences for attendee with id '%s' received.", attendeeId));
+
+        ResponseEntity<List<ConferenceDTO>> registeredConferencesResponse = attendeeController.getRegisteredConferences(attendeeId);
+        if (registeredConferencesResponse.isSuccess()) {
+            viewRegisteredConferencesCallback.onRegisteredConferencesFetched(registeredConferencesResponse.getData());
+        } else {
+            viewRegisteredConferencesCallback.onError(registeredConferencesResponse.getErrorMessage());
+        }
     }
 
 }

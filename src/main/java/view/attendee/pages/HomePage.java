@@ -4,6 +4,7 @@ import dto.ConferenceDTO;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
 import view.attendee.DataCallback.HomePageDataCallback;
+import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
 
@@ -16,13 +17,19 @@ public class HomePage extends JPanel implements HomePageDataCallback {
 
     private final UserDTO attendee;
     private final UIEventMediator eventMediator;
+    private final Navigator navigator;
+
     private final JButton viewRegisteredConferences;
     private List<ConferenceDTO> upcomingConferences;
 
-    public HomePage(UserDTO userDTO, UIEventMediator eventMediator) {
+    public HomePage(UserDTO userDTO, UIEventMediator eventMediator, Navigator navigator) {
         this.attendee = userDTO;
         this.eventMediator = eventMediator;
+        this.navigator = navigator;
+
+        // set up view registered conferences button
         this.viewRegisteredConferences = new JButton("Your Registered Conferences");
+        this.viewRegisteredConferences.addActionListener(this::handleViewRegisteredConferences);
 
         // publishing an event to fetch upcoming conferences
         this.eventMediator.publishEvent(
@@ -50,7 +57,7 @@ public class HomePage extends JPanel implements HomePageDataCallback {
         add(createHomePageHeader(), BorderLayout.NORTH);
 
         // add scrollable container with conferences
-        JScrollPane scrollPane = createConferenceScrollPane();
+        JScrollPane scrollPane = UIComponentFactory.createConferenceScrollPane(upcomingConferences, this::handleViewConferenceButton, "View Conference");
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         add(scrollPane, BorderLayout.CENTER);
 
@@ -74,25 +81,14 @@ public class HomePage extends JPanel implements HomePageDataCallback {
         return headerPanel;
     }
 
-
-    private JScrollPane createConferenceScrollPane() {
-        JPanel conferencesPanel = new JPanel();
-        conferencesPanel.setLayout(new BoxLayout(conferencesPanel, BoxLayout.Y_AXIS));
-        conferencesPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
-
-        for (ConferenceDTO conferenceDTO : upcomingConferences) {
-            conferencesPanel.add(UIComponentFactory.createConferencePanel(conferenceDTO, this::handleViewConferenceButton, "View Conference"));
-            conferencesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        }
-
-        JScrollPane scrollPane = new JScrollPane(conferencesPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(7);
-        return scrollPane;
-    }
-
     private void handleViewConferenceButton(ActionEvent e) {
 
+    }
+
+    private void handleViewRegisteredConferences(ActionEvent e) {
+        // navigate to View Registered Conferences Page
+        ViewRegisteredConferences viewRegisteredConferencesPage = new ViewRegisteredConferences(attendee, this.eventMediator, this.navigator);
+        navigator.navigateTo(viewRegisteredConferencesPage);
     }
 
     private void showError(String message) {

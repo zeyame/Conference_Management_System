@@ -6,7 +6,6 @@ import dto.RegistrationDTO;
 import dto.UserDTO;
 import exception.PasswordException;
 import exception.UserException;
-import org.mindrot.jbcrypt.BCrypt;
 import response.ResponseEntity;
 import service.UserService;
 import util.file.JsonFileHandler;
@@ -15,8 +14,9 @@ import util.email.EmailService;
 import util.LoggerUtil;
 import util.PasswordUtil;
 import util.ui.UIFactory;
+import view.authentication.LoginUI;
+import view.authentication.RegistrationUI;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 

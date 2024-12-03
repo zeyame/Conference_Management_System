@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class UIComponentFactory {
@@ -156,7 +157,24 @@ public class UIComponentFactory {
     }
 
 
-    public static JPanel createConferencePanel(ConferenceDTO conference, ActionListener listener, String buttonText) {
+    public static JScrollPane createConferenceScrollPane(List<ConferenceDTO> conferences, ActionListener handleViewOrManageConferenceButton, String buttonText) {
+        JPanel conferencesPanel = new JPanel();
+        conferencesPanel.setLayout(new BoxLayout(conferencesPanel, BoxLayout.Y_AXIS));
+        conferencesPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
+
+        for (ConferenceDTO conferenceDTO : conferences) {
+            conferencesPanel.add(UIComponentFactory.createConferencePanel(conferenceDTO, handleViewOrManageConferenceButton, buttonText));
+            conferencesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        }
+
+        JScrollPane scrollPane = new JScrollPane(conferencesPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(7);
+        return scrollPane;
+    }
+
+
+    private static JPanel createConferencePanel(ConferenceDTO conference, ActionListener listener, String buttonText) {
         JPanel conferencePanel = new JPanel();
         conferencePanel.setLayout(new BoxLayout(conferencePanel, BoxLayout.Y_AXIS));
 

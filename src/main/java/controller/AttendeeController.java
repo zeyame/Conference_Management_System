@@ -33,4 +33,14 @@ public class AttendeeController {
             return ResponseEntity.error(e.getMessage());
         }
     }
+
+    public ResponseEntity<List<ConferenceDTO>> getRegisteredConferences(String attendeeId) {
+        try {
+            Set<String> registeredConferencesIds = userService.findRegisteredConferencesForAttendee(attendeeId);
+            List<ConferenceDTO> registeredConferences = conferenceService.findAllById(registeredConferencesIds);
+            return ResponseEntity.success(registeredConferences);
+        } catch (UserException e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
 }

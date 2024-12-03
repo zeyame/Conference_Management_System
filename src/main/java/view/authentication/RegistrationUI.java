@@ -1,4 +1,4 @@
-package view;
+package view.authentication;
 
 import controller.MainController;
 import domain.model.UserRole;
