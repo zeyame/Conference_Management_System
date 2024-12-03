@@ -38,6 +38,10 @@ public class ServiceMediator {
         userService.assignConferenceToOrganizer(organizerId, conferenceId);
     }
 
+    public void addConferenceToAttendee(String conferenceId, String attendeeId) {
+        userService.addConferenceToAttendee(attendeeId, conferenceId);
+    }
+
     public void assignNewSessionForSpeaker(SessionDTO sessionDTO) {
         userService.assignNewSessionForSpeaker(sessionDTO);
     }
@@ -60,6 +64,10 @@ public class ServiceMediator {
 
     public void unassignConferenceFromOrganizer(String conferenceId, String organizerId) {
         userService.unassignConferenceFromOrgaizer(organizerId, conferenceId);
+    }
+
+    public void removeConferenceFromAttendee(String conferenceId, String attendeeId) {
+        userService.removeConferenceFromAttendee(attendeeId, conferenceId);
     }
 
     public void unassignSessionFromSpeaker(String sessionId, String speakerId) {

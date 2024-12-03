@@ -3,7 +3,6 @@ package view.attendee.pages;
 import dto.ConferenceDTO;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.DataCallback.ViewRegisteredConferencesCallback;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-public class ViewRegisteredConferences extends JPanel implements ViewRegisteredConferencesCallback {
+public class ViewRegisteredConferencesPage extends JPanel {
 
     private final UserDTO attendee;
     private final UIEventMediator eventMediator;
@@ -23,16 +22,13 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
     private List<ConferenceDTO> ongoingConferences;
     private List<ConferenceDTO> upcomingConferences;
 
-    public ViewRegisteredConferences(UserDTO attendee, UIEventMediator eventMediator, Navigator navigator) {
+    public ViewRegisteredConferencesPage(UserDTO attendee, UIEventMediator eventMediator, Navigator navigator) {
         this.attendee = attendee;
         this.eventMediator = eventMediator;
         this.navigator = navigator;
 
         // publish an event to fetch registered conferences for attendee
-        eventMediator.publishEvent(
-                ConferenceEventObserver.class,
-                observer -> observer.onGetRegisteredConferences(attendee.getId(), this)
-        );
+        fetchRegisteredConferences();
 
         createPageContent();
     }
@@ -41,7 +37,7 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
         setLayout(new BorderLayout());
 
         // Header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel("Your Registered Conferences", e -> navigator.navigateBack(), 480);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel("Your Registered Conferences", this::handleBackButton, 480);
         add(headerPanel, BorderLayout.NORTH);
 
         // Split panel for ongoing and upcoming conferences
@@ -84,24 +80,19 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
         return panel;
     }
 
-    @Override
-    public void onRegisteredConferencesFetched(List<ConferenceDTO> registeredConferences) {
-        // split the fetched registered conferences into ongoing and upcoming
-        ongoingConferences = filterOngoingConferences(registeredConferences);
-        upcomingConferences = filterUpcomingConferences(registeredConferences);
-    }
+    public void onRegisteredConferencesFetched(List<ConferenceDTO> registeredConferences, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
 
-    @Override
-    public void onError(String errorMessage) {
-        showError(errorMessage);
+        // split the fetched registered conferences into ongoing and upcoming
+        this.ongoingConferences = filterOngoingConferences(registeredConferences);
+        this.upcomingConferences = filterUpcomingConferences(registeredConferences);
     }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private void handleViewConferenceButton(ActionEvent e) {
-        // Handle viewing a single conference
     }
 
     private List<ConferenceDTO> filterUpcomingConferences(List<ConferenceDTO> conferences) {
@@ -122,5 +113,27 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
 
                     return now.isAfter(startDateTime) && now.isBefore(endDateTime);
                 }).toList();
+    }
+
+    private void handleViewConferenceButton(ActionEvent e) {
+        // handle viewing a single conference
+        JButton sourceButton = (JButton) e.getSource();
+        String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
+
+        // navigate to "View Registered Conference" page
+        ViewRegisteredConferencePage viewRegisteredConferencePage = new ViewRegisteredConferencePage(attendee, eventMediator, navigator, conferenceId);
+        navigator.navigateTo(viewRegisteredConferencePage);
+    }
+
+    private void handleBackButton(ActionEvent e) {
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage, false);
+    }
+
+    private void fetchRegisteredConferences() {
+        eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onGetRegisteredConferences(attendee.getId(), this::onRegisteredConferencesFetched)
+        );
     }
 }

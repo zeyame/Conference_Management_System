@@ -4,15 +4,15 @@ import dto.ConferenceDTO;
 import dto.UserDTO;
 import util.LoggerUtil;
 import util.ui.UIComponentFactory;
-import view.attendee.DataCallback.ViewUpcomingConferenceDataCallback;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
-public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingConferenceDataCallback {
+public class ViewUpcomingConferencePage extends JPanel {
 
     // dependencies
     private final UserDTO attendee;
@@ -24,6 +24,9 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
     private ConferenceDTO upcomingConference;
     private String organizerName;
 
+    // components
+    private JButton registerButton;
+
     public ViewUpcomingConferencePage(UserDTO attendee, String conferenceId, UIEventMediator eventMediator, Navigator navigator) {
         this.attendee = attendee;
         this.conferenceId = conferenceId;
@@ -31,12 +34,11 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
         this.navigator = navigator;
 
         // publish event to fetch conference data
-        eventMediator.publishEvent(
-                ConferenceEventObserver.class,
-                observer -> observer.onConferenceSelected(conferenceId, this)
-        );
+        fetchConference();
 
         createPageContent();
+
+        setUpListeners();
     }
 
     private void createPageContent() {
@@ -52,38 +54,75 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
         add(conferenceDetailsPanel, BorderLayout.CENTER);
 
         // register button
-        JButton registerButton = UIComponentFactory.createStyledButton("Register");
+        registerButton = UIComponentFactory.createStyledButton("Register");
         JPanel registerButtonPanel = UIComponentFactory.createButtonPanel(registerButton);
         registerButtonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 30));
         add(registerButtonPanel, BorderLayout.SOUTH);
     }
 
-    @Override
-    public void onConferenceFetched(ConferenceDTO conferenceDTO) {
+    private void onConferenceFetched(ConferenceDTO conferenceDTO, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
+
         LoggerUtil.getInstance().logInfo(String.format("Conference data received: %s", conferenceDTO.getName()));
         this.upcomingConference = conferenceDTO;
 
         // publish event to mediator to get conference organizer name
         eventMediator.publishEvent(
                 ConferenceEventObserver.class,
-                observer -> observer.onGetOrganizerName(conferenceDTO.getOrganizerId(), this)
+                observer -> observer.onGetOrganizerName(conferenceDTO.getOrganizerId(), this::onOrganizerNameFetched)
         );
     }
 
-    @Override
-    public void onOrganizerNameFetched(String organizerName) {
-        LoggerUtil.getInstance().logInfo(String.format("Organizer name received: %s", organizerName));
+    private void onOrganizerNameFetched(String organizerName, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
 
+        LoggerUtil.getInstance().logInfo(String.format("Organizer name received: %s", organizerName));
         this.organizerName = organizerName;
     }
 
-    @Override
-    public void onError(String errorMessage) {
-        showError(errorMessage);
+
+    private void onRegisteredForConference(String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
+
+        showSuccess(String.format("You have successfully been registered to attend '%s'", upcomingConference.getName()));
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage);
+    }
+
+
+    private void showSuccess(String message) {
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void setUpListeners() {
+        this.registerButton.addActionListener(this::handleRegisterButton);
+    }
+
+    private void handleRegisterButton(ActionEvent e) {
+        eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onRegisterForAConference(attendee.getId(), upcomingConference.getId(), this::onRegisteredForConference)
+        );
+    }
+
+    private void fetchConference() {
+        eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onConferenceSelected(conferenceId, this::onConferenceFetched)
+        );
     }
 
 }

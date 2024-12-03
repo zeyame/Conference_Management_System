@@ -2,8 +2,8 @@ package view.attendee.pages;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;
+import util.LoggerUtil;
 import util.ui.UIComponentFactory;
-import view.attendee.DataCallback.HomePageDataCallback;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
@@ -13,7 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class HomePage extends JPanel implements HomePageDataCallback {
+public class HomePage extends JPanel {
 
     private final UserDTO attendee;
     private final UIEventMediator eventMediator;
@@ -31,26 +31,13 @@ public class HomePage extends JPanel implements HomePageDataCallback {
         this.viewRegisteredConferences = new JButton("Your Registered Conferences");
         this.viewRegisteredConferences.addActionListener(this::handleViewRegisteredConferences);
 
-        // publishing an event to fetch upcoming conferences
-        this.eventMediator.publishEvent(
-                ConferenceEventObserver.class,
-                observer -> observer.onGetUpcomingConferences(attendee.getId(), this)
-        );
+        // publishing an event to get an updated list of the upcoming conferences
+        fetchUpcomingConferences();
 
         createPageContent();
     }
 
-    @Override
-    public void onUpcomingConferencesFetched(List<ConferenceDTO> conferenceDTOs) {
-        this.upcomingConferences = conferenceDTOs;
-    }
-
-    @Override
-    public void onError(String errorMessage) {
-        showError(errorMessage);
-    }
-
-    public void createPageContent() {
+    private void createPageContent() {
         setLayout(new BorderLayout());
 
         // add header with back button
@@ -81,6 +68,23 @@ public class HomePage extends JPanel implements HomePageDataCallback {
         return headerPanel;
     }
 
+    private void fetchUpcomingConferences() {
+        this.eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onGetUpcomingConferences(attendee.getId(), this::onUpcomingConferencesFetched)
+        );
+    }
+
+    private void onUpcomingConferencesFetched(List<ConferenceDTO> conferenceDTOs, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
+
+        LoggerUtil.getInstance().logInfo(String.format("Upcoming conferences for attendee '%s' fetched.", attendee.getName()));
+        this.upcomingConferences = conferenceDTOs;
+    }
+
     private void handleViewConferenceButton(ActionEvent e) {
         JButton sourceButton = (JButton) e.getSource();
         String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
@@ -91,7 +95,7 @@ public class HomePage extends JPanel implements HomePageDataCallback {
 
     private void handleViewRegisteredConferences(ActionEvent e) {
         // navigate to View Registered Conferences Page
-        ViewRegisteredConferences viewRegisteredConferencesPage = new ViewRegisteredConferences(attendee, this.eventMediator, this.navigator);
+        ViewRegisteredConferencesPage viewRegisteredConferencesPage = new ViewRegisteredConferencesPage(attendee, this.eventMediator, this.navigator);
         navigator.navigateTo(viewRegisteredConferencesPage);
     }
 

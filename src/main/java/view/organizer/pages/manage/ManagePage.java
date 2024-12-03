@@ -41,7 +41,7 @@ public abstract class ManagePage extends JPanel {
 
     protected JPanel createHeaderPanel() {
         JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(getHeaderTitle(), e -> organizerObserver.onNavigateBackRequest(), 400);
-        baseHeaderPanel.add(Box.createRigidArea(new Dimension(350, 0))); // Adjust space dynamically
+        baseHeaderPanel.add(Box.createRigidArea(new Dimension(350, 0)));
         baseHeaderPanel.add(editButton);
         baseHeaderPanel.add(Box.createRigidArea(new Dimension(15, 0)));
         baseHeaderPanel.add(deleteButton);

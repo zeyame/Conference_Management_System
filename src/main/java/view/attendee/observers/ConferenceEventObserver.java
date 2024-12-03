@@ -1,14 +1,16 @@
 package view.attendee.observers;
 
-import view.attendee.DataCallback.HomePageDataCallback;
-import view.attendee.DataCallback.ViewRegisteredConferencesCallback;
-import view.attendee.DataCallback.ViewUpcomingConferenceDataCallback;
+import dto.ConferenceDTO;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public interface ConferenceEventObserver {
-    void onGetUpcomingConferences(String attendeeId, HomePageDataCallback homePageDataCallback);
-    void onConferenceSelected(String conferenceId, ViewUpcomingConferenceDataCallback viewUpcomingConferenceDataCallback);
+    void onRegisterForAConference(String attendeeId, String conferenceId, Consumer<String> callback);
+    void onGetUpcomingConferences(String attendeeId, BiConsumer<List<ConferenceDTO>, String> callback);
+    void onConferenceSelected(String conferenceId, BiConsumer<ConferenceDTO, String> callback);
 
-    void onGetOrganizerName(String organizerId, ViewUpcomingConferenceDataCallback viewUpcomingConferenceDataCallback);
+    void onGetOrganizerName(String organizerId, BiConsumer<String, String> callback);
 
-    void onGetRegisteredConferences(String attendeeId, ViewRegisteredConferencesCallback viewRegisteredConferencesCallback);
+    void onGetRegisteredConferences(String attendeeId, BiConsumer<List<ConferenceDTO>, String> callback);
 }
