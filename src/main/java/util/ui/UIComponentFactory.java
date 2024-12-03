@@ -46,12 +46,12 @@ public class UIComponentFactory {
         return welcomePanel;
     }
 
-    public static JPanel createHeaderPanel(String title, JButton backButton, int leftPadding) {
+    public static JPanel createHeaderPanel(String title, ActionListener backAction, int leftPadding) {
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0,0));
 
-        headerPanel.add(backButton);
+        headerPanel.add(createBackButton(backAction));
 
         // spacing between back button and title
         headerPanel.add(Box.createRigidArea(new Dimension(leftPadding, 0)));
@@ -64,29 +64,6 @@ public class UIComponentFactory {
         headerPanel.add(headerLabel);
 
         return headerPanel;
-    }
-
-    public static JButton createBackButton(ActionListener backAction) {
-        JButton backButton = new JButton("←"); // left arrow button
-        backButton.setToolTipText("Go back");
-        backButton.setFocusable(false);
-
-        // Adjust font size to make the button smaller
-        backButton.setFont(backButton.getFont().deriveFont(12f)); // Smaller font size (adjust as needed)
-
-        // Set fixed button size
-        Dimension buttonSize = new Dimension(30, 30); // Adjust width and height as needed
-        backButton.setPreferredSize(buttonSize);
-        backButton.setMinimumSize(buttonSize);
-        backButton.setMaximumSize(buttonSize);
-
-        // Add border for spacing inside button
-        backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-
-        // Attach action listener
-        backButton.addActionListener(backAction);
-
-        return backButton;
     }
 
     public static JSpinner createDateSpinner() {
@@ -156,6 +133,46 @@ public class UIComponentFactory {
         return gbc;
     }
 
+    public static JPanel createConferenceDetailsPanel(ConferenceDTO conferenceDTO, String organizerName) {
+        JPanel detailsPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
+
+        // increase vertical spacing with larger top/bottom insets
+        gbc.insets = new Insets(15, 5, 15, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // adding header with extra bottom spacing
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(15, 5, 25, 5);  // Extra bottom padding for header
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Conference Details", new Font("Arial", Font.BOLD, 20), gbc, 0, 0, 2);
+
+        // reset gridwidth and restore normal insets for subsequent rows
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(15, 5, 15, 5);
+
+        // adding organizer
+        addLabelToPanel(detailsPanel, "Organized by: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 1, 1);
+        addLabelToPanel(detailsPanel, organizerName, new Font("Arial", Font.PLAIN, 18), gbc, 1, 1, 1);
+
+        // adding description
+        addLabelToPanel(detailsPanel, "Description:", new Font("Arial", Font.PLAIN, 18), gbc, 0, 2, 1);
+        addTextAreaToPanel(detailsPanel, conferenceDTO.getDescription(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 2, 1);
+
+        // adding start date
+        addLabelToPanel(detailsPanel, "Start Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 3, 1);
+        addLabelToPanel(detailsPanel, conferenceDTO.getStartDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 3, 1);
+
+        // adding end date
+        addLabelToPanel(detailsPanel, "End Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 4, 1);
+        addLabelToPanel(detailsPanel, conferenceDTO.getEndDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
+
+        detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 150));
+
+        return detailsPanel;
+    }
+
+
 
     public static JScrollPane createConferenceScrollPane(List<ConferenceDTO> conferences, ActionListener handleViewOrManageConferenceButton, String buttonText) {
         JPanel conferencesPanel = new JPanel();
@@ -200,6 +217,30 @@ public class UIComponentFactory {
         return conferencePanel;
     }
 
+
+
+    private static JButton createBackButton(ActionListener backAction) {
+        JButton backButton = new JButton("←"); // left arrow button
+        backButton.setToolTipText("Go back");
+        backButton.setFocusable(false);
+
+        // Adjust font size to make the button smaller
+        backButton.setFont(backButton.getFont().deriveFont(12f)); // Smaller font size (adjust as needed)
+
+        // Set fixed button size
+        Dimension buttonSize = new Dimension(30, 30); // Adjust width and height as needed
+        backButton.setPreferredSize(buttonSize);
+        backButton.setMinimumSize(buttonSize);
+        backButton.setMaximumSize(buttonSize);
+
+        // Add border for spacing inside button
+        backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+        // Attach action listener
+        backButton.addActionListener(backAction);
+
+        return backButton;
+    }
 
 
     // nested static class to create and manage the role selection panel used in LoginUI and RegistrationUI

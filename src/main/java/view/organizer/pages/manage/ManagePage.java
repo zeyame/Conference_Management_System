@@ -14,7 +14,6 @@ public abstract class ManagePage extends JPanel {
     protected final JPanel mainContentPanel;
 
     // buttons
-    protected final JButton backButton;
     protected final JButton editButton;
     protected final JButton deleteButton;
 
@@ -23,7 +22,6 @@ public abstract class ManagePage extends JPanel {
         this.mainContentPanel = new JPanel(new BorderLayout());
 
         // initialize common buttons
-        this.backButton = UIComponentFactory.createBackButton(e -> this.organizerObserver.onNavigateBackRequest());
         this.editButton = UIComponentFactory.createStyledButton(editButtonText);
         this.deleteButton = UIComponentFactory.createStyledButton(deleteButtonText);
 
@@ -42,7 +40,7 @@ public abstract class ManagePage extends JPanel {
     }
 
     protected JPanel createHeaderPanel() {
-        JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(getHeaderTitle(), backButton, 400);
+        JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(getHeaderTitle(), e -> organizerObserver.onNavigateBackRequest(), 400);
         baseHeaderPanel.add(Box.createRigidArea(new Dimension(350, 0))); // Adjust space dynamically
         baseHeaderPanel.add(editButton);
         baseHeaderPanel.add(Box.createRigidArea(new Dimension(15, 0)));

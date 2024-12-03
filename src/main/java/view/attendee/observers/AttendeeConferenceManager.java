@@ -2,10 +2,12 @@ package view.attendee.observers;
 
 import controller.AttendeeController;
 import dto.ConferenceDTO;
+import dto.UserDTO;
 import response.ResponseEntity;
 import util.LoggerUtil;
 import view.attendee.DataCallback.HomePageDataCallback;
 import view.attendee.DataCallback.ViewRegisteredConferencesCallback;
+import view.attendee.DataCallback.ViewUpcomingConferenceDataCallback;
 
 import java.util.List;
 
@@ -30,8 +32,27 @@ public class AttendeeConferenceManager implements ConferenceEventObserver {
     }
 
     @Override
-    public void onConferenceSelected(String conferenceId) {
+    public void onConferenceSelected(String conferenceId, ViewUpcomingConferenceDataCallback viewUpcomingConferenceDataCallback) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to fetch data for conference with id '%s' received.", conferenceId));
 
+        ResponseEntity<ConferenceDTO> conferenceResponse = attendeeController.getConference(conferenceId);
+        if (conferenceResponse.isSuccess()) {
+            viewUpcomingConferenceDataCallback.onConferenceFetched(conferenceResponse.getData());
+        } else {
+            viewUpcomingConferenceDataCallback.onError(conferenceResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onGetOrganizerName(String organizerId, ViewUpcomingConferenceDataCallback viewUpcomingConferenceDataCallback) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to fetch organizer name for organizer with id '%s' received.", organizerId));
+
+        ResponseEntity<String> organizerNameResponse = attendeeController.getOrganizerName(organizerId);
+        if (organizerNameResponse.isSuccess()) {
+            viewUpcomingConferenceDataCallback.onOrganizerNameFetched(organizerNameResponse.getData());
+        } else {
+            viewUpcomingConferenceDataCallback.onError(organizerNameResponse.getErrorMessage());
+        }
     }
 
     @Override

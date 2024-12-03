@@ -20,7 +20,6 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
     private final UserDTO attendee;
     private final UIEventMediator eventMediator;
     private final Navigator navigator;
-    private final JButton backButton;
     private List<ConferenceDTO> ongoingConferences;
     private List<ConferenceDTO> upcomingConferences;
 
@@ -28,7 +27,6 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
         this.attendee = attendee;
         this.eventMediator = eventMediator;
         this.navigator = navigator;
-        this.backButton = UIComponentFactory.createBackButton(e -> navigator.navigateBack());
 
         // publish an event to fetch registered conferences for attendee
         eventMediator.publishEvent(
@@ -43,7 +41,7 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
         setLayout(new BorderLayout());
 
         // Header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel("Your Registered Conferences", backButton, 480);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel("Your Registered Conferences", e -> navigator.navigateBack(), 480);
         add(headerPanel, BorderLayout.NORTH);
 
         // Split panel for ongoing and upcoming conferences
@@ -56,6 +54,10 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
         // create panels for ongoing and upcoming conferences
         JPanel ongoingPanel = createConferencePanel("Ongoing", ongoingConferences);
         JPanel upcomingPanel = createConferencePanel("Upcoming", upcomingConferences);
+
+        Dimension equalSize = new Dimension(400, 0);
+        ongoingPanel.setPreferredSize(equalSize);
+        upcomingPanel.setPreferredSize(equalSize);
 
         // create a split pane with the two panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, ongoingPanel, upcomingPanel);
@@ -76,7 +78,7 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
 
         // Scrollable list of conferences
         JScrollPane scrollPane = UIComponentFactory.createConferenceScrollPane(conferences, this::handleViewConferenceButton, "View Conference");
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 10, 0, 0));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         panel.add(scrollPane, BorderLayout.CENTER);
 
         return panel;

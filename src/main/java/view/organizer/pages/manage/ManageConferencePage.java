@@ -33,42 +33,7 @@ public class ManageConferencePage extends ManagePage {
 
     @Override
     protected JPanel createDetailsPanel() {
-        JPanel detailsPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
-
-        // Increase vertical spacing with larger top/bottom insets
-        gbc.insets = new Insets(15, 5, 15, 5);  // Changed from (5,5,5,5) to (15,5,15,5)
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        // adding header with extra bottom spacing
-        gbc.gridwidth = 2;
-        gbc.insets = new Insets(15, 5, 25, 5);  // Extra bottom padding for header
-        UIComponentFactory.addLabelToPanel(detailsPanel, "Conference Details", new Font("Arial", Font.BOLD, 20), gbc, 0, 0, 2);
-
-        // Reset gridwidth and restore normal insets for subsequent rows
-        gbc.gridwidth = 1;
-        gbc.insets = new Insets(15, 5, 15, 5);
-
-        // adding organizer
-        UIComponentFactory.addLabelToPanel(detailsPanel, "Organized by: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 1, 1);
-        UIComponentFactory.addLabelToPanel(detailsPanel, userDTO.getName(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 1, 1);
-
-        // adding description
-        UIComponentFactory.addLabelToPanel(detailsPanel, "Description:", new Font("Arial", Font.PLAIN, 18), gbc, 0, 2, 1);
-        UIComponentFactory.addTextAreaToPanel(detailsPanel, conferenceDTO.getDescription(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 2, 1);
-
-        // adding start date
-        UIComponentFactory.addLabelToPanel(detailsPanel, "Start Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 3, 1);
-        UIComponentFactory.addLabelToPanel(detailsPanel, conferenceDTO.getStartDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 3, 1);
-
-        // adding end date
-        UIComponentFactory.addLabelToPanel(detailsPanel, "End Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 4, 1);
-        UIComponentFactory.addLabelToPanel(detailsPanel, conferenceDTO.getEndDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
-
-        detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 150));
-
-        return detailsPanel;
+        return UIComponentFactory.createConferenceDetailsPanel(conferenceDTO, userDTO.getName());
     }
 
 

@@ -15,9 +15,6 @@ public abstract class ViewListPage<T> {
     // main panel
     protected final JPanel mainContentPanel;
 
-    // back button
-    protected final JButton backButton;
-
     // list of items
     protected final List<T> items;
 
@@ -28,13 +25,12 @@ public abstract class ViewListPage<T> {
 
         // initializing components
         this.mainContentPanel = new JPanel(new BorderLayout());
-        this.backButton = UIComponentFactory.createBackButton(e -> organizerObserver.onNavigateBackRequest());
     }
 
     public JPanel createPageContent() {
         // creating main components
         JPanel headerPanel = UIComponentFactory
-                .createHeaderPanel(getPageTitle(), backButton, 350);
+                .createHeaderPanel(getPageTitle(), e -> organizerObserver.onNavigateBackRequest(), 350);
         JScrollPane scrollPane = createItemsScrollPane();
         scrollPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

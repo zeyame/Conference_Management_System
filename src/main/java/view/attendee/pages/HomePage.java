@@ -82,7 +82,11 @@ public class HomePage extends JPanel implements HomePageDataCallback {
     }
 
     private void handleViewConferenceButton(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
 
+        ViewUpcomingConferencePage viewUpcomingConferencePage = new ViewUpcomingConferencePage(this.attendee, conferenceId, this.eventMediator, this.navigator);
+        navigator.navigateTo(viewUpcomingConferencePage);
     }
 
     private void handleViewRegisteredConferences(ActionEvent e) {

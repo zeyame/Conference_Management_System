@@ -14,7 +14,6 @@ public abstract class AddPage {
     protected final JPanel mainContentPanel;
 
     // buttons
-    protected final JButton backButton;
     protected final JButton submitButton;
 
     // fields
@@ -26,7 +25,6 @@ public abstract class AddPage {
 
         // initialize components
         this.mainContentPanel = new JPanel(new BorderLayout());
-        this.backButton = UIComponentFactory.createBackButton(e -> this.organizerObserver.onNavigateBackRequest());
         this.submitButton = UIComponentFactory.createStyledButton("Submit");
         this.nameField = new JTextField(17);
         this.descriptionField = new JTextField(17);
@@ -37,7 +35,7 @@ public abstract class AddPage {
         mainContentPanel.removeAll();
 
         // create header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel("", backButton, 0);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel("", e -> organizerObserver.onNavigateBackRequest(), 0);
 
         // create center panel for the form
         JPanel centerPanel = new JPanel();
