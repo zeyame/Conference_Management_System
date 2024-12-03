@@ -41,7 +41,7 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
         setLayout(new BorderLayout());
 
         // Header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel("Your Registered Conferences", e -> navigator.navigateBack(), 480);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel("Your Registered Conferences", this::handleBackButton, 480);
         add(headerPanel, BorderLayout.NORTH);
 
         // Split panel for ongoing and upcoming conferences
@@ -102,6 +102,11 @@ public class ViewRegisteredConferences extends JPanel implements ViewRegisteredC
 
     private void handleViewConferenceButton(ActionEvent e) {
         // Handle viewing a single conference
+    }
+
+    private void handleBackButton(ActionEvent e) {
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage, false);
     }
 
     private List<ConferenceDTO> filterUpcomingConferences(List<ConferenceDTO> conferences) {

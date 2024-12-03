@@ -5,6 +5,7 @@ import view.attendee.DataCallback.ViewRegisteredConferencesCallback;
 import view.attendee.DataCallback.ViewUpcomingConferenceDataCallback;
 
 public interface ConferenceEventObserver {
+    void onRegisterForAConference(String attendeeId, String conferenceId, ViewUpcomingConferenceDataCallback viewUpcomingConferenceDataCallback);
     void onGetUpcomingConferences(String attendeeId, HomePageDataCallback homePageDataCallback);
     void onConferenceSelected(String conferenceId, ViewUpcomingConferenceDataCallback viewUpcomingConferenceDataCallback);
 

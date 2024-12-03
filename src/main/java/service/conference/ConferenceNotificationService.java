@@ -42,7 +42,7 @@ public class ConferenceNotificationService {
             );
 
         } catch (Exception e) {
-            LoggerUtil.getInstance().logError("Notification failure: " + e.getMessage());
+            LoggerUtil.getInstance().logError("Notification failure when notifying of conference creation: " + e.getMessage());
         }
     }
 
@@ -66,8 +66,7 @@ public class ConferenceNotificationService {
             );
 
         } catch (Exception e) {
-            LoggerUtil.getInstance().logError("Notification failure: " + e.getMessage());
-            throw new SessionException("An unexpected error occurred when notifying users of session changes.");
+            LoggerUtil.getInstance().logError("Notification failure when notifying of conference change: " + e.getMessage());
         }
     }
 
@@ -90,8 +89,7 @@ public class ConferenceNotificationService {
                     )
             );
         } catch (Exception e) {
-            LoggerUtil.getInstance().logError("Notification failure: " + e.getMessage());
-            throw new SessionException("An unexpected error occurred when notifying users of session cancellation.");
+            LoggerUtil.getInstance().logError("Notification failure when notifying of conference deletion: " + e.getMessage());
         }
     }
 

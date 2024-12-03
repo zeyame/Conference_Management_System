@@ -31,11 +31,8 @@ public class HomePage extends JPanel implements HomePageDataCallback {
         this.viewRegisteredConferences = new JButton("Your Registered Conferences");
         this.viewRegisteredConferences.addActionListener(this::handleViewRegisteredConferences);
 
-        // publishing an event to fetch upcoming conferences
-        this.eventMediator.publishEvent(
-                ConferenceEventObserver.class,
-                observer -> observer.onGetUpcomingConferences(attendee.getId(), this)
-        );
+        // publishing an event to get an updated list of the upcoming conferences
+        fetchUpcomingConferences();
 
         createPageContent();
     }
@@ -50,7 +47,7 @@ public class HomePage extends JPanel implements HomePageDataCallback {
         showError(errorMessage);
     }
 
-    public void createPageContent() {
+    private void createPageContent() {
         setLayout(new BorderLayout());
 
         // add header with back button
@@ -79,6 +76,13 @@ public class HomePage extends JPanel implements HomePageDataCallback {
         headerPanel.add(headerLabel, BorderLayout.CENTER);
 
         return headerPanel;
+    }
+
+    private void fetchUpcomingConferences() {
+        this.eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onGetUpcomingConferences(attendee.getId(), this)
+        );
     }
 
     private void handleViewConferenceButton(ActionEvent e) {

@@ -22,6 +22,14 @@ public class AttendeeController {
         this.conferenceService = conferenceService;
     }
 
+    public ResponseEntity<Void> registerForConference(String attendeeId, String conferenceId) {
+        try {
+             conferenceService.registerAttendeeToConference(conferenceId, attendeeId);
+             return ResponseEntity.success();
+        } catch (Exception e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
 
     public ResponseEntity<ConferenceDTO> getConference(String conferenceId) {
         try {

@@ -69,7 +69,12 @@ public class AttendeeUI extends JFrame implements UserUI, Navigator {
     // NAVIGATOR INTERFACE
     @Override
     public void navigateTo(JPanel page) {
-        navigationManager.navigateTo(page);
+        navigationManager.navigateTo(() -> page);
+    }
+
+    @Override
+    public void navigateTo(JPanel page, boolean addToStack) {
+        navigationManager.navigateTo(() -> page, addToStack);
     }
 
     @Override
@@ -85,7 +90,7 @@ public class AttendeeUI extends JFrame implements UserUI, Navigator {
 
     private void initializeHomePage() {
         HomePage attendeeHomePage = new HomePage(userDTO, this.eventMediator, this);
-        navigationManager.navigateTo(attendeeHomePage);
+        navigationManager.navigateTo(() -> attendeeHomePage);
     }
 
 }

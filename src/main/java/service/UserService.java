@@ -68,6 +68,32 @@ public class UserService {
         }
     }
 
+    public void addConferenceToAttendee(String id, String conferenceId) {
+        if (id == null || conferenceId == null || id.isEmpty() || conferenceId.isEmpty()) {
+            throw new IllegalArgumentException("Attendee id and conference id cannot be null or empty.");
+        }
+
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new UserException(String.format("User with id '%s' does not exist.", id));
+        }
+
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.ATTENDEE) {
+            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", id));
+        }
+
+        Attendee attendee = (Attendee) user;
+        attendee.addRegisteredConference(conferenceId);
+
+        boolean isUpdated = userRepository.save(attendee, attendee.getId());
+        if (!isUpdated) {
+            throw new UserException("An unexpected error occurred when saving updated attendee data. Please try again later.");
+        }
+
+        LoggerUtil.getInstance().logInfo(String.format("Successfully added conference with id '%s' to attendee '%s' registered conferences.", conferenceId, attendee.getName()));
+    }
+
     public void assignNewSessionForSpeaker(SessionDTO sessionDTO) {
         if (sessionDTO == null) {
             throw new IllegalArgumentException("SessionDTO cannot be null.");
@@ -129,24 +155,6 @@ public class UserService {
                 .findById(id)
                 .map(User::getName)
                 .orElseThrow(() -> new UserException(String.format("User with id '%s' does not exist.", id)));
-    }
-
-    public Map<String, String> findNamesByIds(Set<String> ids) {
-        if (ids == null) {
-            throw new IllegalArgumentException("The set of ids cannot be null.");
-        }
-
-        Map<String, String> namesByIds = new HashMap<>();
-
-        // batch fetch and extract valid users matching ids
-        List<Optional<User>> userOptionals = userRepository.findAllById(ids);
-
-        List<User> users = CollectionUtils.extractValidEntities(userOptionals);
-
-        // populating map
-        users.forEach(user -> namesByIds.put(user.getId(), user.getName()));
-
-        return namesByIds;
     }
 
     public UserDTO getBydId(String id) {
@@ -270,6 +278,33 @@ public class UserService {
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully removed conference with id '%s' from organizer '%s' managed conferences.", conferenceId, organizer.getName()));
     }
+
+    public void removeConferenceFromAttendee(String id, String conferenceId) {
+        if (id == null || conferenceId == null || id.isEmpty() || conferenceId.isEmpty()) {
+            throw new IllegalArgumentException("Attendee id and conference id cannot be null or empty.");
+        }
+
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new UserException(String.format("User with id '%s' does not exist.", id));
+        }
+
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.ATTENDEE) {
+            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", id));
+        }
+
+        Attendee attendee = (Attendee) user;
+        attendee.removeRegisteredConference(conferenceId);
+
+        boolean isAttendeeUpdated = userRepository.save(attendee, attendee.getId());
+        if (!isAttendeeUpdated) {
+            throw new UserException("An unexpected error occurred when saving attendee data after removing registered conference. Please try again later.");
+        }
+
+        LoggerUtil.getInstance().logInfo(String.format("Successfully removed conference '%s' from attendee '%s' registered conferences.", conferenceId, attendee.getName()));
+    }
+
     public void unassignSessionFromSpeaker(String id, String sessionId) {
         if (id == null || id.isEmpty() || sessionId == null || sessionId.isEmpty()) {
             throw new IllegalArgumentException("Speaker id and session id are required to remove session from speaker's schedule and cannot be null or empty.");

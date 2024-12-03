@@ -11,6 +11,7 @@ import view.attendee.observers.ConferenceEventObserver;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingConferenceDataCallback {
 
@@ -23,6 +24,9 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
     // fetched data
     private ConferenceDTO upcomingConference;
     private String organizerName;
+
+    // components
+    private JButton registerButton;
 
     public ViewUpcomingConferencePage(UserDTO attendee, String conferenceId, UIEventMediator eventMediator, Navigator navigator) {
         this.attendee = attendee;
@@ -37,6 +41,8 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
         );
 
         createPageContent();
+
+        setUpListeners();
     }
 
     private void createPageContent() {
@@ -52,10 +58,17 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
         add(conferenceDetailsPanel, BorderLayout.CENTER);
 
         // register button
-        JButton registerButton = UIComponentFactory.createStyledButton("Register");
+        registerButton = UIComponentFactory.createStyledButton("Register");
         JPanel registerButtonPanel = UIComponentFactory.createButtonPanel(registerButton);
         registerButtonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 30));
         add(registerButtonPanel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void onRegisteredForConference() {
+        showSuccess(String.format("You have successfully been registered to attend '%s'", upcomingConference.getName()));
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage);
     }
 
     @Override
@@ -82,8 +95,23 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
         showError(errorMessage);
     }
 
+    private void showSuccess(String message) {
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void setUpListeners() {
+        this.registerButton.addActionListener(this::handleRegisterButton);
+    }
+
+    private void handleRegisterButton(ActionEvent e) {
+        eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onRegisterForAConference(attendee.getId(), upcomingConference.getId(), this)
+        );
     }
 
 }

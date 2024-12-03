@@ -20,6 +20,19 @@ public class AttendeeConferenceManager implements ConferenceEventObserver {
     }
 
     @Override
+    public void onRegisterForAConference(String attendeeId, String conferenceId, ViewUpcomingConferenceDataCallback viewUpcomingConferenceDataCallback) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to register attendee with id '%s' for conference '%s' received.", attendeeId, conferenceId));
+
+        ResponseEntity<Void> registerAttendeeResponse = attendeeController.registerForConference(attendeeId, conferenceId);
+        if (registerAttendeeResponse.isSuccess()) {
+            viewUpcomingConferenceDataCallback.onRegisteredForConference();
+        } else {
+            viewUpcomingConferenceDataCallback.onError(registerAttendeeResponse.getErrorMessage());
+        }
+
+    }
+
+    @Override
     public void onGetUpcomingConferences(String attendeeId, HomePageDataCallback homePageDataCallback) {
         LoggerUtil.getInstance().logInfo(String.format("Request to fetch upcoming conferences for attendee with id  '%s' received.", attendeeId));
 

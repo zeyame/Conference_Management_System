@@ -26,6 +26,14 @@ public class Attendee extends User {
         this.registeredConferences = new HashSet<>();
     }
 
+    public void addRegisteredConference(String conferenceId) {
+        this.registeredConferences.add(conferenceId);
+    }
+
+    public void removeRegisteredConference(String conferenceId) {
+        this.registeredConferences.remove(conferenceId);
+    }
+
     public Map<LocalDateTime, String> getSchedule() {
         return schedule;
     }
