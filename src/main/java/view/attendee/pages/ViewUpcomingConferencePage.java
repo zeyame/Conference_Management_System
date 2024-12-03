@@ -4,16 +4,15 @@ import dto.ConferenceDTO;
 import dto.UserDTO;
 import util.LoggerUtil;
 import util.ui.UIComponentFactory;
-import view.attendee.DataCallback.ViewUpcomingConferenceDataCallback;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
-
+import view.attendee.pages.HomePage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingConferenceDataCallback {
+public class ViewUpcomingConferencePage extends JPanel {
 
     // dependencies
     private final UserDTO attendee;
@@ -35,10 +34,7 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
         this.navigator = navigator;
 
         // publish event to fetch conference data
-        eventMediator.publishEvent(
-                ConferenceEventObserver.class,
-                observer -> observer.onConferenceSelected(conferenceId, this)
-        );
+        fetchConference();
 
         createPageContent();
 
@@ -64,35 +60,42 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
         add(registerButtonPanel, BorderLayout.SOUTH);
     }
 
-    @Override
-    public void onRegisteredForConference() {
-        showSuccess(String.format("You have successfully been registered to attend '%s'", upcomingConference.getName()));
-        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
-        navigator.navigateTo(homePage);
-    }
+    private void onConferenceFetched(ConferenceDTO conferenceDTO, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
 
-    @Override
-    public void onConferenceFetched(ConferenceDTO conferenceDTO) {
         LoggerUtil.getInstance().logInfo(String.format("Conference data received: %s", conferenceDTO.getName()));
         this.upcomingConference = conferenceDTO;
 
         // publish event to mediator to get conference organizer name
         eventMediator.publishEvent(
                 ConferenceEventObserver.class,
-                observer -> observer.onGetOrganizerName(conferenceDTO.getOrganizerId(), this)
+                observer -> observer.onGetOrganizerName(conferenceDTO.getOrganizerId(), this::onOrganizerNameFetched)
         );
     }
 
-    @Override
-    public void onOrganizerNameFetched(String organizerName) {
-        LoggerUtil.getInstance().logInfo(String.format("Organizer name received: %s", organizerName));
+    private void onOrganizerNameFetched(String organizerName, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
 
+        LoggerUtil.getInstance().logInfo(String.format("Organizer name received: %s", organizerName));
         this.organizerName = organizerName;
     }
 
-    @Override
-    public void onError(String errorMessage) {
-        showError(errorMessage);
+
+    private void onRegisteredForConference(String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
+
+        showSuccess(String.format("You have successfully been registered to attend '%s'", upcomingConference.getName()));
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage);
     }
 
     private void showSuccess(String message) {
@@ -110,7 +113,14 @@ public class ViewUpcomingConferencePage extends JPanel implements ViewUpcomingCo
     private void handleRegisterButton(ActionEvent e) {
         eventMediator.publishEvent(
                 ConferenceEventObserver.class,
-                observer -> observer.onRegisterForAConference(attendee.getId(), upcomingConference.getId(), this)
+                observer -> observer.onRegisterForAConference(attendee.getId(), upcomingConference.getId(), this::onRegisteredForConference)
+        );
+    }
+
+    private void fetchConference() {
+        eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onConferenceSelected(conferenceId, this::onConferenceFetched)
         );
     }
 
