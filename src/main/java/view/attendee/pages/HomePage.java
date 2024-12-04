@@ -7,6 +7,8 @@ import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
+import view.attendee.pages.view.conference.ViewRegisteredConferencesPage;
+import view.attendee.pages.view.conference.ViewUpcomingConferencePage;
 
 import javax.swing.*;
 import java.awt.*;

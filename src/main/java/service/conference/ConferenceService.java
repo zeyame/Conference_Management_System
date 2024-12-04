@@ -147,7 +147,7 @@ public class ConferenceService {
 
     public ConferenceDTO getById(String id) {
         if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Conference id cannot be null or empty.");
+            throw new IllegalArgumentException("Invalid conference id.");
         }
 
         return conferenceRepository

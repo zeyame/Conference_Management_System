@@ -1,12 +1,14 @@
 package controller;
 
 import dto.ConferenceDTO;
+import dto.SessionDTO;
 import dto.UserDTO;
 import exception.ConferenceException;
 import exception.UserException;
 import response.ResponseEntity;
 import service.UserService;
 import service.conference.ConferenceService;
+import service.session.SessionService;
 import util.LoggerUtil;
 
 import java.util.List;
@@ -16,10 +18,12 @@ public class AttendeeController {
 
     private final UserService userService;
     private final ConferenceService conferenceService;
+    private final SessionService sessionService;
 
-    public AttendeeController(UserService userService, ConferenceService conferenceService) {
+    public AttendeeController(UserService userService, ConferenceService conferenceService, SessionService sessionService) {
         this.userService = userService;
         this.conferenceService = conferenceService;
+        this.sessionService = sessionService;
     }
 
     public ResponseEntity<Void> registerForConference(String attendeeId, String conferenceId) {
@@ -66,6 +70,15 @@ public class AttendeeController {
         }
     }
 
+    public ResponseEntity<List<SessionDTO>> getConferenceSessions(String conferenceId) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
+            List<SessionDTO> sessionDTOS = sessionService.findAllById(conferenceDTO.getSessions());
+            return ResponseEntity.success(sessionDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
     public ResponseEntity<String> getOrganizerName(String organizerId) {
         try {
             String organizerName = userService.getNameById(organizerId);

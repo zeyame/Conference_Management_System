@@ -64,7 +64,7 @@ public class SessionService {
             // notify all system attendees and assign speaker of session creation
             SessionNotificationService.notifySessionCreation(
                     sessionDTO,
-                    serviceMediator.findAllUsersById(sessionDTO.getRegisteredAttendees()),
+                    serviceMediator.findAllUsersById(conferenceDTO.getAttendees()),
                     serviceMediator.getUserById(sessionDTO.getSpeakerId())
             );
 
@@ -141,7 +141,7 @@ public class SessionService {
 
     public List<SessionDTO> findAllById(Set<String> ids) {
         if (ids == null) {
-            throw new IllegalArgumentException("Session ids cannot be null.");
+            throw new IllegalArgumentException("Invalid session ids.");
         }
 
         // batch fetch all sessions

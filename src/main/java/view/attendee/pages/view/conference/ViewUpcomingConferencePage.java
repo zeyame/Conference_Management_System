@@ -1,4 +1,4 @@
-package view.attendee.pages;
+package view.attendee.pages.view.conference;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;
@@ -45,7 +45,7 @@ public class ViewUpcomingConferencePage extends JPanel {
         setLayout(new BorderLayout());
 
         // header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(upcomingConference.getName(), e -> navigator.navigateBack(), 490);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(upcomingConference.getName(), this::handleBackButton, 490);
         add(headerPanel, BorderLayout.NORTH);
 
         // conference details panel
@@ -60,6 +60,16 @@ public class ViewUpcomingConferencePage extends JPanel {
         add(registerButtonPanel, BorderLayout.SOUTH);
     }
 
+
+    // data fetchers
+    private void fetchConference() {
+        eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onConferenceSelected(conferenceId, this::onConferenceFetched)
+        );
+    }
+
+    // callback responders
     private void onConferenceFetched(ConferenceDTO conferenceDTO, String errorMessage) {
         if (errorMessage != null && !errorMessage.isEmpty()) {
             showError(errorMessage);
@@ -98,6 +108,8 @@ public class ViewUpcomingConferencePage extends JPanel {
         navigator.navigateTo(homePage);
     }
 
+
+    // Joption Pane helpers
     private void showSuccess(String message) {
         JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -106,6 +118,8 @@ public class ViewUpcomingConferencePage extends JPanel {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+
+    // button handlers
     private void setUpListeners() {
         this.registerButton.addActionListener(this::handleRegisterButton);
     }
@@ -117,11 +131,8 @@ public class ViewUpcomingConferencePage extends JPanel {
         );
     }
 
-    private void fetchConference() {
-        eventMediator.publishEvent(
-                ConferenceEventObserver.class,
-                observer -> observer.onConferenceSelected(conferenceId, this::onConferenceFetched)
-        );
+    private void handleBackButton(ActionEvent e) {
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage);
     }
-
 }

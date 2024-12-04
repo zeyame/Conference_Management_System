@@ -6,7 +6,9 @@ import util.ui.UIComponentFactory;
 import view.NavigationManager;
 import view.UserUI;
 import view.attendee.observers.AttendeeConferenceManager;
+import view.attendee.observers.AttendeeSessionManager;
 import view.attendee.observers.ConferenceEventObserver;
+import view.attendee.observers.SessionEventObserver;
 import view.attendee.pages.HomePage;
 
 import javax.swing.*;
@@ -51,7 +53,7 @@ public class AttendeeUI extends JFrame implements UserUI, Navigator {
         add(contentPanel, BorderLayout.CENTER);
 
         // register observers in event mediator
-        eventMediator.registerObserver(ConferenceEventObserver.class, new AttendeeConferenceManager(attendeeController));
+        registerObservers();
 
         // initialize home page
         initializeHomePage();
@@ -87,6 +89,10 @@ public class AttendeeUI extends JFrame implements UserUI, Navigator {
         return navigationManager.canNavigateBack();
     }
 
+    private void registerObservers() {
+        eventMediator.registerObserver(ConferenceEventObserver.class, new AttendeeConferenceManager(attendeeController));
+        eventMediator.registerObserver(SessionEventObserver.class, new AttendeeSessionManager(attendeeController));
+    }
 
     private void initializeHomePage() {
         HomePage attendeeHomePage = new HomePage(userDTO, this.eventMediator, this);

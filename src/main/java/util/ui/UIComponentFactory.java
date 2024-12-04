@@ -2,6 +2,7 @@ package util.ui;
 
 import domain.model.UserRole;
 import dto.ConferenceDTO;
+import dto.SessionDTO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -174,6 +175,36 @@ public class UIComponentFactory {
 
 
 
+    public static JPanel createSessionPanel(SessionDTO session, ActionListener buttonListener, String buttonText) {
+        JPanel sessionPanel = new JPanel();
+        sessionPanel.setLayout(new BoxLayout(sessionPanel, BoxLayout.Y_AXIS));
+
+        // session name
+        JLabel nameLabel = new JLabel("Name: " + session.getName());
+        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 16));
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // session date and time
+        JLabel dateLabel = new JLabel("Date: " + session.getDate().toString());
+        JLabel timeLabel = new JLabel("Time: " + session.getStartTime() + " - " + session.getEndTime());
+        dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // manage or view session button
+        JButton button = new JButton(buttonText);
+        button.setFocusPainted(false);
+        button.putClientProperty("sessionId", session.getId());
+        button.addActionListener(buttonListener);
+
+        // Add components to session panel
+        sessionPanel.add(nameLabel);
+        sessionPanel.add(dateLabel);
+        sessionPanel.add(timeLabel);
+        sessionPanel.add(button);
+
+        return sessionPanel;
+    }
+
     public static JScrollPane createConferenceScrollPane(List<ConferenceDTO> conferences, ActionListener handleViewOrManageConferenceButton, String buttonText) {
         JPanel conferencesPanel = new JPanel();
         conferencesPanel.setLayout(new BoxLayout(conferencesPanel, BoxLayout.Y_AXIS));
@@ -216,8 +247,6 @@ public class UIComponentFactory {
 
         return conferencePanel;
     }
-
-
 
     private static JButton createBackButton(ActionListener backAction) {
         JButton backButton = new JButton("←"); // left arrow button

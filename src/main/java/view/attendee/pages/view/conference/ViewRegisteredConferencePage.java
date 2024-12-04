@@ -1,4 +1,4 @@
-package view.attendee.pages;
+package view.attendee.pages.view.conference;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;
@@ -6,6 +6,8 @@ import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
+import view.attendee.pages.HomePage;
+import view.attendee.pages.view.session.ViewSessionsPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -136,6 +138,7 @@ public class ViewRegisteredConferencePage extends JPanel {
     // button handlers
     private void setUpListeners() {
         this.leaveConferenceButton.addActionListener(this::handleLeaveConferenceButton);
+        this.viewSessionsButton.addActionListener(this::handleViewSessionsButton);
     }
 
     private void handleLeaveConferenceButton(ActionEvent e) {
@@ -165,6 +168,11 @@ public class ViewRegisteredConferencePage extends JPanel {
     private void handleBackButton(ActionEvent e) {
         ViewRegisteredConferencesPage viewRegisteredConferencesPage = new ViewRegisteredConferencesPage(attendee, eventMediator, navigator);
         navigator.navigateTo(viewRegisteredConferencesPage, false);
+    }
+
+    private void handleViewSessionsButton(ActionEvent e) {
+        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, registeredConference, eventMediator, navigator);
+        navigator.navigateTo(viewSessionsPage);
     }
 
 }

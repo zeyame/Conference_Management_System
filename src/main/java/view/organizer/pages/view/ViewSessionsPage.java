@@ -39,33 +39,7 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
 
     @Override
     protected JPanel createItemPanel(SessionDTO session) {
-        JPanel sessionPanel = new JPanel();
-        sessionPanel.setLayout(new BoxLayout(sessionPanel, BoxLayout.Y_AXIS));
-
-        // Session name
-        JLabel nameLabel = new JLabel("Name: " + session.getName());
-        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 16));
-        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
-
-        // Session date and time
-        JLabel dateLabel = new JLabel("Date: " + session.getDate().toString());
-        JLabel timeLabel = new JLabel("Time: " + session.getStartTime() + " - " + session.getEndTime());
-        dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-        timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
-
-        // Manage session button
-        JButton manageButton = new JButton("Manage Session");
-        manageButton.setFocusPainted(false);
-        manageButton.putClientProperty("sessionId", session.getId());
-        manageButton.addActionListener(this::handleManageSessionButton);
-
-        // Add components to session panel
-        sessionPanel.add(nameLabel);
-        sessionPanel.add(dateLabel);
-        sessionPanel.add(timeLabel);
-        sessionPanel.add(manageButton);
-
-        return sessionPanel;
+        return UIComponentFactory.createSessionPanel(session, this::handleManageSessionButton, "Manage Session");
     }
 
     private void handleManageSessionButton(ActionEvent e) {

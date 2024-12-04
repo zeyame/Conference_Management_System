@@ -133,7 +133,7 @@ public class EmailContentService {
     }
 
     private static String getAttendeeSessionCreationMessage(SessionDTO sessionDTO, String attendeeName) {
-        return String.format("Hello %s,\n\nWe are excited to inform you that a new session has been added to the conference you are registered for. " +
+        return String.format("Hello %s,\n\nWe are excited to inform you that a new session has been added to a conference you are registered for. " +
                         "Here are the details of the new session:\n\n" +
                         "Session Name: %s\nSpeaker: %s\nDescription: %s\nRoom: %s\nDate: %s\nStart Time: %s\nEnd Time: %s\n\n" +
                         "We hope this new session piques your interest and we look forward to your participation. Should you need any assistance, feel free to reach out.\n\n" +
