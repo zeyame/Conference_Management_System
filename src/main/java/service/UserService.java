@@ -94,6 +94,30 @@ public class UserService {
         LoggerUtil.getInstance().logInfo(String.format("Successfully added conference with id '%s' to attendee '%s' registered conferences.", conferenceId, attendee.getName()));
     }
 
+    public void addSessionToAttendee(String id, String sessionId, LocalDateTime sessionStartTime) {
+        if (id == null || sessionId == null || id.isEmpty() || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid attendee id and/or session id.");
+        }
+
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new UserException(String.format("User with id '%s' does not exist.", id));
+        }
+
+        User user = userOptional.get();
+        if (user.getRole() != UserRole.ATTENDEE) {
+            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", id));
+        }
+
+
+        Attendee attendee = (Attendee) user;
+        attendee.addSession(sessionId, sessionStartTime);
+
+        save(attendee);
+
+        LoggerUtil.getInstance().logInfo(String.format("Successfully added session '%s' to attendee '%s' schedule.", sessionId, id));
+    }
+
     public void assignNewSessionForSpeaker(SessionDTO sessionDTO) {
         if (sessionDTO == null) {
             throw new IllegalArgumentException("SessionDTO cannot be null.");
@@ -329,6 +353,13 @@ public class UserService {
         }
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully unassigned session with id '%s' from speaker '%s'.", sessionId, speaker.getName()));
+    }
+
+    private void save(User user) {
+        boolean isSaved = userRepository.save(user, user.getId());
+        if (!isSaved) {
+            throw new UserException("An unexpected error occurred when saving data. Please try again later.");
+        }
     }
 
     private UserDTO mapToDTO(User user) {

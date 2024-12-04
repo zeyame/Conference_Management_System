@@ -106,7 +106,7 @@ public class ViewSessionsPage extends JPanel {
     private void fetchSessions() {
         eventMediator.publishEvent(
                 SessionEventObserver.class,
-                observer -> observer.onGetSessionsForConference(conferenceId, this::onSessionsFetched)
+                observer -> observer.onGetUpcomingSessionsForConference(conferenceId, this::onSessionsFetched)
         );
     }
 

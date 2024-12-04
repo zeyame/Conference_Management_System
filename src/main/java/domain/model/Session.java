@@ -135,6 +135,10 @@ public class Session {
         return !sessionStart.isAfter(otherEnd) && !sessionEnd.isBefore(otherStart);
     }
 
+    public void registerAttendee(String attendeeId) {
+        registeredAttendees.add(attendeeId);
+    }
+
     public String getId() {
         return this.id;
     }

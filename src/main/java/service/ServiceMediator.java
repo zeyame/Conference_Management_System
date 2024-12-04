@@ -6,6 +6,7 @@ import dto.UserDTO;
 import service.conference.ConferenceService;
 import service.session.SessionService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +41,10 @@ public class ServiceMediator {
 
     public void addConferenceToAttendee(String conferenceId, String attendeeId) {
         userService.addConferenceToAttendee(attendeeId, conferenceId);
+    }
+
+    public void addSessionToAttendee(String attendeeId, String sessionId, LocalDateTime sessionStartTime) {
+        userService.addSessionToAttendee(attendeeId, sessionId, sessionStartTime);
     }
 
     public void assignNewSessionForSpeaker(SessionDTO sessionDTO) {

@@ -4,39 +4,44 @@ import dto.UserDTO;
 import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
+import view.attendee.observers.SessionEventObserver;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class ViewUnregisteredSessionPage extends ViewSessionPage {
-    // dependencies
-    private JButton registerButton;
-
     public ViewUnregisteredSessionPage(UserDTO attendee, String sessionId, UIEventMediator eventMediator, Navigator navigator) {
         super(attendee, sessionId, eventMediator, navigator);
-        setUpListeners();
     }
 
     @Override
-    protected void createPageContent() {
-        super.createPageContent();
+    protected JPanel createFooterPanel() {
+        JButton registerButton = UIComponentFactory.createStyledButton("Register");
+        registerButton.addActionListener(this::handleRegisterButton);
 
-        // register button
-        this.registerButton = UIComponentFactory.createStyledButton("Register");
         JPanel buttonPanel = UIComponentFactory.createButtonPanel(registerButton);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 100));
-        add(buttonPanel, BorderLayout.SOUTH);
+        return buttonPanel;
     }
-
 
     // button handlers
-    private void setUpListeners() {
-        this.registerButton.addActionListener(this::handleRegisterButton);
+    private void handleRegisterButton(ActionEvent e) {
+        eventMediator.publishEvent(
+                SessionEventObserver.class,
+                observer -> observer.onRegisterForSession(attendee.getId(), sessionDTO.getId(), this::onRegisteredForSession)
+        );
     }
 
-    private void handleRegisterButton(ActionEvent e) {
+    // callback responders
+    private void onRegisteredForSession(String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
 
+        showSuccess(String.format("You have successfully been registered to attend session '%s'.", sessionDTO.getName()));
+        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
+        navigator.navigateTo(viewSessionsPage, false);
     }
 
 }

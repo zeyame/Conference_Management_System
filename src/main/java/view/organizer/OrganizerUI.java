@@ -111,21 +111,14 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onManageSessionRequest(String sessionId) {
-        LoggerUtil.getInstance().logInfo("Request to manage session with id '" + sessionId + "' received.");
+    public void onManageUpcomingSessionRequest(String sessionId) {
+        LoggerUtil.getInstance().logInfo("Request to manage upcoming session with id '" + sessionId + "' received.");
 
-        ResponseEntity<SessionDTO> sessionResponse = organizerController.getSessionDetails(sessionId);
-        if (!sessionResponse.isSuccess()) {
-            showError(getCurrentPageId(), sessionResponse.getErrorMessage());
-            return;
-        }
+        SessionDTO sessionDTO = fetchSession(sessionId);
 
-        // navigating from the "View Sessions Page" to the "Manage Session Page" of the requested session
-        SessionDTO sessionDTO = sessionResponse.getData();
         ManagePage manageSessionPage = new ManageSessionPage(this, sessionDTO);
         navigateTo(MANAGE_SESSION_PAGE, manageSessionPage.createPageContent(), true);
     }
-
 
     @Override
     public void onAddConferenceRequest(String organizerName) {
@@ -291,8 +284,13 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
             return;
         }
 
+        ConferenceDTO conferenceDTO = fetchConference(sessionDTO.getConferenceId());
+        if (conferenceDTO == null) {
+            return;
+        }
+
         List<SessionDTO> updatedSessions = fetchSessions(sessionDTO.getConferenceId());
-        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, sessionDTO.getConferenceId(), sessionDTO.getName(), updatedSessions);
+        ViewListPage<SessionDTO> viewSessionsPage = new ViewSessionsPage(this, sessionDTO.getConferenceId(), conferenceDTO.getName(), updatedSessions);
 
         navigateTo(VIEW_SESSIONS_PAGE, viewSessionsPage.createPageContent(), false);
         showSuccess(VIEW_SESSIONS_PAGE, String.format("The session '%s' has successfully been deleted.", sessionDTO.getName()));

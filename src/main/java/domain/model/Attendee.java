@@ -34,6 +34,9 @@ public class Attendee extends User {
         this.registeredConferences.remove(conferenceId);
     }
 
+    public void addSession(String sessionId, LocalDateTime sessionStartTime) {
+        this.schedule.put(sessionStartTime, sessionId);
+    }
     public Map<LocalDateTime, String> getSchedule() {
         return schedule;
     }

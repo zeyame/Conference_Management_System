@@ -7,6 +7,7 @@ import exception.FormValidationException;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -35,6 +36,9 @@ public class FormValidator {
         if (!ValidationUtil.areTimesValid(startTime, endTime)) {
             throw new FormValidationException("Start Time must be before End Time.");
         }
+//        if (Duration.between(startTime, endTime).toMinutes() < 60) {
+//            throw new FormValidationException("A session must be at least an hour long.");
+//        }
     }
 
     public static void validateConferenceForm(String name, String description, LocalDate startDate, LocalDate endDate) {

@@ -30,7 +30,7 @@ public interface OrganizerObserver {
     void onUpdateConferenceRequest(ConferenceDTO conferenceDTO);
 
     // View Sessions Page events
-    void onManageSessionRequest(String sessionId);
+    void onManageUpcomingSessionRequest(String sessionId);
     void onAddSessionRequest(String conferenceId);
 
     // Add Session Page events

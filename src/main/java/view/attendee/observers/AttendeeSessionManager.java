@@ -7,6 +7,7 @@ import util.LoggerUtil;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class AttendeeSessionManager implements SessionEventObserver {
 
@@ -17,10 +18,22 @@ public class AttendeeSessionManager implements SessionEventObserver {
     }
 
     @Override
-    public void onGetSessionsForConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback) {
+    public void onRegisterForSession(String attendeeId, String sessionId, Consumer<String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Attendee request to register for session with id '%s' received.", sessionId));
+
+        ResponseEntity<Void> registerForSessionResponse = attendeeController.registerForSession(attendeeId, sessionId);
+        if (registerForSessionResponse.isSuccess()) {
+            callback.accept(null);
+        } else {
+            callback.accept(registerForSessionResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onGetUpcomingSessionsForConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback) {
         LoggerUtil.getInstance().logInfo(String.format("Attendee request to view sessions in conference with id '%s' received.", conferenceId));
 
-        ResponseEntity<List<SessionDTO>> sessionsResponse = attendeeController.getConferenceSessions(conferenceId);
+        ResponseEntity<List<SessionDTO>> sessionsResponse = attendeeController.getUpcomingConferenceSessions(conferenceId);
         if (sessionsResponse.isSuccess()) {
             callback.accept(sessionsResponse.getData(), null);
         } else {

@@ -79,6 +79,30 @@ public class SessionService {
         }
     }
 
+    public void registerAttendee(String id, String attendeeId) {
+        if (id == null || attendeeId == null || id.isEmpty() || attendeeId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid session id and/or attendee id.");
+        }
+
+        Optional<Session> sessionOptional = sessionRepository.findById(id);
+        if (sessionOptional.isEmpty()) {
+            throw new SessionException(String.format("Session with id '%s' does not exist.", id));
+        }
+
+        Session session = sessionOptional.get();
+        session.registerAttendee(attendeeId);
+
+        boolean isSaved = sessionRepository.save(session, session.getId());
+        if (!isSaved) {
+            throw new SessionException(String.format("An unexpected error occurred when saving session '%s' after registering attendee '%s'.", id, attendeeId));
+        }
+
+        // adding session reference to attendee's session schedule
+        serviceMediator.addSessionToAttendee(attendeeId, id, LocalDateTime.of(session.getDate(), session.getStartTime()));
+
+        LoggerUtil.getInstance().logInfo(String.format("Successfully registered attendee '%s' to session '%s'.", attendeeId, id));
+    }
+
     public void update(SessionDTO sessionDTO) {
         if (sessionDTO == null || sessionDTO.getId() == null || sessionDTO.getId().isEmpty()) {
             throw new IllegalArgumentException("SessionDTO and its ID cannot be null or empty for updates.");
@@ -131,12 +155,23 @@ public class SessionService {
 
     public SessionDTO getById(String id) {
         if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Session id cannot be null or empty.");
+            throw new IllegalArgumentException("Invalid session id provided.");
         }
 
         return sessionRepository.findById(id)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> new SessionException(String.format("Session with id '%s' could not be found.", id)));
+                .orElseThrow(() -> new SessionException(String.format("A session with id '%s' could not be found.", id)));
+    }
+
+    public SessionDTO getUpcomingById(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("Invalid session id provided.");
+        }
+
+        return sessionRepository.findById(id)
+                .filter(this::isUpcoming)
+                .map(this::mapToDTO)
+                .orElseThrow(() -> new SessionException(String.format("An upcoming session with id '%s' could not be found.", id)));
     }
 
     public List<SessionDTO> findAllById(Set<String> ids) {
@@ -154,6 +189,24 @@ public class SessionService {
         return sessions.stream()
                        .map(this::mapToDTO)
                        .collect(Collectors.toList());
+    }
+
+    public List<SessionDTO> findAllUpcomingById(Set<String> ids) {
+        if (ids == null) {
+            throw new IllegalArgumentException("Invalid session ids.");
+        }
+
+        // batch fetch all sessions
+        List<Optional<Session>> sessionOptionals = sessionRepository.findAllById(ids);
+
+        // extract valid sessions
+        List<Session> sessions = CollectionUtils.extractValidEntities(sessionOptionals);
+
+        // map the session objects to session data transfer objects (DTO)
+        return sessions.stream()
+                .filter(this::isUpcoming)
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     public void deleteById(String id) {
@@ -253,6 +306,10 @@ public class SessionService {
         if (!isDeleted) {
             throw new SessionException("An error occurred when deleting session.");
         }
+    }
+
+    private boolean isUpcoming(Session session) {
+        return LocalDateTime.of(session.getDate(), session.getStartTime()).isAfter(LocalDateTime.now());
     }
 
     private SessionDTO mapToDTO(Session session) {

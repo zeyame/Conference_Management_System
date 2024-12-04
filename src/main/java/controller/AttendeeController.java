@@ -36,6 +36,15 @@ public class AttendeeController {
         }
     }
 
+    public ResponseEntity<Void> registerForSession(String attendeeId, String sessionId) {
+        try {
+            sessionService.registerAttendee(sessionId, attendeeId);
+            return ResponseEntity.success();
+        } catch (Exception e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
     public ResponseEntity<ConferenceDTO> getConference(String conferenceId) {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
@@ -81,6 +90,7 @@ public class AttendeeController {
         }
     }
 
+
     public ResponseEntity<List<SessionDTO>> getConferenceSessions(String conferenceId) {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
@@ -90,6 +100,17 @@ public class AttendeeController {
             return ResponseEntity.error(e.getMessage());
         }
     }
+
+    public ResponseEntity<List<SessionDTO>> getUpcomingConferenceSessions(String conferenceId) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
+            List<SessionDTO> sessionDTOS = sessionService.findAllUpcomingById(conferenceDTO.getSessions());
+            return ResponseEntity.success(sessionDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
     public ResponseEntity<String> getOrganizerName(String organizerId) {
         try {
             String organizerName = userService.getNameById(organizerId);

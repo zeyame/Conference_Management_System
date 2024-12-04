@@ -29,11 +29,13 @@ public abstract class ViewSessionPage extends JPanel {
 
         fetchSession();
 
+        setLayout(new BorderLayout());
+
         createPageContent();
     }
 
     protected void createPageContent() {
-        setLayout(new BorderLayout());
+        removeAll();
 
         // header panel
         JPanel headerPanel = UIComponentFactory.createHeaderPanel(sessionDTO.getName(), this::handleBackButton, 500);
@@ -43,6 +45,21 @@ public abstract class ViewSessionPage extends JPanel {
         JPanel sessionDetails = UIComponentFactory.createSessionDetailsPanel(sessionDTO);
         sessionDetails.setBorder(BorderFactory.createEmptyBorder(0, 190, 40, 0));
         add(sessionDetails, BorderLayout.CENTER);
+
+        // footer
+        add(createFooterPanel(), BorderLayout.SOUTH);
+    }
+
+    protected abstract JPanel createFooterPanel();
+
+
+    // Joption Pane helpers
+    protected void showSuccess(String message) {
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    protected void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
 
@@ -64,16 +81,7 @@ public abstract class ViewSessionPage extends JPanel {
     }
 
 
-    // Joption Pane helpers
-    private void showSuccess(String message) {
-        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private void handleBackButton(ActionEvent e) {
+    protected void handleBackButton(ActionEvent e) {
         ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
         navigator.navigateTo(viewSessionsPage);
     }
