@@ -10,6 +10,6 @@ public interface ConferenceEventObserver {
     void onGetUpcomingConferences(String attendeeId, BiConsumer<List<ConferenceDTO>, String> callback);
     void onConferenceSelected(String conferenceId, BiConsumer<ConferenceDTO, String> callback);
     void onGetOrganizerName(String organizerId, BiConsumer<String, String> callback);
-
     void onGetRegisteredConferences(String attendeeId, BiConsumer<List<ConferenceDTO>, String> callback);
+    void onLeaveConference(String attendeeId, String conferenceId, Consumer<String> callback);
 }

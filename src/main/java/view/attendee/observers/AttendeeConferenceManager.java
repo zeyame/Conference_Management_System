@@ -75,4 +75,16 @@ public class AttendeeConferenceManager implements ConferenceEventObserver {
         }
     }
 
+    @Override
+    public void onLeaveConference(String attendeeId, String conferenceId, Consumer<String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Request for attendee with id '%s' to leave conference with id '%s' was received.", attendeeId, conferenceId));
+
+        ResponseEntity<Void> leaveConferenceResponse = attendeeController.leaveConference(attendeeId, conferenceId);
+        if (leaveConferenceResponse.isSuccess()) {
+            callback.accept(null);
+        } else {
+            callback.accept(leaveConferenceResponse.getErrorMessage());
+        }
+    }
+
 }

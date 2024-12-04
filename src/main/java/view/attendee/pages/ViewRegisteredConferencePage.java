@@ -9,6 +9,7 @@ import view.attendee.observers.ConferenceEventObserver;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class ViewRegisteredConferencePage extends JPanel {
     private final UserDTO attendee;
@@ -38,6 +39,8 @@ public class ViewRegisteredConferencePage extends JPanel {
 
         fetchRegisteredConference();
 
+        setUpListeners();
+
         createPageContent();
     }
 
@@ -45,7 +48,7 @@ public class ViewRegisteredConferencePage extends JPanel {
         setLayout(new BorderLayout());
 
         // header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(registeredConference.getName(), e -> navigator.navigateBack(), 400);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(registeredConference.getName(), this::handleBackButton, 400);
         headerPanel.add(Box.createRigidArea(new Dimension(480, 0)));
         headerPanel.add(leaveConferenceButton);
         add(headerPanel, BorderLayout.NORTH);
@@ -92,6 +95,18 @@ public class ViewRegisteredConferencePage extends JPanel {
         this.organizerName = organizerName;
     }
 
+    private void onLeaveConference(String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
+
+        showSuccess(String.format("You have successfully left the conference '%s'.", registeredConference.getName()));
+
+        // navigate back to home page to display the updated list of upcoming conferences that attendee is not registered for
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage, false);
+    }
 
     // data fetchers
     private void fetchRegisteredConference() {
@@ -108,8 +123,48 @@ public class ViewRegisteredConferencePage extends JPanel {
         );
     }
 
+
+    // Joption Pane helpers
+    private void showSuccess(String message) {
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    // button handlers
+    private void setUpListeners() {
+        this.leaveConferenceButton.addActionListener(this::handleLeaveConferenceButton);
+    }
+
+    private void handleLeaveConferenceButton(ActionEvent e) {
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                String.format("Are you sure you want to leave '%s'?", registeredConference.getName()),
+                "Confirm Conference Leave",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+            eventMediator.publishEvent(
+                    ConferenceEventObserver.class,
+                    observer -> observer.onLeaveConference(attendee.getId(), registeredConference.getId(), this::onLeaveConference)
+            );
+        } else if (choice == JOptionPane.NO_OPTION) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Session deletion canceled.",
+                    "Canceled",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
+    private void handleBackButton(ActionEvent e) {
+        ViewRegisteredConferencesPage viewRegisteredConferencesPage = new ViewRegisteredConferencesPage(attendee, eventMediator, navigator);
+        navigator.navigateTo(viewRegisteredConferencesPage, false);
     }
 
 }

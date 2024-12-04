@@ -74,4 +74,13 @@ public class AttendeeController {
             return ResponseEntity.error(e.getMessage());
         }
     }
+
+    public ResponseEntity<Void> leaveConference(String attendeeId, String conferenceId) {
+        try {
+            conferenceService.removeAttendee(conferenceId, attendeeId);
+            return ResponseEntity.success();
+        } catch (Exception e) {
+            return ResponseEntity.error("An unexpected error occurred when removing you from conference. Please try again later.");
+        }
+    }
 }

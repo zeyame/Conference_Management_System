@@ -288,6 +288,38 @@ public class ConferenceService {
         LoggerUtil.getInstance().logInfo(String.format("Successfully removed session with id '%s' from '%s'.", sessionId, conference.getName()));
     }
 
+    public void removeAttendee(String id, String attendeeId) {
+        if (id == null || attendeeId == null || id.isEmpty() || attendeeId.isEmpty()) {
+            throw new IllegalArgumentException("Conference id and attendee id cannot be null or empty.");
+        }
+
+        Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
+        if (conferenceOptional.isEmpty()) {
+            throw new ConferenceException(String.format("Conference with id '%s' does not exist.", id));
+        }
+
+        Conference conference = conferenceOptional.get();
+
+        boolean isSaved = false;
+        try {
+            conference.removeAttendee(attendeeId);
+
+            save(conference);
+            isSaved = true;
+
+            // remove conference reference from attendee's registered conferences
+            serviceMediator.removeConferenceFromAttendee(id, attendeeId);
+
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to remove attendee with id '%s' from conference '%s': %s", attendeeId, conference.getName(), e.getMessage()));
+
+            // rollback removing attendee from conference
+            if (isSaved) ConferenceRollbackService.rollbackRemovingAttendeeFromConference(conference.getId(), attendeeId, this::registerAttendeeToConference);
+
+            throw new ConferenceException(String.format("An unexpected error occurred when removing attendee from conference: %s", e.getMessage()));
+        }
+    }
+
 
     // helpers
     private void save(Conference conference) {

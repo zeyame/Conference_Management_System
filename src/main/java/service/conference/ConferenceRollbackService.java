@@ -38,4 +38,14 @@ public class ConferenceRollbackService {
                     "from attendee '%s' during rollback operation: %s", conferenceId, attendeeId, e.getMessage()));
         }
     }
+
+    public static void rollbackRemovingAttendeeFromConference(String conferenceId, String attendeeId, BiConsumer<String, String> addAttendeeToConference) {
+        try {
+            addAttendeeToConference.accept(conferenceId, attendeeId);
+            LoggerUtil.getInstance().logInfo(String.format("Successfully added attendee with id '%s' to conference '%s' " +
+                    "during rollback operation.", attendeeId, conferenceId));
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("An unexpected error occurred when adding attendee '%s' back to conference '%s' during rollback operation.", attendeeId, conferenceId));
+        }
+    }
 }
