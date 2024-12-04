@@ -27,4 +27,16 @@ public class AttendeeSessionManager implements SessionEventObserver {
             callback.accept(null, sessionsResponse.getErrorMessage());
         }
     }
+
+    @Override
+    public void onGetSession(String sessionId, BiConsumer<SessionDTO, String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Attendee request to view session with id '%s' received.", sessionId));
+
+        ResponseEntity<SessionDTO> sessionResponse = attendeeController.getSession(sessionId);
+        if (sessionResponse.isSuccess()) {
+            callback.accept(sessionResponse.getData(), null);
+        } else {
+            callback.accept(null, sessionResponse.getErrorMessage());
+        }
+    }
 }

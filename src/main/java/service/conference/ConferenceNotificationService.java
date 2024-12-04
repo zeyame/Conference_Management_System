@@ -17,6 +17,7 @@ public class ConferenceNotificationService {
 
     // no arg constructor to suppress instantiability
     private ConferenceNotificationService() {}
+
     public static void notifyConferenceCreation(ConferenceDTO conferenceDTO, List<UserDTO> attendees, List<UserDTO> speakers) {
         if (conferenceDTO == null || attendees == null || speakers == null) {
             throw new IllegalArgumentException("ConferenceDTO, attendees, and speakers cannot be null.");
@@ -90,6 +91,43 @@ public class ConferenceNotificationService {
             );
         } catch (Exception e) {
             LoggerUtil.getInstance().logError("Notification failure when notifying of conference deletion: " + e.getMessage());
+        }
+    }
+
+    public static void notifyAttendeeRegistrationToConference(ConferenceDTO conferenceDTO, UserDTO attendee) {
+        if (conferenceDTO == null || attendee == null) {
+            throw new IllegalArgumentException("Invalid conference and/or attendee data.");
+        }
+
+        String subject = "Registered to Conference";
+        try {
+            CompletableFuture.runAsync(() ->
+                    emailService.sendEmail(
+                            attendee.getEmail(),
+                            attendee.getName(),
+                            subject,
+                            EmailContentService.getAttendeeRegisteredToConferenceBody(conferenceDTO, attendee))
+            );
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to notify attendee '%s' of his decision to leave conference '%s'.", attendee.getName(), conferenceDTO.getName()));
+        }
+    }
+    public static void notifyAttendeeUnregisteredFromConference(ConferenceDTO conferenceDTO, UserDTO attendee) {
+        if (conferenceDTO == null || attendee == null) {
+            throw new IllegalArgumentException("Invalid conference and/or attendee data.");
+        }
+
+        String subject = "Unregistered from Conference";
+        try {
+            CompletableFuture.runAsync(() ->
+                    emailService.sendEmail(
+                            attendee.getEmail(),
+                            attendee.getName(),
+                            subject,
+                            EmailContentService.getAttendeeUnregisteredFromConferenceBody(conferenceDTO, attendee))
+            );
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to notify attendee '%s' of his decision to leave conference '%s'.", attendee.getName(), conferenceDTO.getName()));
         }
     }
 

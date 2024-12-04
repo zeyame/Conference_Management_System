@@ -6,6 +6,7 @@ import dto.UserDTO;
 import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
+import view.attendee.observers.ConferenceEventObserver;
 import view.attendee.observers.SessionEventObserver;
 import view.attendee.pages.view.conference.ViewRegisteredConferencePage;
 
@@ -18,19 +19,21 @@ import java.util.Map;
 
 public class ViewSessionsPage extends JPanel {
     private final UserDTO attendee;
-    private final ConferenceDTO conference;
+    private final String conferenceId;
     private final UIEventMediator eventMediator;
     private final Navigator navigator;
+    private ConferenceDTO conferenceDTO;
     private Map<String, SessionDTO> registeredSessions;
     private Map<String, SessionDTO> unregisteredSessions;
 
-    public ViewSessionsPage(UserDTO attendee, ConferenceDTO conference, UIEventMediator eventMediator, Navigator navigator) {
+    public ViewSessionsPage(UserDTO attendee, String conferenceId, UIEventMediator eventMediator, Navigator navigator) {
         this.attendee = attendee;
-        this.conference = conference;
+        this.conferenceId = conferenceId;
         this.eventMediator = eventMediator;
         this.navigator = navigator;
 
         fetchSessions();
+        fetchConference();
 
         createPageContent();
     }
@@ -39,7 +42,7 @@ public class ViewSessionsPage extends JPanel {
         setLayout(new BorderLayout());
 
         // header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format("Sessions in '%s'", conference.getName()), this::handleBackButton, 400);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format("Sessions in '%s'", conferenceDTO.getName()), this::handleBackButton, 400);
         add(headerPanel, BorderLayout.NORTH);
 
         // split panel for registered and unregistered sessions
@@ -103,7 +106,14 @@ public class ViewSessionsPage extends JPanel {
     private void fetchSessions() {
         eventMediator.publishEvent(
                 SessionEventObserver.class,
-                observer -> observer.onGetSessionsForConference(conference.getId(), this::onSessionsFetched)
+                observer -> observer.onGetSessionsForConference(conferenceId, this::onSessionsFetched)
+        );
+    }
+
+    private void fetchConference() {
+        eventMediator.publishEvent(
+                ConferenceEventObserver.class,
+                observer -> observer.onConferenceSelected(conferenceId, this::onConferenceFetched)
         );
     }
 
@@ -117,6 +127,14 @@ public class ViewSessionsPage extends JPanel {
         this.unregisteredSessions = filterUnregisteredSessions(sessionDTOs);
     }
 
+    private void onConferenceFetched(ConferenceDTO conferenceDTO, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
+        this.conferenceDTO = conferenceDTO;
+    }
+
     // Joption Pane helpers
     private void showSuccess(String message) {
         JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -128,7 +146,7 @@ public class ViewSessionsPage extends JPanel {
 
     // button handlers
     private void handleBackButton(ActionEvent e) {
-        ViewRegisteredConferencePage viewRegisteredConferencePage = new ViewRegisteredConferencePage(attendee, eventMediator, navigator, conference.getId());
+        ViewRegisteredConferencePage viewRegisteredConferencePage = new ViewRegisteredConferencePage(attendee, eventMediator, navigator, conferenceId);
         navigator.navigateTo(viewRegisteredConferencePage);
     }
 
@@ -138,10 +156,10 @@ public class ViewSessionsPage extends JPanel {
         String sessionId = (String) sourceButton.getClientProperty("sessionId");
 
         if (registeredSessions.containsKey(sessionId)) {
-            ViewRegisteredSessionPage viewRegisteredSessionPage = new ViewRegisteredSessionPage();
+            ViewRegisteredSessionPage viewRegisteredSessionPage = new ViewRegisteredSessionPage(attendee, sessionId, eventMediator, navigator);
             navigator.navigateTo(viewRegisteredSessionPage);
         } else {
-            ViewUnregisteredSessionPage viewUnregisteredSessionPage = new ViewUnregisteredSessionPage();
+            ViewSessionPage viewUnregisteredSessionPage = new ViewUnregisteredSessionPage(attendee, sessionId, eventMediator, navigator);
             navigator.navigateTo(viewUnregisteredSessionPage);
         }
     }

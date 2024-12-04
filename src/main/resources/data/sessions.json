@@ -1,1 +1,80 @@
-{"e93ac518-5c0d-4e54-8a52-85f3ebcc2608":{"id":"e93ac518-5c0d-4e54-8a52-85f3ebcc2608","conferenceId":"d14532e8-2aa6-406f-bc64-675ebd38cbf2","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"Cloud Computing","description":"AWS, Azure, GCP, etc.","room":"B301","date":[2024,12,6],"startTime":[18,0],"endTime":[21,0],"registeredAttendees":[],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0},"15d97fe4-b7f9-4729-bac5-bef14efa95fd":{"id":"15d97fe4-b7f9-4729-bac5-bef14efa95fd","conferenceId":"d14532e8-2aa6-406f-bc64-675ebd38cbf2","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"Machine Learning","description":"Supervised, Unsupervised, Reinforcement","room":"B303","date":[2024,12,7],"startTime":[12,0],"endTime":[14,30],"registeredAttendees":[],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0},"1b0c250e-080b-4359-b339-fdddead5a45e":{"id":"1b0c250e-080b-4359-b339-fdddead5a45e","conferenceId":"d14532e8-2aa6-406f-bc64-675ebd38cbf2","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"Devops Session","description":"Devops in a fun way.","room":"B302","date":[2024,12,5],"startTime":[15,0],"endTime":[17,0],"registeredAttendees":[],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0}}
+{
+  "e93ac518-5c0d-4e54-8a52-85f3ebcc2608": {
+    "id": "e93ac518-5c0d-4e54-8a52-85f3ebcc2608",
+    "conferenceId": "d14532e8-2aa6-406f-bc64-675ebd38cbf2",
+    "speakerId": "e230f9f7-0031-4d29-916e-e41c698853dd",
+    "speakerName": "David J. Malan",
+    "name": "Cloud Computing",
+    "description": "AWS, Azure, GCP, etc.",
+    "room": "B301",
+    "date": [
+      2024,
+      12,
+      6
+    ],
+    "startTime": [
+      18,
+      0
+    ],
+    "endTime": [
+      21,
+      0
+    ],
+    "registeredAttendees": [],
+    "presentAttendees": [],
+    "feedback": [],
+    "attendanceRecord": 0.0
+  },
+  "15d97fe4-b7f9-4729-bac5-bef14efa95fd": {
+    "id": "15d97fe4-b7f9-4729-bac5-bef14efa95fd",
+    "conferenceId": "d14532e8-2aa6-406f-bc64-675ebd38cbf2",
+    "speakerId": "e230f9f7-0031-4d29-916e-e41c698853dd",
+    "speakerName": "David J. Malan",
+    "name": "Machine Learning",
+    "description": "Supervised, Unsupervised, Reinforcement",
+    "room": "B303",
+    "date": [
+      2024,
+      12,
+      7
+    ],
+    "startTime": [
+      12,
+      0
+    ],
+    "endTime": [
+      14,
+      30
+    ],
+    "registeredAttendees": [],
+    "presentAttendees": [],
+    "feedback": [],
+    "attendanceRecord": 0.0
+  },
+  "1b0c250e-080b-4359-b339-fdddead5a45e": {
+    "id": "1b0c250e-080b-4359-b339-fdddead5a45e",
+    "conferenceId": "d14532e8-2aa6-406f-bc64-675ebd38cbf2",
+    "speakerId": "e230f9f7-0031-4d29-916e-e41c698853dd",
+    "speakerName": "David J. Malan",
+    "name": "Devops Session",
+    "description": "Devops in a fun way.",
+    "room": "B302",
+    "date": [
+      2024,
+      12,
+      5
+    ],
+    "startTime": [
+      15,
+      0
+    ],
+    "endTime": [
+      17,
+      0
+    ],
+    "registeredAttendees": [],
+    "presentAttendees": [],
+    "feedback": [],
+    "attendanceRecord": 0.0
+  }
+}

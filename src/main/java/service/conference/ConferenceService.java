@@ -130,6 +130,8 @@ public class ConferenceService {
             // saving updated conference
             save(conference);
 
+            ConferenceNotificationService.notifyAttendeeRegistrationToConference(mapToDTO(conference), serviceMediator.getUserById(attendeeId));
+
         } catch (Exception e) {
             LoggerUtil.getInstance().logError(String.format("Failed to register attendee to conference: %s", e.getMessage()));
 
@@ -309,6 +311,9 @@ public class ConferenceService {
 
             // remove conference reference from attendee's registered conferences
             serviceMediator.removeConferenceFromAttendee(id, attendeeId);
+
+            // notify attendee that he has been unregistered from the conference
+            ConferenceNotificationService.notifyAttendeeUnregisteredFromConference(mapToDTO(conference), serviceMediator.getUserById(attendeeId));
 
         } catch (Exception e) {
             LoggerUtil.getInstance().logError(String.format("Failed to remove attendee with id '%s' from conference '%s': %s", attendeeId, conference.getName(), e.getMessage()));

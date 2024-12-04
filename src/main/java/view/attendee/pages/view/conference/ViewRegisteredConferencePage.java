@@ -171,7 +171,7 @@ public class ViewRegisteredConferencePage extends JPanel {
     }
 
     private void handleViewSessionsButton(ActionEvent e) {
-        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, registeredConference, eventMediator, navigator);
+        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, registeredConference.getId(), eventMediator, navigator);
         navigator.navigateTo(viewSessionsPage);
     }
 

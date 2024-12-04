@@ -7,6 +7,9 @@ import dto.UserDTO;
 
 public class EmailContentService {
 
+    // private no-arg constructor to suppress instantiability
+    private EmailContentService() {}
+
     // WELCOME BODY MESSAGE
     public static String getWelcomeMessage(String userName, UserRole role) {
         return switch (role) {
@@ -59,6 +62,10 @@ public class EmailContentService {
     }
 
     public static String getConferenceDeletionBody(ConferenceDTO conferenceDTO, UserDTO userDTO) {
+        if (conferenceDTO == null || userDTO == null) {
+            throw new IllegalArgumentException("Invalid conference and/or user data.");
+        }
+
         return switch (userDTO.getRole()) {
             case ATTENDEE -> getAttendeeConferenceDeletionMessage(conferenceDTO, userDTO.getName());
             case SPEAKER -> getSpeakerConferenceDeletionMessage(conferenceDTO, userDTO.getName());
@@ -66,6 +73,42 @@ public class EmailContentService {
         };
     }
 
+    public static String getAttendeeRegisteredToConferenceBody(ConferenceDTO conferenceDTO, UserDTO attendee) {
+        if (conferenceDTO == null || attendee == null) {
+            throw new IllegalArgumentException("Invalid conference and/or attendee data.");
+        }
+
+        return String.format("Dear %s,\n\n" +
+                        "We are delighted to inform you that you have successfully registered for the following conference:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We are thrilled to have you join us for this exciting event! This conference promises to offer insightful sessions, engaging speakers, and invaluable networking opportunities. " +
+                        "We hope you find it both enriching and inspiring.\n\n" +
+                        "Should you have any questions or require assistance leading up to the conference, please feel free to reach out. " +
+                        "We look forward to your active participation and hope this will be a memorable experience for you.\n\n" +
+                        "Kind regards,\n\n" +
+                        "The University of Hertfordshire Team",
+                attendee.getName(), conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
+    }
+
+    public static String getAttendeeUnregisteredFromConferenceBody(ConferenceDTO conferenceDTO, UserDTO attendee) {
+        if (conferenceDTO == null || attendee == null) {
+            throw new IllegalArgumentException("Invalid conference and/or attendee data.");
+        }
+
+        return String.format("Dear %s,\n\n" +
+                        "We are writing to confirm that you have successfully unregistered from the following conference:\n\n" +
+                        "Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nLocation: The University of Hertfordshire Campus\n\n" +
+                        "We are sorry to see you go and truly hope this decision does not hinder your participation in other events. " +
+                        "Conferences like '%s' thrive on the diverse perspectives and insights contributed by attendees like you.\n\n" +
+                        "If this unregistration was unintentional or if there is any way we can assist you, please do not hesitate to reach out. " +
+                        "We would be delighted to welcome you back.\n\n" +
+                        "Thank you for your interest in our events, and we hope to see you again in the future.\n\n" +
+                        "Kind regards,\n\n" +
+                        "The University of Hertfordshire Team",
+                attendee.getName(), conferenceDTO.getName(), conferenceDTO.getDescription(),
+                conferenceDTO.getStartDate(), conferenceDTO.getEndDate(), conferenceDTO.getName());
+    }
 
     // WELCOME MESSAGES
     private static String getWelcomeMessageForAttendee(String attendeeName) {

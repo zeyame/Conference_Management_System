@@ -205,6 +205,52 @@ public class UIComponentFactory {
         return sessionPanel;
     }
 
+    public static JPanel createSessionDetailsPanel(SessionDTO sessionDTO) {
+        JPanel detailsPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
+
+        // Increase vertical spacing with larger top/bottom insets
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // adding header with extra bottom spacing
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(15, 5, 25, 5);  // Extra bottom padding for header
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Session Details", new Font("Arial", Font.BOLD, 20), gbc, 0, 0, 2);
+
+        // Reset gridwidth and restore normal insets for subsequent rows
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(15, 5, 15, 5);
+
+        // adding speaker
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Speaker: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 1, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getSpeakerName(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 1, 1);
+
+        // adding description
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Description:", new Font("Arial", Font.PLAIN, 18), gbc, 0, 2, 1);
+        UIComponentFactory.addTextAreaToPanel(detailsPanel, sessionDTO.getDescription(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 2, 1);
+
+        // adding room
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Room: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 3, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getRoom(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 3, 1);
+
+        // adding session date
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 4, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
+
+        // adding start time
+        UIComponentFactory.addLabelToPanel(detailsPanel, "Start Time: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 5, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getStartTime().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 5, 1);
+
+        // adding end time
+        UIComponentFactory.addLabelToPanel(detailsPanel, "End Time: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 6, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getEndTime().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 6, 1);
+
+        detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 30));
+
+        return detailsPanel;
+    }
+
     public static JScrollPane createConferenceScrollPane(List<ConferenceDTO> conferences, ActionListener handleViewOrManageConferenceButton, String buttonText) {
         JPanel conferencesPanel = new JPanel();
         conferencesPanel.setLayout(new BoxLayout(conferencesPanel, BoxLayout.Y_AXIS));

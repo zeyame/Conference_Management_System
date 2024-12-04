@@ -4,6 +4,7 @@ import dto.ConferenceDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
 import exception.ConferenceException;
+import exception.SessionException;
 import exception.UserException;
 import response.ResponseEntity;
 import service.UserService;
@@ -40,7 +41,17 @@ public class AttendeeController {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             return ResponseEntity.success(conferenceDTO);
         } catch (ConferenceException e) {
-            LoggerUtil.getInstance().logError(String.format("Conference with id '%s' does not exist.", conferenceId));
+            LoggerUtil.getInstance().logError(String.format("Failed to retrieve conference with id '%s': %s", conferenceId, e.getMessage()));
+            return ResponseEntity.error(e.getMessage());
+        }
+    }
+
+    public ResponseEntity<SessionDTO> getSession(String sessionId) {
+        try {
+            SessionDTO sessionDTO = sessionService.getById(sessionId);
+            return ResponseEntity.success(sessionDTO);
+        } catch (SessionException e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to retrieve session with id '%s': %s", sessionId, e.getMessage()));
             return ResponseEntity.error(e.getMessage());
         }
     }
