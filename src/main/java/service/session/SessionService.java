@@ -92,13 +92,21 @@ public class SessionService {
         Session session = sessionOptional.get();
         session.registerAttendee(attendeeId);
 
-        boolean isSaved = sessionRepository.save(session, session.getId());
-        if (!isSaved) {
-            throw new SessionException(String.format("An unexpected error occurred when saving session '%s' after registering attendee '%s'.", id, attendeeId));
-        }
+        boolean sessionAddedToAttendee = false;
+        try {
+            // adding session reference to attendee's session schedule
+            serviceMediator.addSessionToAttendee(mapToDTO(session), attendeeId);
+            sessionAddedToAttendee = true;
 
-        // adding session reference to attendee's session schedule
-        serviceMediator.addSessionToAttendee(attendeeId, id, LocalDateTime.of(session.getDate(), session.getStartTime()));
+            sessionRepository.save(session, session.getId());
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to register attendee '%s' to session '%s': %s", attendeeId, session.getName(), e.getMessage()));
+
+            // rollback changes
+            if (sessionAddedToAttendee) SessionRollbackService.rollbackSessionAddedToAttendee(session.getId(), attendeeId, serviceMediator::removeSessionFromAttendee);
+
+            throw new SessionException(String.format("An error occurred when registering attendee to session: %s", e.getMessage()));
+        }
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully registered attendee '%s' to session '%s'.", attendeeId, id));
     }
@@ -266,25 +274,47 @@ public class SessionService {
         ids.forEach(this::deleteById);
     }
 
-    // helper rollback methods
-    private void rollbackCreateOrUpdate(SessionDTO sessionDTO, boolean sessionSaved, boolean speakerAssigned, boolean conferenceUpdated) {
+    public void unregisterAttendee(String id, String attendeeId) {
+        if (id == null || attendeeId == null || id.isEmpty() || attendeeId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid session id and/or attendee id.");
+        }
+
+        Optional<Session> sessionOptional = sessionRepository.findById(id);
+        if (sessionOptional.isEmpty()) {
+            throw new SessionException(String.format("Session with id '%s' does not exist.", id));
+        }
+
+        Session session = sessionOptional.get();
+        session.unregisterAttendee(attendeeId);
+
+        boolean sessionRemovedFromAttendee = false;
         try {
-            if (sessionSaved) SessionRollbackService.rollbackSessionSave(sessionDTO.getId(), this::delete);
-            if (speakerAssigned) SessionRollbackService.rollbackSpeakerAssignment(sessionDTO.getId(), sessionDTO.getSpeakerId(), serviceMediator::unassignSessionFromSpeaker);
-            if (conferenceUpdated) SessionRollbackService.rollbackConferenceUpdate(sessionDTO.getId(), sessionDTO.getConferenceId(), serviceMediator::removeSessionFromConference);
-        } catch (SessionException rollbackException) {
-            LoggerUtil.getInstance().logError("Rolling back session creation failed: " + rollbackException.getMessage());
+            // remove session reference from attendee's registered sessions
+            serviceMediator.removeSessionFromAttendee(id, attendeeId);
+            sessionRemovedFromAttendee = true;
+
+            sessionRepository.save(session, session.getId());
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to unregister attendee '%s' from session '%s': %s", attendeeId, id, e.getMessage() + e));
+
+            // rollback changes
+            if (sessionRemovedFromAttendee) SessionRollbackService.rollbackSessionRemovedFromAttendee(mapToDTO(session), attendeeId, serviceMediator::addSessionToAttendee);
+
+            throw new SessionException(String.format("An error occurred when unregistering attendee from session: %s", e.getMessage() + e));
         }
     }
 
+    // helper rollback methods
+    private void rollbackCreateOrUpdate(SessionDTO sessionDTO, boolean sessionSaved, boolean speakerAssigned, boolean conferenceUpdated) {
+        if (sessionSaved) SessionRollbackService.rollbackSessionSave(sessionDTO.getId(), this::delete);
+        if (speakerAssigned) SessionRollbackService.rollbackSpeakerAssignment(sessionDTO.getId(), sessionDTO.getSpeakerId(), serviceMediator::unassignSessionFromSpeaker);
+        if (conferenceUpdated) SessionRollbackService.rollbackConferenceUpdate(sessionDTO.getId(), sessionDTO.getConferenceId(), serviceMediator::removeSessionFromConference);
+    }
+
     private void rollbackDeletion(SessionDTO sessionDTO, boolean sessionDeleted, boolean speakerUnassigned, boolean sessionRemovedFromConference) {
-        try {
-            if (sessionDeleted) SessionRollbackService.rollbackSessionDeletion(sessionDTO, this::save);
-            if (speakerUnassigned) SessionRollbackService.rollbackSpeakerUnassignment(sessionDTO, serviceMediator::assignNewSessionForSpeaker);
-            if (sessionRemovedFromConference) SessionRollbackService.rollbackSessionRemovalFromConference(sessionDTO, serviceMediator::registerSessionInConference);
-        } catch (SessionException rollbackException) {
-            LoggerUtil.getInstance().logError("Rolling back session deletion failed: " + rollbackException.getMessage());
-        }
+        if (sessionDeleted) SessionRollbackService.rollbackSessionDeletion(sessionDTO, this::save);
+        if (speakerUnassigned) SessionRollbackService.rollbackSpeakerUnassignment(sessionDTO, serviceMediator::assignNewSessionForSpeaker);
+        if (sessionRemovedFromConference) SessionRollbackService.rollbackSessionRemovalFromConference(sessionDTO, serviceMediator::registerSessionInConference);
     }
 
 

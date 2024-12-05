@@ -158,7 +158,7 @@ public class ViewRegisteredConferencePage extends JPanel {
         } else if (choice == JOptionPane.NO_OPTION) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Session deletion canceled.",
+                    "Conference leave canceled.",
                     "Canceled",
                     JOptionPane.INFORMATION_MESSAGE
             );

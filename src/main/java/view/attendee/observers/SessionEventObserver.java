@@ -10,4 +10,5 @@ public interface SessionEventObserver {
     void onRegisterForSession(String attendeeId, String sessionId, Consumer<String> callback);
     void onGetUpcomingSessionsForConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback);
     void onGetSession(String sessionId, BiConsumer<SessionDTO, String> callback);
+    void onLeaveSession(String sessionId, String attendeeId, Consumer<String> callback);
 }

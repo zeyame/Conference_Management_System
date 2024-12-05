@@ -42,7 +42,7 @@ public class ViewSessionsPage extends JPanel {
         setLayout(new BorderLayout());
 
         // header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format("Sessions in '%s'", conferenceDTO.getName()), this::handleBackButton, 400);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format("Upcoming Sessions in '%s'", conferenceDTO.getName()), this::handleBackButton, 380);
         add(headerPanel, BorderLayout.NORTH);
 
         // split panel for registered and unregistered sessions

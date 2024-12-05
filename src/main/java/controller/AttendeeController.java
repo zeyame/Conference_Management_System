@@ -32,7 +32,8 @@ public class AttendeeController {
              conferenceService.registerAttendeeToConference(conferenceId, attendeeId);
              return ResponseEntity.success();
         } catch (Exception e) {
-            return ResponseEntity.error(e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to register attendee to conference: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when registering you for the conference. Please try again later.");
         }
     }
 
@@ -41,7 +42,8 @@ public class AttendeeController {
             sessionService.registerAttendee(sessionId, attendeeId);
             return ResponseEntity.success();
         } catch (Exception e) {
-            return ResponseEntity.error(e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to register attendee for session: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when registering you for the session. Please try again later.");
         }
     }
 
@@ -51,7 +53,8 @@ public class AttendeeController {
             return ResponseEntity.success(conferenceDTO);
         } catch (ConferenceException e) {
             LoggerUtil.getInstance().logError(String.format("Failed to retrieve conference with id '%s': %s", conferenceId, e.getMessage()));
-            return ResponseEntity.error(e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to get conference: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when retrieving conference data.");
         }
     }
 
@@ -61,7 +64,7 @@ public class AttendeeController {
             return ResponseEntity.success(sessionDTO);
         } catch (SessionException e) {
             LoggerUtil.getInstance().logError(String.format("Failed to retrieve session with id '%s': %s", sessionId, e.getMessage()));
-            return ResponseEntity.error(e.getMessage());
+            return ResponseEntity.error("An unexpected error occurred when retrieving session data. Please try again later.");
         }
     }
 
@@ -76,7 +79,8 @@ public class AttendeeController {
 
             return ResponseEntity.success(upcomingNotRegisteredConferences);
         } catch (UserException e) {
-            return ResponseEntity.error(e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to get upcoming conferences: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when retrieving upcoming conferences. Please try again later.");
         }
     }
 
@@ -86,7 +90,8 @@ public class AttendeeController {
             List<ConferenceDTO> registeredConferences = conferenceService.findAllById(registeredConferencesIds);
             return ResponseEntity.success(registeredConferences);
         } catch (UserException e) {
-            return ResponseEntity.error(e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to get registered conferences: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when retrieving your registered conferences. Please try again later.");
         }
     }
 
@@ -97,7 +102,8 @@ public class AttendeeController {
             List<SessionDTO> sessionDTOS = sessionService.findAllById(conferenceDTO.getSessions());
             return ResponseEntity.success(sessionDTOS);
         } catch (Exception e) {
-            return ResponseEntity.error(e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to get conference sessions: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when retrieving conference sessions. Please try again later.");
         }
     }
 
@@ -107,16 +113,18 @@ public class AttendeeController {
             List<SessionDTO> sessionDTOS = sessionService.findAllUpcomingById(conferenceDTO.getSessions());
             return ResponseEntity.success(sessionDTOS);
         } catch (Exception e) {
-            return ResponseEntity.error(e.getMessage());
+            LoggerUtil.getInstance().logError(String.format("Failed to get upcoming conference sessions: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when retrieving upcoming sessions. Please try again later.");
         }
     }
+
 
     public ResponseEntity<String> getOrganizerName(String organizerId) {
         try {
             String organizerName = userService.getNameById(organizerId);
             return ResponseEntity.success(organizerName);
         } catch (UserException e) {
-            return ResponseEntity.error(e.getMessage());
+            return ResponseEntity.error("An unexpected error occurred when fetching session details. Please try again later.");
         }
     }
 
@@ -126,6 +134,16 @@ public class AttendeeController {
             return ResponseEntity.success();
         } catch (Exception e) {
             return ResponseEntity.error("An unexpected error occurred when removing you from conference. Please try again later.");
+        }
+    }
+
+    public ResponseEntity<Void> leaveSession(String sessionId, String attendeeId) {
+        try {
+            sessionService.unregisterAttendee(sessionId, attendeeId);
+            return ResponseEntity.success();
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to unregister attendee from session: %s", e.getMessage()));
+            return ResponseEntity.error("An unexpected error occurred when unregistering you from the session. Please try again later.");
         }
     }
 }

@@ -139,6 +139,8 @@ public class Session {
         registeredAttendees.add(attendeeId);
     }
 
+    public void unregisterAttendee(String attendeeId) {registeredAttendees.remove(attendeeId);}
+
     public String getId() {
         return this.id;
     }

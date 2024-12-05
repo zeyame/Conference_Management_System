@@ -52,4 +52,16 @@ public class AttendeeSessionManager implements SessionEventObserver {
             callback.accept(null, sessionResponse.getErrorMessage());
         }
     }
+
+    @Override
+    public void onLeaveSession(String sessionId, String attendeeId, Consumer<String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Request from attendee with id '%s' to leave session with id '%s' received.", attendeeId, sessionId));
+
+        ResponseEntity<Void> sessionLeaveResponse = attendeeController.leaveSession(sessionId, attendeeId);
+        if (sessionLeaveResponse.isSuccess()) {
+            callback.accept(null);
+        } else {
+            callback.accept(sessionLeaveResponse.getErrorMessage());
+        }
+    }
 }

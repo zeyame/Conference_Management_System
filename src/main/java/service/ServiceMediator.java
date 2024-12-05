@@ -25,6 +25,10 @@ public class ServiceMediator {
     }
 
     // SESSION RELATED METHODS - CRUD ORDERED
+    public SessionDTO getSessionById(String sessionId) {
+        return sessionService.getById(sessionId);
+    }
+
     public List<SessionDTO> findSessionsByIds(Set<String> sessionIds) {
         return sessionService.findAllById(sessionIds);
     }
@@ -43,8 +47,8 @@ public class ServiceMediator {
         userService.addConferenceToAttendee(attendeeId, conferenceId);
     }
 
-    public void addSessionToAttendee(String attendeeId, String sessionId, LocalDateTime sessionStartTime) {
-        userService.addSessionToAttendee(attendeeId, sessionId, sessionStartTime);
+    public void addSessionToAttendee(SessionDTO sessionDTO, String attendeeId) {
+        userService.addSessionToAttendee(attendeeId, sessionDTO);
     }
 
     public void assignNewSessionForSpeaker(SessionDTO sessionDTO) {
@@ -77,6 +81,10 @@ public class ServiceMediator {
 
     public void unassignSessionFromSpeaker(String sessionId, String speakerId) {
         userService.unassignSessionFromSpeaker(speakerId, sessionId);
+    }
+
+    public void removeSessionFromAttendee(String sessionId, String attendeeId) {
+        userService.removeSessionFromAttendee(attendeeId, sessionId);
     }
 
 
