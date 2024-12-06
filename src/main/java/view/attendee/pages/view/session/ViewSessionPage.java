@@ -82,7 +82,7 @@ public abstract class ViewSessionPage extends JPanel {
 
 
     protected void handleBackButton(ActionEvent e) {
-        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
+        ViewUpcomingSessions viewSessionsPage = new ViewUpcomingSessions(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
         navigator.navigateTo(viewSessionsPage);
     }
 

@@ -1,6 +1,7 @@
 package controller;
 
 import dto.ConferenceDTO;
+import dto.FeedbackDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
 import exception.ConferenceException;
@@ -47,6 +48,10 @@ public class AttendeeController {
         }
     }
 
+    public ResponseEntity<Void> submitSessionFeedback(FeedbackDTO feedbackDTO) {
+        return ResponseEntity.success();
+    }
+
     public ResponseEntity<ConferenceDTO> getConference(String conferenceId) {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
@@ -65,6 +70,27 @@ public class AttendeeController {
         } catch (SessionException e) {
             LoggerUtil.getInstance().logError(String.format("Failed to retrieve session with id '%s': %s", sessionId, e.getMessage()));
             return ResponseEntity.error("An unexpected error occurred when retrieving session data. Please try again later.");
+        }
+    }
+
+    public ResponseEntity<List<SessionDTO>> getPersonalSchedule(String attendeeId, String conferenceId) {
+        try {
+            // getting the sessions in conference
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
+            Set<String> sessionsInConference = conferenceDTO.getSessions();
+
+            // retrieving sessions attendee is registered for within the conference
+            List<SessionDTO> sessionDTOS = sessionService.findAllById(sessionsInConference);
+
+            List<SessionDTO> attendeeSessions = sessionDTOS.stream()
+                    .filter(sessionDTO -> sessionDTO.getRegisteredAttendees().contains(attendeeId))
+                    .toList();
+            return ResponseEntity.success(attendeeSessions);
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logInfo(String.format("Failed to fetch attendee '%s' personal schedule for conference '%s': %s",
+                    attendeeId, conferenceId, e.getMessage() + e));
+            return ResponseEntity.error("An unexpected error occurred when retrieving your personal schedule " +
+                    "for this conference. Please try again later.");
         }
     }
 

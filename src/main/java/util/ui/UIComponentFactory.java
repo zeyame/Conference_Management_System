@@ -85,7 +85,7 @@ public class UIComponentFactory {
 
     public static JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(150, 40));
+        button.setPreferredSize(new Dimension(180, 40));
         button.setFocusPainted(false);
         return button;
     }
@@ -174,37 +174,6 @@ public class UIComponentFactory {
     }
 
 
-
-    public static JPanel createSessionPanel(SessionDTO session, ActionListener buttonListener, String buttonText) {
-        JPanel sessionPanel = new JPanel();
-        sessionPanel.setLayout(new BoxLayout(sessionPanel, BoxLayout.Y_AXIS));
-
-        // session name
-        JLabel nameLabel = new JLabel("Name: " + session.getName());
-        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 16));
-        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
-
-        // session date and time
-        JLabel dateLabel = new JLabel("Date: " + session.getDate().toString());
-        JLabel timeLabel = new JLabel("Time: " + session.getStartTime() + " - " + session.getEndTime());
-        dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-        timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
-
-        // manage or view session button
-        JButton button = new JButton(buttonText);
-        button.setFocusPainted(false);
-        button.putClientProperty("sessionId", session.getId());
-        button.addActionListener(buttonListener);
-
-        // Add components to session panel
-        sessionPanel.add(nameLabel);
-        sessionPanel.add(dateLabel);
-        sessionPanel.add(timeLabel);
-        sessionPanel.add(button);
-
-        return sessionPanel;
-    }
-
     public static JPanel createSessionDetailsPanel(SessionDTO sessionDTO) {
         JPanel detailsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
@@ -249,6 +218,87 @@ public class UIComponentFactory {
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 30));
 
         return detailsPanel;
+    }
+
+    public static JSplitPane createSplitPane(String leftSideTitle, String rightSideTitle, List<SessionDTO> leftSideSessions, List<SessionDTO> rightSideSessions, String buttonText, ActionListener buttonHandler) {
+        // create panels for ongoing and upcoming conferences
+        JPanel registeredPanel = createSessionsScrollPanePanel(leftSideTitle, leftSideSessions, buttonText, buttonHandler);
+        JPanel unregisteredPanel = createSessionsScrollPanePanel(rightSideTitle, rightSideSessions, buttonText, buttonHandler);
+
+        Dimension equalSize = new Dimension(400, 0);
+        registeredPanel.setPreferredSize(equalSize);
+        unregisteredPanel.setPreferredSize(equalSize);
+
+        // create a split pane with the two panels
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, registeredPanel, unregisteredPanel);
+        splitPane.setResizeWeight(0.5);
+        splitPane.setDividerSize(5);
+        return splitPane;
+    }
+
+    private static JPanel createSessionsScrollPanePanel(String title, List<SessionDTO> sessionDTOs, String buttonText, ActionListener buttonHandler) {
+        JPanel sessionsPanel = new JPanel();
+        sessionsPanel.setLayout(new BorderLayout());
+
+        // header label
+        JLabel headerLabel = new JLabel(title, SwingConstants.CENTER);
+        headerLabel.setFont(new Font("Sans serif", Font.BOLD, 18));
+        headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        sessionsPanel.add(headerLabel, BorderLayout.NORTH);
+
+        // Scrollable list of sessions
+        JScrollPane scrollPane = createSessionsScrollPane(sessionDTOs, buttonText, buttonHandler);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        sessionsPanel.add(scrollPane, BorderLayout.CENTER);
+
+        return sessionsPanel;
+    }
+
+    public static JScrollPane createSessionsScrollPane(List<SessionDTO> sessionDTOs, String buttonText, ActionListener buttonHandler) {
+        JPanel sessionsPanel = new JPanel();
+        sessionsPanel.setLayout(new BoxLayout(sessionsPanel, BoxLayout.Y_AXIS));
+        sessionsPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
+
+        for (SessionDTO sessionDTO : sessionDTOs) {
+            sessionsPanel.add(UIComponentFactory.createSessionPanel(sessionDTO, buttonHandler, buttonText));
+            sessionsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        }
+
+        JScrollPane scrollPane = new JScrollPane(sessionsPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(7);
+        return scrollPane;
+    }
+
+
+    private static JPanel createSessionPanel(SessionDTO session, ActionListener buttonListener, String buttonText) {
+        JPanel sessionPanel = new JPanel();
+        sessionPanel.setLayout(new BoxLayout(sessionPanel, BoxLayout.Y_AXIS));
+
+        // session name
+        JLabel nameLabel = new JLabel("Name: " + session.getName());
+        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 16));
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // session date and time
+        JLabel dateLabel = new JLabel("Date: " + session.getDate().toString());
+        JLabel timeLabel = new JLabel("Time: " + session.getStartTime() + " - " + session.getEndTime());
+        dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // manage or view session button
+        JButton button = new JButton(buttonText);
+        button.setFocusPainted(false);
+        button.putClientProperty("sessionId", session.getId());
+        button.addActionListener(buttonListener);
+
+        // Add components to session panel
+        sessionPanel.add(nameLabel);
+        sessionPanel.add(dateLabel);
+        sessionPanel.add(timeLabel);
+        sessionPanel.add(button);
+
+        return sessionPanel;
     }
 
     public static JScrollPane createConferenceScrollPane(List<ConferenceDTO> conferences, ActionListener handleViewOrManageConferenceButton, String buttonText) {

@@ -40,8 +40,8 @@ public class ViewUnregisteredSessionPage extends ViewSessionPage {
         }
 
         showSuccess(String.format("You have successfully been registered to attend session '%s'.", sessionDTO.getName()));
-        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
-        navigator.navigateTo(viewSessionsPage, false);
+        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(attendee, eventMediator, navigator, sessionDTO.getConferenceId());
+        navigator.navigateTo(viewPersonalSchedulePage, false);
     }
 
 }

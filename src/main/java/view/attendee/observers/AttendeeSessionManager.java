@@ -1,6 +1,7 @@
 package view.attendee.observers;
 
 import controller.AttendeeController;
+import dto.FeedbackDTO;
 import dto.SessionDTO;
 import response.ResponseEntity;
 import util.LoggerUtil;
@@ -30,6 +31,18 @@ public class AttendeeSessionManager implements SessionEventObserver {
     }
 
     @Override
+    public void onSubmitFeedback(FeedbackDTO feedbackDTO, Consumer<String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Attendee request to submit feedback for session '%s' received.", feedbackDTO.getSessionId()));
+
+        ResponseEntity<Void> submitSessionFeedbackResponse = attendeeController.submitSessionFeedback(feedbackDTO);
+        if (submitSessionFeedbackResponse.isSuccess()) {
+            callback.accept(null);
+        } else {
+            callback.accept(submitSessionFeedbackResponse.getErrorMessage());
+        }
+    }
+
+    @Override
     public void onGetUpcomingSessionsForConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback) {
         LoggerUtil.getInstance().logInfo(String.format("Attendee request to view sessions in conference with id '%s' received.", conferenceId));
 
@@ -38,6 +51,18 @@ public class AttendeeSessionManager implements SessionEventObserver {
             callback.accept(sessionsResponse.getData(), null);
         } else {
             callback.accept(null, sessionsResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onGetPersonalSchedule(String attendeeId, String conferenceId, BiConsumer<List<SessionDTO>, String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Attendee request to retrieve personal schedule for conference '%s' received.", conferenceId));
+
+        ResponseEntity<List<SessionDTO>> personalScheduleResponse = attendeeController.getPersonalSchedule(attendeeId, conferenceId);
+        if (personalScheduleResponse.isSuccess()) {
+            callback.accept(personalScheduleResponse.getData(), null);
+        } else {
+            callback.accept(null, personalScheduleResponse.getErrorMessage());
         }
     }
 

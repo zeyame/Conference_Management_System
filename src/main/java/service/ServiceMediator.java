@@ -72,7 +72,7 @@ public class ServiceMediator {
     }
 
     public void unassignConferenceFromOrganizer(String conferenceId, String organizerId) {
-        userService.unassignConferenceFromOrgaizer(organizerId, conferenceId);
+        userService.unassignConferenceFromOrganizer(organizerId, conferenceId);
     }
 
     public void removeConferenceFromAttendee(String conferenceId, String attendeeId) {

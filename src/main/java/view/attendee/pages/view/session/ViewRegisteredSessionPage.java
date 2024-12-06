@@ -1,10 +1,13 @@
 package view.attendee.pages.view.session;
 
+import domain.model.FeedbackType;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.SessionEventObserver;
+import view.attendee.pages.form.FeedbackPage;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -29,26 +32,30 @@ public class ViewRegisteredSessionPage extends ViewSessionPage {
         add(createFooterPanel(), BorderLayout.SOUTH);
     }
 
+//    @Override
+//    protected JPanel createFooterPanel() {
+//        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+//
+//        JButton provideSessionFeedbackButton = UIComponentFactory.createStyledButton("Provide Session Feedback");
+//        JButton provideSpeakerFeedbackButton = UIComponentFactory.createStyledButton("Provide Speaker Feedback");
+//
+//        provideSessionFeedbackButton.setPreferredSize(new Dimension(270, 40));
+//        provideSpeakerFeedbackButton.setPreferredSize(new Dimension(270, 40));
+//
+//        provideSessionFeedbackButton.addActionListener(this::handleProvideSessionFeedbackButton);
+//        provideSpeakerFeedbackButton.addActionListener(this::handleProvideSpeakerFeedbackButton);
+//
+//        footerPanel.add(provideSessionFeedbackButton);
+//        footerPanel.add(provideSpeakerFeedbackButton);
+//        footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 80));
+//
+//        return footerPanel;
+//    }
+
     @Override
-    protected JPanel createFooterPanel() {
-        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
-
-        JButton provideSessionFeedbackButton = UIComponentFactory.createStyledButton("Provide Session Feedback");
-        JButton provideSpeakerFeedbackButton = UIComponentFactory.createStyledButton("Provide Speaker Feedback");
-
-        provideSessionFeedbackButton.setPreferredSize(new Dimension(270, 40));
-        provideSpeakerFeedbackButton.setPreferredSize(new Dimension(270, 40));
-
-        provideSessionFeedbackButton.addActionListener(this::handleProvideSessionFeedbackButton);
-        provideSpeakerFeedbackButton.addActionListener(this::handleProvideSpeakerFeedbackButton);
-
-        footerPanel.add(provideSessionFeedbackButton);
-        footerPanel.add(provideSpeakerFeedbackButton);
-        footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 80));
-
-        return footerPanel;
+    protected  JPanel createFooterPanel() {
+        return new JPanel();
     }
-
     private JPanel createHeaderPanelWithLeaveButton() {
         JPanel headerPanel = UIComponentFactory.createHeaderPanel(sessionDTO.getName(), this::handleBackButton, 460);
         headerPanel.add(Box.createRigidArea(new Dimension(500, 0)));
@@ -88,7 +95,7 @@ public class ViewRegisteredSessionPage extends ViewSessionPage {
     }
 
     private void handleProvideSessionFeedbackButton(ActionEvent e) {
-
+        FeedbackPage feedbackPage = new FeedbackPage(attendee, eventMediator, navigator, sessionDTO, FeedbackType.SESSION);
     }
 
     private void handleProvideSpeakerFeedbackButton(ActionEvent e) {
@@ -103,7 +110,7 @@ public class ViewRegisteredSessionPage extends ViewSessionPage {
         showSuccess(String.format("You have successfully left the session '%s'.", sessionDTO.getName()));
 
         // navigate back to view session page to display the updated list of upcoming sessions
-        ViewSessionsPage viewSessionsPage = new ViewSessionsPage(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
+        ViewUpcomingSessions viewSessionsPage = new ViewUpcomingSessions(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
         navigator.navigateTo(viewSessionsPage, false);
     }
 

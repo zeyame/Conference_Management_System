@@ -31,11 +31,8 @@ public class UserService {
         User user = UserFactory.createUser(validatedDTO);
 
         // attempting to save validated user to file storage with retries if necessary
-        boolean isSavedToFile = userRepository.save(user, user.getId());
-        if (!isSavedToFile) {
-            LoggerUtil.getInstance().logError("User registration failed. Could not save user to file storage.");
-            throw new UserException("An unexpected error has occurred while saving your data. Please try again later.");
-        }
+        save(user, "An unexpected error occurred when saving your data. Please try again later.");
+
         LoggerUtil.getInstance().logInfo(String.format("User with email '%s' has successfully been registered.", validatedDTO.getEmail()));
     }
 
@@ -45,27 +42,16 @@ public class UserService {
         }
 
         // retrieving user
-        Optional<User> userOptional = userRepository.findById(organizerId);
-        if (userOptional.isEmpty()) {
-            LoggerUtil.getInstance().logWarning(String.format("Id provided '%s' does not belong to any registered user.", organizerId));
-            throw new UserException(String.format("User with id '%s' does not exist.", organizerId));
-        }
+        User user = findById(organizerId);
 
         // validating user is an organizer
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.ORGANIZER) {
-            LoggerUtil.getInstance().logWarning(String.format("Id provided belongs to a user with the role of '%s'. Required role: Organizer.", user.getRole().getDisplayName()));
-            throw new UserException(String.format("User with id '%s' does not have organizer permissions.", organizerId));
-        }
+        validateRole(user, UserRole.ORGANIZER);
 
         // updating organizer's data
         Organizer organizer = (Organizer) user;
         organizer.addConference(conferenceId);
 
-        boolean isUserUpdated = userRepository.save(organizer, organizerId);
-        if (!isUserUpdated) {
-            throw new UserException("An unexpected error occurred when saving conference to your managed conferences. Please try again later.");
-        }
+        save(organizer, "An unexpected error occurred when saving conference to your managed conferences. Please try again later.");
     }
 
     public void addConferenceToAttendee(String id, String conferenceId) {
@@ -73,23 +59,15 @@ public class UserService {
             throw new IllegalArgumentException("Attendee id and conference id cannot be null or empty.");
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new UserException(String.format("User with id '%s' does not exist.", id));
-        }
+        User user = findById(id);
 
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.ATTENDEE) {
-            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", id));
-        }
+        validateRole(user, UserRole.ATTENDEE);
 
+        // registering attendee to conference
         Attendee attendee = (Attendee) user;
         attendee.addRegisteredConference(conferenceId);
 
-        boolean isUpdated = userRepository.save(attendee, attendee.getId());
-        if (!isUpdated) {
-            throw new UserException("An unexpected error occurred when saving updated attendee data. Please try again later.");
-        }
+        save(attendee, "An unexpected error occurred when registering attendee to conference. Please try again later.");
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully added conference with id '%s' to attendee '%s' registered conferences.", conferenceId, attendee.getName()));
     }
@@ -103,22 +81,16 @@ public class UserService {
             throw new IllegalArgumentException("Invalid session data.");
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new UserException(String.format("User with id '%s' does not exist.", id));
-        }
+        User user = findById(id);
 
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.ATTENDEE) {
-            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", id));
-        }
+        validateRole(user, UserRole.ATTENDEE);
 
         // add session to attendee's personal schedule
         Attendee attendee = (Attendee) user;
         attendee.addSession(sessionDTO.getId(), LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime()));
 
         // save updated attendee data to storage
-        save(attendee);
+        save(attendee, "An unexpected error occurred when registering session to attendee's schedule. Please try again later.");
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully added session '%s' to attendee '%s' schedule.", sessionDTO.getName(), attendee.getName()));
     }
@@ -128,21 +100,11 @@ public class UserService {
             throw new IllegalArgumentException("SessionDTO cannot be null.");
         }
 
-        String speakerId = sessionDTO.getSpeakerId();
-
         // retrieving user
-        Optional<User> userOptional = userRepository.findById(speakerId);
-        if (userOptional.isEmpty()) {
-            LoggerUtil.getInstance().logError(String.format("Id provided '%s' does not belong to any registered user.", speakerId));
-            throw new UserException(String.format("User with id '%s' does not exist.", speakerId));
-        }
+        User user = findById(sessionDTO.getSpeakerId());
 
         // validating user is a speaker
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.SPEAKER) {
-            LoggerUtil.getInstance().logError(String.format("Id provided belongs to a user with the role of '%s'.  Required role: Speaker.", user.getRole().getDisplayName()));
-            throw new UserException(String.format("User with id '%s' does not have speaker permissions.", speakerId));
-        }
+        validateRole(user, UserRole.SPEAKER);
 
         // update speaker's data by assigning new session
         LocalDateTime sessionStart = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime());
@@ -150,11 +112,7 @@ public class UserService {
         Speaker speaker = (Speaker) user;
         speaker.assignSession(sessionDTO.getId(), sessionStart, sessionEnd);
 
-        // saving updated speaker user
-        boolean isUserUpdated = userRepository.save(speaker, speakerId);
-        if (!isUserUpdated) {
-            throw new UserException("Failed to save session to speaker's assigned sessions. Please try again later.");
-        }
+        save(speaker, "An unexpected error occurred when assigning session to speaker's schedule. Please try again later.");
     }
 
 
@@ -244,10 +202,7 @@ public class UserService {
         }
 
         User user = organizerOptional.get();
-        if (user.getRole() != UserRole.ORGANIZER) {
-            LoggerUtil.getInstance().logWarning(String.format("Failed to find managed conferences for organizer: Email provided belongs to a user with the role of '%s'. Required role: Organizer.", user.getRole().getDisplayName()));
-            throw new UserException(String.format("User with email '%s' does not have organizer permissions.", email));
-        }
+        validateRole(user, UserRole.ORGANIZER);
 
         Organizer organizer = (Organizer) user;
         return organizer.getManagedConferences();
@@ -268,42 +223,29 @@ public class UserService {
             throw new IllegalArgumentException("Attendee Id cannot be null or empty.");
         }
 
-        Optional<User> userOptional = userRepository.findById(attendeeId);
-        if (userOptional.isEmpty()) {
-            throw new UserException(String.format("User with id '%s' does not exist.", attendeeId));
-        }
+        User user = findById(attendeeId);
 
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.ATTENDEE) {
-            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", attendeeId));
-        }
+        validateRole(user, UserRole.ATTENDEE);
 
         Attendee attendee = (Attendee) user;
         return attendee.getRegisteredConferences();
     }
 
-    public void unassignConferenceFromOrgaizer(String id, String conferenceId) {
+    public void unassignConferenceFromOrganizer(String id, String conferenceId) {
         if (id == null || id.isEmpty() || conferenceId == null || conferenceId.isEmpty()) {
             throw new IllegalArgumentException("Organizer id and conference id are required to remove conference from organizer's managed conferences and cannot be null or empty.");
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new UserException(String.format("User with id '%s' does not exist.", id));
-        }
+        User user = findById(id);
 
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.SPEAKER) {
-            throw new UserException(String.format("User with id '%s' does not have speaker permissions.", id));
-        }
+        validateRole(user, UserRole.ORGANIZER);
 
+        // remove conference from organizer
         Organizer organizer = (Organizer) user;
         organizer.removeConference(conferenceId);
 
-        boolean isOrganizerUpdated = userRepository.save(organizer, organizer.getId());
-        if (!isOrganizerUpdated) {
-            throw new UserException("An unexpected error occurred when unassigning conference from organizer's managed conferences. Please try again later.");
-        }
+        // save updated organizer data
+        save(organizer, "An unexpected error occurred when unassigning conference from organizer's managed conferences. Please try again later.");
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully removed conference with id '%s' from organizer '%s' managed conferences.", conferenceId, organizer.getName()));
     }
@@ -313,23 +255,16 @@ public class UserService {
             throw new IllegalArgumentException("Attendee id and conference id cannot be null or empty.");
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new UserException(String.format("User with id '%s' does not exist.", id));
-        }
+        User user = findById(id);
 
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.ATTENDEE) {
-            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", id));
-        }
+        validateRole(user, UserRole.ATTENDEE);
 
+        // removing conference from attendee
         Attendee attendee = (Attendee) user;
         attendee.removeRegisteredConference(conferenceId);
 
-        boolean isAttendeeUpdated = userRepository.save(attendee, attendee.getId());
-        if (!isAttendeeUpdated) {
-            throw new UserException("An unexpected error occurred when saving attendee data after removing registered conference. Please try again later.");
-        }
+        // saving updated attendee data
+        save(attendee, "An unexpected error occurred when removing conference from the attendee's registered conferences. Please try again later.");
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully removed conference '%s' from attendee '%s' registered conferences.", conferenceId, attendee.getName()));
     }
@@ -339,22 +274,16 @@ public class UserService {
             throw new IllegalArgumentException("Invalid attendee id and/or session id.");
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            LoggerUtil.getInstance().logError(String.format("Failed to find user with id '%s'.", id));
-            throw new UserException(String.format("User with id '%s' does not exist.", id));
-        }
+        User user = findById(id);
 
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.ATTENDEE) {
-            LoggerUtil.getInstance().logError(String.format("User '%s' does not have attendee permissions.", user.getName()));
-            throw new UserException(String.format("User with id '%s' does not have attendee permissions.", id));
-        }
+        validateRole(user, UserRole.ATTENDEE);
 
+        // removing session from attendee's schedule
         Attendee attendee = (Attendee) user;
         attendee.removeSession(sessionId);
 
-        save(attendee);
+        // saving updated attendee data
+        save(attendee, "An unexpected error occurred when removing session from attendee's schedule. Please try again later.");
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully unregistered attendee '%s' from session with id '%s'.", id, sessionId));
     }
@@ -364,33 +293,46 @@ public class UserService {
             throw new IllegalArgumentException("Speaker id and session id are required to remove session from speaker's schedule and cannot be null or empty.");
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new UserException(String.format("User with id '%s' does not exist.", id));
-        }
+        // find user
+        User user = findById(id);
 
-        User user = userOptional.get();
-        if (user.getRole() != UserRole.SPEAKER) {
-            throw new UserException(String.format("User with id '%s' does not have speaker permissions.", id));
-        }
+        // validate user's role
+        validateRole(user, UserRole.SPEAKER);
 
+        // removing session from speaker's schedule
         Speaker speaker = (Speaker) user;
         speaker.unassignSession(sessionId);
 
-        boolean isSpeakerUpdated = userRepository.save(speaker, speaker.getId());
-        if (!isSpeakerUpdated) {
-            throw new UserException("An unexpected error occurred when unassigning session from speaker's schedule. Please try again later.");
-        }
+        // saving updated speaker
+        save(speaker, "An unexpected error occurred when unassigning session from speaker's schedule. Please try again later.");
 
         LoggerUtil.getInstance().logInfo(String.format("Successfully unassigned session with id '%s' from speaker '%s'.", sessionId, speaker.getName()));
     }
 
-    private void save(User user) {
+
+
+    // helpers
+    private void save(User user, String errorMessage) {
         boolean isSaved = userRepository.save(user, user.getId());
         if (!isSaved) {
             LoggerUtil.getInstance().logError(String.format("Saving failure: User with id '%s' could not be saved.", user.getId()));
-            throw new UserException("An unexpected error occurred when saving data. Please try again later.");
+            throw new UserException(errorMessage);
         }
+    }
+
+    private User findById(String id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new UserException(String.format("User with id '%s' does not exist.", id));
+        }
+        return userOptional.get();
+    }
+
+    private void validateRole(User user, UserRole requiredRole) {
+        if (user.getRole() != requiredRole) {
+            throw new UserException(String.format("User with id '%s' does not have %s permissions.", user.getId(), requiredRole.getDisplayName()));
+        }
+
     }
 
     private UserDTO mapToDTO(User user) {

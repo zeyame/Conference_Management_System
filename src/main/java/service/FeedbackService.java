@@ -51,13 +51,15 @@ public class FeedbackService {
     }
 
     private FeedbackDTO mapToDTO(Feedback feedback) {
-        return new FeedbackDTO(
-                feedback.getId(),
+        FeedbackDTO feedbackDTO = new FeedbackDTO(
                 feedback.getAttendeeId(),
                 feedback.getAttendeeName(),
+                feedback.getSessionId(),
+                feedback.getConferenceId(),
                 feedback.getRating(),
                 feedback.getComment(),
-                feedback.getType()
-        );
+                feedback.getType());
+        feedbackDTO.setId(feedbackDTO.getId());
+        return feedbackDTO;
     }
 }

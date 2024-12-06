@@ -27,7 +27,7 @@ public class SessionValidator {
             throw new InvalidInitializationException("Name is required for session creation and cannot be null or empty.");
 
         if (!ValidationUtil.isDateValid(date))
-            throw new InvalidInitializationException("Date is required for session creation and cannot be null.");
+            throw new InvalidInitializationException(String.format("Date is required for session '%s' creation and cannot be null.", name));
 
         if (!ValidationUtil.areTimesValid(startTime, endTime))
             throw new InvalidInitializationException("Start and end times are required for session creation and cannot be null or empty. Start time must be before the end time.");

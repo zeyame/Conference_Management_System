@@ -7,6 +7,7 @@ import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
+import view.attendee.pages.view.conference.ViewConferencePage;
 import view.attendee.pages.view.conference.ViewRegisteredConferencesPage;
 import view.attendee.pages.view.conference.ViewUpcomingConferencePage;
 
@@ -91,7 +92,7 @@ public class HomePage extends JPanel {
         JButton sourceButton = (JButton) e.getSource();
         String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
 
-        ViewUpcomingConferencePage viewUpcomingConferencePage = new ViewUpcomingConferencePage(this.attendee, conferenceId, this.eventMediator, this.navigator);
+        ViewConferencePage viewUpcomingConferencePage = new ViewUpcomingConferencePage(this.attendee, this.eventMediator, this.navigator, conferenceId);
         navigator.navigateTo(viewUpcomingConferencePage);
     }
 
