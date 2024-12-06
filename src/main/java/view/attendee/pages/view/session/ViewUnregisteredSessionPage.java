@@ -25,6 +25,12 @@ public class ViewUnregisteredSessionPage extends ViewSessionPage {
     }
 
     // button handlers
+    @Override
+    protected void handleBackButton(ActionEvent e) {
+        ViewUpcomingSessions viewUpcomingSessions = new ViewUpcomingSessions(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
+        navigator.navigateTo(viewUpcomingSessions);
+    }
+
     private void handleRegisterButton(ActionEvent e) {
         eventMediator.publishEvent(
                 SessionEventObserver.class,

@@ -9,7 +9,7 @@ import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.SessionEventObserver;
-import view.attendee.pages.view.session.ViewRegisteredSessionPage;
+import view.attendee.pages.view.session.ViewUpcomingRegisteredSessionPage;
 import view.attendee.pages.view.session.ViewSessionPage;
 
 import javax.swing.*;
@@ -76,7 +76,7 @@ public class FeedbackPage extends JPanel {
     }
 
     private void handleBackAction(ActionEvent e) {
-        ViewSessionPage viewSessionPage = new ViewRegisteredSessionPage(attendee, sessionDTO.getId(), eventMediator, navigator);
+        ViewSessionPage viewSessionPage = new ViewUpcomingRegisteredSessionPage(attendee, sessionDTO.getId(), eventMediator, navigator);
         navigator.navigateTo(viewSessionPage);
     }
 

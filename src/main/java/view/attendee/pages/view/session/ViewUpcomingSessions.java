@@ -45,10 +45,16 @@ public class ViewUpcomingSessions extends JPanel {
         JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format("Upcoming Sessions in '%s'", conferenceDTO.getName()), this::handleBackButton, 380);
         add(headerPanel, BorderLayout.NORTH);
 
-        // split panel for registered and unregistered sessions
-        JScrollPane scrollPane = UIComponentFactory.createSessionsScrollPane(upcomingSessions, "View Session", this::handleViewSessionButton);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-        add(scrollPane, BorderLayout.CENTER);
+        if (!upcomingSessions.isEmpty()) {
+            // split panel for registered and unregistered sessions
+            JScrollPane scrollPane = UIComponentFactory.createSessionsScrollPane(upcomingSessions, "View Session", this::handleViewSessionButton);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+            add(scrollPane, BorderLayout.CENTER);
+        } else {
+            JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("There are currently no upcoming sessions open for " +
+                    "registration in this conference. Please check back later for new updates!");
+            add(emptyStatePanel, BorderLayout.CENTER);
+        }
     }
 
     // data fetchers

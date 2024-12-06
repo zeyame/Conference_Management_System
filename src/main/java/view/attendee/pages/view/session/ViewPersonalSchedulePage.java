@@ -29,6 +29,7 @@ public class ViewPersonalSchedulePage extends JPanel {
     // fetched data
     private ConferenceDTO conferenceDTO;
     private final Map<String, SessionDTO> upcomingSessions = new HashMap<>();
+    private final Map<String, SessionDTO> ongoingSessions = new HashMap<>();
     private final Map<String, SessionDTO> pastSessions = new HashMap<>();
 
     public ViewPersonalSchedulePage(UserDTO attendee, UIEventMediator eventMediator, Navigator navigator, String conferenceId) {
@@ -47,20 +48,47 @@ public class ViewPersonalSchedulePage extends JPanel {
 
     private void createPageContent() {
         // header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format("Your personal schedule for '%s'", conferenceDTO.getName()), this::handleBackButton, 300);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format("Your personal schedule for '%s'", conferenceDTO.getName()), this::handleBackButton, 350);
         add(headerPanel, BorderLayout.NORTH);
 
-        // split panel for registered and unregistered sessions
-        JSplitPane splitPane = UIComponentFactory.createSplitPane(
-                "Upcoming",
-                "Past",
-                upcomingSessions.values().stream().toList(),
-                pastSessions.values().stream().toList(),
-                "View Session",
-                this::handleViewSessionButton
-        );
-        splitPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-        add(splitPane, BorderLayout.CENTER);
+        if (upcomingSessions.isEmpty() && pastSessions.isEmpty()) {
+            JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("You haven't added any sessions to your personal schedule for this conference yet." +
+                    " Explore the conference's available sessions and start building your schedule!");
+            add(emptyStatePanel, BorderLayout.CENTER);
+        } else {
+            // split panel for upcoming and ongoing sessions
+            JSplitPane leftSplitPane = UIComponentFactory.createSplitPane(
+                    "Upcoming",
+                    "Ongoing",
+                    upcomingSessions.values().stream().toList(),
+                    ongoingSessions.values().stream().toList(),
+                    "View Session",
+                    this::handleViewSessionButton
+            );
+            leftSplitPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0,0));
+
+            // right panel for past sessions
+            JPanel pastSessionsScrollPanePanel = UIComponentFactory.createSessionsScrollPanePanel(
+                    "Past",
+                    pastSessions.values().stream().toList(),
+                    "View Session",
+                    this::handleViewSessionButton
+            );
+            Dimension equalSize = new Dimension(400, 0);
+            pastSessionsScrollPanePanel.setPreferredSize(equalSize);
+            pastSessionsScrollPanePanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+
+            JSplitPane splitPane = new JSplitPane(
+                    JSplitPane.HORIZONTAL_SPLIT,
+                    leftSplitPane,
+                    pastSessionsScrollPanePanel
+            );
+
+            splitPane.setResizeWeight(0.5);
+            splitPane.setDividerSize(5);
+            splitPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+            add(splitPane, BorderLayout.CENTER);
+        }
     }
 
     // data fetches
@@ -87,6 +115,7 @@ public class ViewPersonalSchedulePage extends JPanel {
         }
 
         filterUpcomingSessions(sessionDTOs);
+        filterOngoingSessions(sessionDTOs);
         filterPastSessions(sessionDTOs);
     }
 
@@ -111,9 +140,15 @@ public class ViewPersonalSchedulePage extends JPanel {
                 .forEach(sessionDTO -> upcomingSessions.put(sessionDTO.getId(), sessionDTO));
     }
 
+    private void filterOngoingSessions(List<SessionDTO> sessionDTOS) {
+        sessionDTOS.stream()
+                .filter(sessionDTO -> !isUpcoming(sessionDTO) && !isPast(sessionDTO))
+                .forEach(sessionDTO -> ongoingSessions.put(sessionDTO.getId(), sessionDTO));
+    }
+
     private void filterPastSessions(List<SessionDTO> sessionDTOS) {
         sessionDTOS.stream()
-                .filter(sessionDTO -> !isUpcoming(sessionDTO))
+                .filter(this::isPast)
                 .forEach(sessionDTO -> pastSessions.put(sessionDTO.getId(), sessionDTO));
     }
 
@@ -121,9 +156,25 @@ public class ViewPersonalSchedulePage extends JPanel {
         return LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime()).isAfter(LocalDateTime.now());
     }
 
+    private boolean isPast(SessionDTO sessionDTO) {
+        return LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime()).isBefore(LocalDateTime.now());
+    }
+
     // button handlers
     private void handleViewSessionButton(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        String sessionId = (String) sourceButton.getClientProperty("sessionId");
 
+        if (upcomingSessions.containsKey(sessionId)) {
+            ViewSessionPage viewSessionPage = new ViewUpcomingRegisteredSessionPage(attendee, sessionId, eventMediator, navigator);
+            navigator.navigateTo(viewSessionPage);
+        } else if (pastSessions.containsKey(sessionId)) {
+            ViewSessionPage viewSessionPage = new ViewPastRegisteredSessionPage(attendee, sessionId, eventMediator, navigator);
+            navigator.navigateTo(viewSessionPage);
+        } else {
+            ViewSessionPage viewSessionPage = new ViewOngoingRegisteredSessionPage(attendee, sessionId, eventMediator, navigator);
+            navigator.navigateTo(viewSessionPage);
+        }
     }
 
     private void handleBackButton(ActionEvent e) {

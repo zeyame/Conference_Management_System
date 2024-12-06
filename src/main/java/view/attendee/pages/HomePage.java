@@ -46,10 +46,16 @@ public class HomePage extends JPanel {
         // add header with back button
         add(createHomePageHeader(), BorderLayout.NORTH);
 
-        // add scrollable container with conferences
-        JScrollPane scrollPane = UIComponentFactory.createConferenceScrollPane(upcomingConferences, this::handleViewConferenceButton, "View Conference");
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        add(scrollPane, BorderLayout.CENTER);
+        // add scrollable container with conferences or display no upcoming conferences message
+        if (!upcomingConferences.isEmpty()) {
+            JScrollPane scrollPane = UIComponentFactory.createConferenceScrollPane(upcomingConferences, this::handleViewConferenceButton, "View Conference");
+            scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+            add(scrollPane, BorderLayout.CENTER);
+        } else {
+            JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("It looks like there are no upcoming conferences " +
+                    "available that you haven’t already registered for. Maybe check out your registered conferences.");
+            add(emptyStatePanel, BorderLayout.CENTER);
+        }
 
         // "View Registered Conferences" button
         JPanel viewRegisteredConferencesPanel = UIComponentFactory.createButtonPanel(viewRegisteredConferences);

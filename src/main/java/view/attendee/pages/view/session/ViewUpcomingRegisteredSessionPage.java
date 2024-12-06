@@ -12,8 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class ViewRegisteredSessionPage extends ViewSessionPage {
-    public ViewRegisteredSessionPage(UserDTO attendee, String sessionId, UIEventMediator eventMediator, Navigator navigator) {
+public class ViewUpcomingRegisteredSessionPage extends ViewSessionPage {
+    public ViewUpcomingRegisteredSessionPage(UserDTO attendee, String sessionId, UIEventMediator eventMediator, Navigator navigator) {
         super(attendee, sessionId, eventMediator, navigator);
     }
 
@@ -32,33 +32,15 @@ public class ViewRegisteredSessionPage extends ViewSessionPage {
         add(createFooterPanel(), BorderLayout.SOUTH);
     }
 
-//    @Override
-//    protected JPanel createFooterPanel() {
-//        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
-//
-//        JButton provideSessionFeedbackButton = UIComponentFactory.createStyledButton("Provide Session Feedback");
-//        JButton provideSpeakerFeedbackButton = UIComponentFactory.createStyledButton("Provide Speaker Feedback");
-//
-//        provideSessionFeedbackButton.setPreferredSize(new Dimension(270, 40));
-//        provideSpeakerFeedbackButton.setPreferredSize(new Dimension(270, 40));
-//
-//        provideSessionFeedbackButton.addActionListener(this::handleProvideSessionFeedbackButton);
-//        provideSpeakerFeedbackButton.addActionListener(this::handleProvideSpeakerFeedbackButton);
-//
-//        footerPanel.add(provideSessionFeedbackButton);
-//        footerPanel.add(provideSpeakerFeedbackButton);
-//        footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 80));
-//
-//        return footerPanel;
-//    }
 
     @Override
     protected  JPanel createFooterPanel() {
         return new JPanel();
     }
+
     private JPanel createHeaderPanelWithLeaveButton() {
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(sessionDTO.getName(), this::handleBackButton, 460);
-        headerPanel.add(Box.createRigidArea(new Dimension(500, 0)));
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(sessionDTO.getName(), this::handleBackButton, 470);
+        headerPanel.add(Box.createRigidArea(new Dimension(430, 0)));
 
         JButton leaveSessionButton = UIComponentFactory.createStyledButton("Leave Session");
         leaveSessionButton.addActionListener(this::handleLeaveSessionButton);
@@ -70,6 +52,12 @@ public class ViewRegisteredSessionPage extends ViewSessionPage {
 
 
     // button handlers
+    @Override
+    protected void handleBackButton(ActionEvent e) {
+        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(attendee, eventMediator, navigator, sessionDTO.getConferenceId());
+        navigator.navigateTo(viewPersonalSchedulePage);
+    }
+
     private void handleLeaveSessionButton(ActionEvent e) {
         int choice = JOptionPane.showConfirmDialog(
                 this,

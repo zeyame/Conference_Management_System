@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -85,7 +86,7 @@ public class UIComponentFactory {
 
     public static JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(180, 40));
+        button.setPreferredSize(new Dimension(190, 40));
         button.setFocusPainted(false);
         return button;
     }
@@ -106,6 +107,15 @@ public class UIComponentFactory {
         JLabel label = new JLabel(text);
         label.setFont(font);
         return label;
+    }
+
+    public static JPanel createEmptyStatePanel(String message) {
+        JPanel emptyStatePanel = new JPanel();
+        JLabel emptyStateMessage = new JLabel(message);
+        emptyStateMessage.setFont(new Font("Sans serif", Font.PLAIN, 16));
+        emptyStatePanel.add(emptyStateMessage);
+        emptyStatePanel.setBorder(BorderFactory.createEmptyBorder(270, 0, 0, 0));
+        return emptyStatePanel;
     }
 
     public static void addLabelToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int x, int y, int width) {
@@ -209,11 +219,11 @@ public class UIComponentFactory {
 
         // adding start time
         UIComponentFactory.addLabelToPanel(detailsPanel, "Start Time: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 5, 1);
-        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getStartTime().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 5, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")), new Font("Arial", Font.PLAIN, 18), gbc, 1, 5, 1);
 
         // adding end time
         UIComponentFactory.addLabelToPanel(detailsPanel, "End Time: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 6, 1);
-        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getEndTime().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 6, 1);
+        UIComponentFactory.addLabelToPanel(detailsPanel, sessionDTO.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")), new Font("Arial", Font.PLAIN, 18), gbc, 1, 6, 1);
 
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 30));
 
@@ -236,7 +246,7 @@ public class UIComponentFactory {
         return splitPane;
     }
 
-    private static JPanel createSessionsScrollPanePanel(String title, List<SessionDTO> sessionDTOs, String buttonText, ActionListener buttonHandler) {
+    public static JPanel createSessionsScrollPanePanel(String title, List<SessionDTO> sessionDTOs, String buttonText, ActionListener buttonHandler) {
         JPanel sessionsPanel = new JPanel();
         sessionsPanel.setLayout(new BorderLayout());
 
@@ -282,7 +292,7 @@ public class UIComponentFactory {
 
         // session date and time
         JLabel dateLabel = new JLabel("Date: " + session.getDate().toString());
-        JLabel timeLabel = new JLabel("Time: " + session.getStartTime() + " - " + session.getEndTime());
+        JLabel timeLabel = new JLabel("Time: " + session.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) + " - " + session.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
 
