@@ -8,6 +8,7 @@ import view.attendee.observers.ConferenceEventObserver;
 import view.attendee.pages.HomePage;
 import view.attendee.pages.view.session.ViewPersonalSchedulePage;
 import view.attendee.pages.view.session.ViewUpcomingSessions;
+import view.attendee.pages.view.user.ViewSpeakersPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +41,7 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         add(headerPanel, BorderLayout.NORTH);
 
         // details panel
-        JPanel conferenceDetails = UIComponentFactory.createConferenceDetailsPanel(conferenceDTO, organizerName);
+        JPanel conferenceDetails = UIComponentFactory.createConferenceDetailsPanel(conferenceDTO, organizerName, 150);
         conferenceDetails.setBorder(BorderFactory.createEmptyBorder(0, 30, 40, 0));
         add(conferenceDetails, BorderLayout.CENTER);
 
@@ -92,6 +93,7 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         this.leaveConferenceButton.addActionListener(this::handleLeaveConferenceButton);
         this.viewPersonalSchedule.addActionListener(this::handleViewPersonalScheduleButton);
         this.viewSessionsButton.addActionListener(this::handleViewUpcomingSessionsButton);
+        this.viewSpeakersButton.addActionListener(this::handleViewSpeakersButton);
     }
 
     private void handleLeaveConferenceButton(ActionEvent e) {
@@ -126,6 +128,11 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
     private void handleViewUpcomingSessionsButton(ActionEvent e) {
         ViewUpcomingSessions viewSessionsPage = new ViewUpcomingSessions(attendee, conferenceDTO.getId(), eventMediator, navigator);
         navigator.navigateTo(viewSessionsPage);
+    }
+
+    private void handleViewSpeakersButton(ActionEvent e) {
+        ViewSpeakersPage viewSpeakersPage = new ViewSpeakersPage(attendee, eventMediator, navigator, conferenceId);
+        navigator.navigateTo(viewSpeakersPage);
     }
 
 }

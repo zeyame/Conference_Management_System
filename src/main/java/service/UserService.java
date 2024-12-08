@@ -208,6 +208,23 @@ public class UserService {
         return organizer.getManagedConferences();
     }
 
+    public Map<String, String> findSpeakerBiosById(Set<String> speakerIds) {
+        if (speakerIds == null) {
+            throw new IllegalArgumentException("Invalid speaker ids.");
+        }
+
+        Map<String, String> speakerIdToBio = new HashMap<>();
+        speakerIds.stream()
+                .map(userRepository::findById)
+                .filter(Optional::isPresent)
+                .forEach(userOptional -> {
+                    User user = userOptional.get();
+                    if (user instanceof Speaker) speakerIdToBio.put(user.getId(), ((Speaker) user).getBio());
+                });
+
+        return speakerIdToBio;
+    }
+
     public boolean isEmailRegistered(String email) {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email cannot be null or empty.");
@@ -332,7 +349,6 @@ public class UserService {
         if (user.getRole() != requiredRole) {
             throw new UserException(String.format("User with id '%s' does not have %s permissions.", user.getId(), requiredRole.getDisplayName()));
         }
-
     }
 
     private UserDTO mapToDTO(User user) {

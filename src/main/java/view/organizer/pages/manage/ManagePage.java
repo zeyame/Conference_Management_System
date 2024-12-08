@@ -40,7 +40,7 @@ public abstract class ManagePage extends JPanel {
     }
 
     protected JPanel createHeaderPanel() {
-        JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(getHeaderTitle(), e -> organizerObserver.onNavigateBackRequest(), 400);
+        JPanel baseHeaderPanel = UIComponentFactory.createHeaderPanel(getHeaderTitle(), e -> organizerObserver.onNavigateBackRequest(), 380);
         baseHeaderPanel.add(Box.createRigidArea(new Dimension(350, 0)));
         baseHeaderPanel.add(editButton);
         baseHeaderPanel.add(Box.createRigidArea(new Dimension(15, 0)));

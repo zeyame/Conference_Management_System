@@ -33,7 +33,7 @@ public class ManageConferencePage extends ManagePage {
 
     @Override
     protected JPanel createDetailsPanel() {
-        return UIComponentFactory.createConferenceDetailsPanel(conferenceDTO, userDTO.getName());
+        return UIComponentFactory.createConferenceDetailsPanel(conferenceDTO, userDTO.getName(), 0);
     }
 
 

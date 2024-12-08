@@ -1,1 +1,36 @@
-{"15d97fe4-b7f9-4729-bac5-bef14efa95fd":{"id":"15d97fe4-b7f9-4729-bac5-bef14efa95fd","conferenceId":"d14532e8-2aa6-406f-bc64-675ebd38cbf2","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"Machine Learning","description":"Supervised, Unsupervised, Reinforcement","room":"B303","date":[2024,12,7],"startTime":[12,0],"endTime":[14,30],"registeredAttendees":["7a302866-d5c5-4d71-b8ae-afd64e05e04d"],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0},"30e37d5f-82d9-4245-b075-6bb51028614c":{"id":"30e37d5f-82d9-4245-b075-6bb51028614c","conferenceId":"d14532e8-2aa6-406f-bc64-675ebd38cbf2","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"Rust Programming","description":"Not very rusty","room":"B103","date":[2024,12,9],"startTime":[16,58,35,663000000],"endTime":[18,58],"registeredAttendees":["7a302866-d5c5-4d71-b8ae-afd64e05e04d"],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0},"31710341-9066-41d5-93c6-d03037120f39":{"id":"31710341-9066-41d5-93c6-d03037120f39","conferenceId":"d14532e8-2aa6-406f-bc64-675ebd38cbf2","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"Devops Session","description":"Not really devops","room":"B302","date":[2024,12,10],"startTime":[16,0],"endTime":[17,0],"registeredAttendees":["7a302866-d5c5-4d71-b8ae-afd64e05e04d"],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0},"e93ac518-5c0d-4e54-8a52-85f3ebcc2608":{"id":"e93ac518-5c0d-4e54-8a52-85f3ebcc2608","conferenceId":"d14532e8-2aa6-406f-bc64-675ebd38cbf2","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"Cloud Computing","description":"AWS, Azure, GCP, etc.","room":"B301","date":[2024,12,6],"startTime":[18,0],"endTime":[21,0],"registeredAttendees":["7a302866-d5c5-4d71-b8ae-afd64e05e04d"],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0},"a56df296-d795-435a-87c2-d6149d281aaf":{"id":"a56df296-d795-435a-87c2-d6149d281aaf","conferenceId":"99d663c1-0554-4941-837f-422b99aee456","speakerId":"e230f9f7-0031-4d29-916e-e41c698853dd","speakerName":"David J. Malan","name":"C++ ","description":"Not really C++","room":"E301","date":[2024,12,13],"startTime":[16,0],"endTime":[18,0],"registeredAttendees":["7a302866-d5c5-4d71-b8ae-afd64e05e04d"],"presentAttendees":[],"feedback":[],"attendanceRecord":0.0}}
+{
+  "e06d95a7-4697-4170-bb94-513861bc9e22": {
+    "id": "e06d95a7-4697-4170-bb94-513861bc9e22",
+    "conferenceId": "a014a785-3bc2-41c1-bfee-36a3f9c13fc5",
+    "speakerId": "239af81a-f6c9-4703-894f-88cc7489d449",
+    "speakerName": "David J. Malan",
+    "name": "Cloud Computing",
+    "description": "Not really cloud",
+    "room": "B302",
+    "date": "2024-12-09",
+    "startTime": "19:30",
+    "endTime": "21:00",
+    "registeredAttendees": [
+      "a998dd6b-4b48-4cdb-af76-10b427ab9cf4"
+    ],
+    "presentAttendees": [],
+    "feedback": [],
+    "attendanceRecord": 0.0
+  },
+  "f3943c4d-30cd-4c5a-90bd-f4cf76e77664": {
+    "id": "f3943c4d-30cd-4c5a-90bd-f4cf76e77664",
+    "conferenceId": "a014a785-3bc2-41c1-bfee-36a3f9c13fc5",
+    "speakerId": "239af81a-f6c9-4703-894f-88cc7489d449",
+    "speakerName": "David J. Malan",
+    "name": "Devops Session",
+    "description": "Not really devops",
+    "room": "B301",
+    "date": "2024-12-14",
+    "startTime": "17:00",
+    "endTime": "19:00",
+    "registeredAttendees": [],
+    "presentAttendees": [],
+    "feedback": [],
+    "attendanceRecord": 0.0
+  }
+}

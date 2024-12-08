@@ -30,19 +30,27 @@ public abstract class ViewListPage<T> {
     public JPanel createPageContent() {
         // creating main components
         JPanel headerPanel = UIComponentFactory
-                .createHeaderPanel(getPageTitle(), e -> organizerObserver.onNavigateBackRequest(), 350);
-        JScrollPane scrollPane = createItemsScrollPane();
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(7);
-
+                .createHeaderPanel(getPageTitle(), e -> organizerObserver.onNavigateBackRequest(), 400-getPageTitle().length());
         mainContentPanel.add(headerPanel, BorderLayout.NORTH);
-        mainContentPanel.add(scrollPane, BorderLayout.CENTER);
+
+        if (items.isEmpty()) {
+            JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel(getEmptyItemsMessage(), 450-getEmptyItemsMessage().length());
+            mainContentPanel.add(emptyStatePanel, BorderLayout.CENTER);
+        } else {
+            JScrollPane scrollPane = createItemsScrollPane();
+            scrollPane.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(7);
+
+            mainContentPanel.add(scrollPane, BorderLayout.CENTER);
+        }
 
         return mainContentPanel;
     }
 
     protected abstract String getPageTitle();
+
+    protected abstract String getEmptyItemsMessage();
 
     protected abstract JPanel createItemPanel(T item);
 

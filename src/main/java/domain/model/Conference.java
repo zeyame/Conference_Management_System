@@ -1,5 +1,6 @@
 package domain.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import util.validation.ConferenceValidator;
 
 import java.time.LocalDate;
@@ -13,7 +14,9 @@ public class Conference {
     private final String organizerId;
     private final String name;
     private final String description;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     private final Set<String> sessions;
     private final Set<String> attendees;

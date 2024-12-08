@@ -11,6 +11,7 @@ import service.ServiceMediator;
 import util.CollectionUtils;
 import util.LoggerUtil;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,7 +76,7 @@ public class SessionService {
             // rolling back changes
             rollbackCreateOrUpdate(sessionDTO, sessionSaved, speakerAssigned, conferenceUpdated);
 
-            throw new SessionException(String.format("An error occurred when creating session: %s", e.getMessage()));
+            throw new SessionException(e.getMessage());
         }
     }
 
@@ -349,7 +350,7 @@ public class SessionService {
                 session.getSpeakerName(),
                 session.getName(),
                 session.getRoom(),
-                session.getDate(),
+                session.getDate() != null ? session.getDate() : LocalDate.now(),
                 session.getStartTime(),
                 session.getEndTime()
         ).setId(session.getId())

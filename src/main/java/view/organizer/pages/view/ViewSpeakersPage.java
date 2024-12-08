@@ -19,6 +19,11 @@ public class ViewSpeakersPage extends ViewListPage<UserDTO>  {
     }
 
     @Override
+    protected String getEmptyItemsMessage() {
+        return "\t\t\t\t\t\tNo speakers have been assigned to sessions in this conference yet.";
+    }
+
+    @Override
     protected JPanel createItemPanel(UserDTO speaker) {
         JPanel speakersPanel = new JPanel();
         speakersPanel.setLayout(new BoxLayout(speakersPanel, BoxLayout.Y_AXIS));

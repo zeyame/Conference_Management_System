@@ -53,7 +53,7 @@ public class ViewPersonalSchedulePage extends JPanel {
 
         if (upcomingSessions.isEmpty() && pastSessions.isEmpty()) {
             JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("You haven't added any sessions to your personal schedule for this conference yet." +
-                    " Explore the conference's available sessions and start building your schedule!");
+                    " Explore the conference's available sessions and start building your schedule!", 80);
             add(emptyStatePanel, BorderLayout.CENTER);
         } else {
             // split panel for upcoming and ongoing sessions

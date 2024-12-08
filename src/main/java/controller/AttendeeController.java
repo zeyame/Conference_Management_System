@@ -14,6 +14,7 @@ import service.session.SessionService;
 import util.LoggerUtil;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class AttendeeController {
@@ -149,8 +150,30 @@ public class AttendeeController {
         try {
             String organizerName = userService.getNameById(organizerId);
             return ResponseEntity.success(organizerName);
-        } catch (UserException e) {
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to get name for user with id '%s': %s %s", organizerId, e.getMessage(), e));
             return ResponseEntity.error("An unexpected error occurred when fetching session details. Please try again later.");
+        }
+    }
+
+    public ResponseEntity<List<UserDTO>> getSpeakersInConference(String conferenceId) {
+        try {
+            ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
+            List<UserDTO> speakers = userService.findAllById(conferenceDTO.getSpeakers());
+            return ResponseEntity.success(speakers);
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to get speakers in conference '%s': %s %s", conferenceId, e.getMessage(), e));
+            return ResponseEntity.error("An unexpected error occurred when fetching speakers in the conference. Please try again later.");
+        }
+    }
+
+    public ResponseEntity<Map<String, String>> getSpeakerBios(Set<String> speakerIds) {
+        try {
+            Map<String, String> speakerBios = userService.findSpeakerBiosById(speakerIds);
+            return ResponseEntity.success(speakerBios);
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to fetch speaker bios: %s %s", e.getMessage(), e));
+            return ResponseEntity.error("An unexpected error occurred when retrieving speaker bios. Please try again later.");
         }
     }
 

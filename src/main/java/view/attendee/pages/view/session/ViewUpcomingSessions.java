@@ -52,7 +52,7 @@ public class ViewUpcomingSessions extends JPanel {
             add(scrollPane, BorderLayout.CENTER);
         } else {
             JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("There are currently no upcoming sessions open for " +
-                    "registration in this conference. Please check back later for new updates!");
+                    "registration in this conference. Please check back later for new updates!", 0);
             add(emptyStatePanel, BorderLayout.CENTER);
         }
     }

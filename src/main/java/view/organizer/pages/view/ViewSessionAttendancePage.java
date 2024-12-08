@@ -31,6 +31,9 @@ public class ViewSessionAttendancePage extends ViewListPage<UserDTO> {
     }
 
     @Override
+    protected String getEmptyItemsMessage() {return "";}
+
+    @Override
     protected JPanel createItemPanel(UserDTO attendee) {
         JPanel attendancePanel = new JPanel();
         attendancePanel.setLayout(new BoxLayout(attendancePanel, BoxLayout.Y_AXIS));

@@ -19,6 +19,8 @@ public class ViewAttendeesPage extends ViewListPage<UserDTO> {
         return String.format("Attendees registered for '%s'", this.eventName);
     }
 
+    protected String getEmptyItemsMessage() {return "No attendees have registered for sessions in this conference yet.";}
+
     @Override
     protected JPanel createItemPanel(UserDTO attendee) {
         JPanel attendeePanel = new JPanel();

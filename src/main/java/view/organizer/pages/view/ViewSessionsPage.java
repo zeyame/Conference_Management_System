@@ -42,18 +42,25 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
         mainContentPanel.add(headerPanel, BorderLayout.NORTH);
 
         // split panel for registered and unregistered sessions
-        JSplitPane splitPane = UIComponentFactory.createSplitPane(
-                "Upcoming",
-                "Past",
-                upcomingSessions.values().stream().toList(),
-                pastSessions.values().stream().toList(),
-                "Manage Session",
-                this::handleManageSessionButton
-        );
-        splitPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-        mainContentPanel.add(splitPane, BorderLayout.CENTER);
+        if (upcomingSessions.isEmpty() && pastSessions.isEmpty()) {
+            JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel(getEmptyItemsMessage(), 250);
+            emptyStatePanel.setBorder(BorderFactory.createEmptyBorder(270, 200, 0, 0));
+            mainContentPanel.add(emptyStatePanel, BorderLayout.CENTER);
+        } else {
+            JSplitPane splitPane = UIComponentFactory.createSplitPane(
+                    "Upcoming",
+                    "Past",
+                    upcomingSessions.values().stream().toList(),
+                    pastSessions.values().stream().toList(),
+                    "Manage Session",
+                    this::handleManageSessionButton
+            );
+            splitPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+            mainContentPanel.add(splitPane, BorderLayout.CENTER);
+        }
 
         JPanel buttonPanel = UIComponentFactory.createButtonPanel(addSessionButton);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 50));
         mainContentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         return mainContentPanel;
@@ -64,6 +71,10 @@ public class ViewSessionsPage extends ViewListPage<SessionDTO> {
         return String.format("Sessions registered for '%s'", this.eventName);
     }
 
+    @Override
+    protected String getEmptyItemsMessage() {
+        return "There are currently no sessions for this conference. You can add sessions to get started.";
+    }
     @Override
     protected JPanel createItemPanel(SessionDTO session) {
         return new JPanel();

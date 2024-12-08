@@ -2,9 +2,12 @@ package view.attendee.observers;
 
 import controller.AttendeeController;
 import dto.ConferenceDTO;
+import dto.UserDTO;
 import response.ResponseEntity;
 import util.LoggerUtil;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -60,6 +63,30 @@ public class AttendeeConferenceManager implements ConferenceEventObserver {
             callback.accept(organizerNameResponse.getData(), null);
         } else {
             callback.accept(null, organizerNameResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onGetSpeakers(String conferenceId, BiConsumer<List<UserDTO>, String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Attendee request to view speakers for conference '%s' received.", conferenceId));
+
+        ResponseEntity<List<UserDTO>> getSpeakersInConferenceResponse = attendeeController.getSpeakersInConference(conferenceId);
+        if (getSpeakersInConferenceResponse.isSuccess()) {
+            callback.accept(getSpeakersInConferenceResponse.getData(), null);
+        } else {
+            callback.accept(null, getSpeakersInConferenceResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onGetSpeakerBios(Set<String> speakerIds, BiConsumer<Map<String, String>, String> callback) {
+        LoggerUtil.getInstance().logInfo("Request to fetch speaker bios received.");
+
+        ResponseEntity<Map<String, String>> speakerBiosResponse = attendeeController.getSpeakerBios(speakerIds);
+        if (speakerBiosResponse.isSuccess()) {
+            callback.accept(speakerBiosResponse.getData(), null);
+        } else {
+            callback.accept(null, speakerBiosResponse.getErrorMessage());
         }
     }
 

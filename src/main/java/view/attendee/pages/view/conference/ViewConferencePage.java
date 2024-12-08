@@ -40,7 +40,7 @@ public abstract class ViewConferencePage extends JPanel {
         add(headerPanel, BorderLayout.NORTH);
 
         // conference details panel
-        JPanel conferenceDetailsPanel = UIComponentFactory.createConferenceDetailsPanel(conferenceDTO, organizerName);
+        JPanel conferenceDetailsPanel = UIComponentFactory.createConferenceDetailsPanel(conferenceDTO, organizerName, 150);
         conferenceDetailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 250, 50, 0));
         add(conferenceDetailsPanel, BorderLayout.CENTER);
 

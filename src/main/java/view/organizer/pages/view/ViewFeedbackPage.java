@@ -19,6 +19,11 @@ public class ViewFeedbackPage extends ViewListPage<FeedbackDTO> {
     }
 
     @Override
+    protected String getEmptyItemsMessage() {
+        return "\t\t\t\t\t\t\t\tNo feedback has been given so far.";
+    }
+
+    @Override
     protected JPanel createItemPanel(FeedbackDTO item) {
         JPanel feedbackPanel = new JPanel();
         feedbackPanel.setLayout(new BoxLayout(feedbackPanel, BoxLayout.Y_AXIS));

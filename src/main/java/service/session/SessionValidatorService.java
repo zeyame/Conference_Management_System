@@ -26,7 +26,7 @@ public class SessionValidatorService {
 
         validateSessionName(sessionDTO.getName(), getSessionNames(conferenceSessions));
         validateSpeakerAvailability(sessionDTO, conferenceSessions);
-        validateSessionTime(sessionDTO, conferenceSessions, conferenceDTO.getStartDate());
+        validateSessionTime(sessionDTO, conferenceSessions, conferenceDTO.getStartDate(), conferenceDTO.getEndDate());
     }
 
     private static void validateSessionName(String sessionName, Set<String> existingSessionNames) {
@@ -56,17 +56,22 @@ public class SessionValidatorService {
         }
     }
 
-    private static void validateSessionTime(SessionDTO sessionDTO, List<SessionDTO> conferenceSessions, LocalDate conferenceDate) {
-        if (sessionDTO == null || conferenceSessions == null || conferenceDate == null) {
-            throw new IllegalArgumentException("SessionDTO, conference sessions, and Conference start date cannot be null.");
+    private static void validateSessionTime(SessionDTO sessionDTO, List<SessionDTO> conferenceSessions, LocalDate conferenceStartDate, LocalDate conferenceEndDate) {
+        if (sessionDTO == null || conferenceSessions == null || conferenceStartDate == null || conferenceEndDate == null) {
+            throw new IllegalArgumentException("SessionDTO, conference sessions, conference start and end dates cannot be null.");
         }
 
-        LocalDateTime conferenceDateTime = LocalDateTime.of(conferenceDate, LocalTime.MIN);
+        LocalDateTime conferenceStartDateTime = LocalDateTime.of(conferenceStartDate, LocalTime.MIN);
+        LocalDateTime conferenceEndDateTime = LocalDateTime.of(conferenceEndDate, LocalTime.MAX);
         LocalDateTime sessionStart = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getStartTime());
         LocalDateTime sessionEnd = LocalDateTime.of(sessionDTO.getDate(), sessionDTO.getEndTime());
 
-        if (sessionStart.isBefore(conferenceDateTime)) {
+        if (sessionStart.isBefore(conferenceStartDateTime)) {
             throw new SessionException("Session start time is before the conference start time. Please adjust the session timing.");
+        }
+
+        if (sessionEnd.isAfter(conferenceEndDateTime)) {
+            throw new SessionException("Session end time is after the conference end time. Please adjust the session timing.");
         }
 
         boolean timeConflict = conferenceSessions.stream()
@@ -76,11 +81,6 @@ public class SessionValidatorService {
             LoggerUtil.getInstance().logError("Session time validation failed: Time slot is already occupied.");
             throw new SessionException("The selected time slot is already occupied by another session. Please choose a different time.");
         }
-    }
-
-    private static void removeSessionFromList(String sessionId, List<SessionDTO> conferenceSessions, Set<String> existingSessionNames) {
-        conferenceSessions.removeIf(session -> session.getId().equals(sessionId));
-        existingSessionNames.removeIf(name -> name.equals(sessionId));
     }
 
     private static Set<String> getSessionNames(List<SessionDTO> sessionDTOs) {

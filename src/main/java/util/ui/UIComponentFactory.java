@@ -94,7 +94,7 @@ public class UIComponentFactory {
     public static JPanel createButtonPanel(JButton button) {
         // Bottom panel for the Add Conference button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); // Add padding above and below
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
 
         button.setPreferredSize(new Dimension(240, 35));
         button.setFocusPainted(false);
@@ -109,14 +109,17 @@ public class UIComponentFactory {
         return label;
     }
 
-    public static JPanel createEmptyStatePanel(String message) {
+    public static JPanel createEmptyStatePanel(String message, int leftPadding) {
         JPanel emptyStatePanel = new JPanel();
-        JLabel emptyStateMessage = new JLabel(message);
+        JLabel emptyStateMessage = new JLabel("<html>" + message.replaceAll("\n", "<br>") + "</html>");
         emptyStateMessage.setFont(new Font("Sans serif", Font.PLAIN, 16));
+        emptyStateMessage.setPreferredSize(new Dimension(800, 100));
+        emptyStateMessage.setMaximumSize(new Dimension(400, Integer.MAX_VALUE)); // Ensure label resizes appropriately
         emptyStatePanel.add(emptyStateMessage);
-        emptyStatePanel.setBorder(BorderFactory.createEmptyBorder(270, 0, 0, 0));
+        emptyStatePanel.setBorder(BorderFactory.createEmptyBorder(270, leftPadding, 0, 0));
         return emptyStatePanel;
     }
+
 
     public static void addLabelToPanel(JPanel panel, String text, Font font, GridBagConstraints gbc, int x, int y, int width) {
         JLabel label = createStyledLabel(text, font);
@@ -144,7 +147,31 @@ public class UIComponentFactory {
         return gbc;
     }
 
-    public static JPanel createConferenceDetailsPanel(ConferenceDTO conferenceDTO, String organizerName) {
+    public static JPanel createSpeakerPanel(String speakerName, String speakerEmail, String speakerBio) {
+        JPanel speakersPanel = new JPanel();
+        speakersPanel.setLayout(new BoxLayout(speakersPanel, BoxLayout.Y_AXIS));
+
+        // name of speaker
+        JLabel nameLabel = new JLabel("Name: " + speakerName);
+        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 18));
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // email of speaker
+        JLabel emailLabel = new JLabel("Email: " + speakerEmail);
+        emailLabel.setFont(new Font("Sans serif", Font.PLAIN, 14));
+
+        // bio of speaker
+        JLabel bioLabel = new JLabel("Bio: " + speakerBio);
+        bioLabel.setFont(new Font("Sans serif", Font.PLAIN, 14));
+
+        speakersPanel.add(nameLabel);
+        speakersPanel.add(emailLabel);
+        speakersPanel.add(bioLabel);
+
+        return speakersPanel;
+    }
+
+    public static JPanel createConferenceDetailsPanel(ConferenceDTO conferenceDTO, String organizerName, int rightPadding) {
         JPanel detailsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = UIComponentFactory.createDefaultGridBagConstraints();
 
@@ -178,7 +205,7 @@ public class UIComponentFactory {
         addLabelToPanel(detailsPanel, "End Date: ", new Font("Arial", Font.PLAIN, 18), gbc, 0, 4, 1);
         addLabelToPanel(detailsPanel, conferenceDTO.getEndDate().toString(), new Font("Arial", Font.PLAIN, 18), gbc, 1, 4, 1);
 
-        detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 150));
+        detailsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, rightPadding));
 
         return detailsPanel;
     }

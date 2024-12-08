@@ -53,7 +53,7 @@ public class HomePage extends JPanel {
             add(scrollPane, BorderLayout.CENTER);
         } else {
             JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("It looks like there are no upcoming conferences " +
-                    "available that you haven’t already registered for. Maybe check out your registered conferences.");
+                    "available that you haven’t already registered for. Maybe check out your registered conferences.", 0);
             add(emptyStatePanel, BorderLayout.CENTER);
         }
 

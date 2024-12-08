@@ -1,5 +1,6 @@
 package domain.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import util.validation.SessionValidator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,8 +16,11 @@ public class Session {
     private final String name;
     private String description;
     private final String room;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
     private final Set<String> registeredAttendees;
     private final Set<String> presentAttendees;

@@ -34,10 +34,18 @@ public class HomePage {
         // add header with back button
         homePanel.add(createHomePageHeader(), BorderLayout.NORTH);
 
-        // add scrollable container with conferences
-        JScrollPane scrollPane = UIComponentFactory.createConferenceScrollPane(managedConferences, this::handleManageConferenceButton, "Manage Conference");
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        homePanel.add(scrollPane, BorderLayout.CENTER);
+        if (managedConferences.isEmpty()) {
+            JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("You currently have no conferences under your management. " +
+                    "As the organizer, you have the full control to add and manage conferences. " +
+                    "Start by creating your first conference to begin organizing sessions and managing attendees.", 0);
+            emptyStatePanel.setBorder(BorderFactory.createEmptyBorder(270, 50, 0, 0));
+            homePanel.add(emptyStatePanel, BorderLayout.CENTER);
+        } else {
+            // add scrollable container with conferences
+            JScrollPane scrollPane = UIComponentFactory.createConferenceScrollPane(managedConferences, this::handleManageConferenceButton, "Manage Conference");
+            scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+            homePanel.add(scrollPane, BorderLayout.CENTER);
+        }
 
         // "add conference" button
         JPanel addConferenceButtonPanel = UIComponentFactory.createButtonPanel(addConferenceButton);
