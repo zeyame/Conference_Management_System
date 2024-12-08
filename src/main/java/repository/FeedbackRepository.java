@@ -1,12 +1,9 @@
 package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import domain.model.Feedback;
-import util.LoggerUtil;
-import util.file.JsonFileHandler;
+import domain.model.feedback.Feedback;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FeedbackRepository extends BaseRepository<Feedback> {
 

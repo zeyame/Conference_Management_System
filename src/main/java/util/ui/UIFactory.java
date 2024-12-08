@@ -49,7 +49,7 @@ public class UIFactory {
         );
 
         // creating attendee controller for AttendeeUI
-        AttendeeController attendeeController = new AttendeeController(userService, conferenceService, sessionService);
+        AttendeeController attendeeController = new AttendeeController(userService, conferenceService, sessionService, feedbackService);
 
         return switch (userDTO.getRole()) {
             case ORGANIZER -> new OrganizerUI(organizerController, userDTO);

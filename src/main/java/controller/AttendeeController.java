@@ -8,6 +8,7 @@ import exception.ConferenceException;
 import exception.SessionException;
 import exception.UserException;
 import response.ResponseEntity;
+import service.FeedbackService;
 import service.UserService;
 import service.conference.ConferenceService;
 import service.session.SessionService;
@@ -22,11 +23,13 @@ public class AttendeeController {
     private final UserService userService;
     private final ConferenceService conferenceService;
     private final SessionService sessionService;
+    private final FeedbackService feedbackService;
 
-    public AttendeeController(UserService userService, ConferenceService conferenceService, SessionService sessionService) {
+    public AttendeeController(UserService userService, ConferenceService conferenceService, SessionService sessionService, FeedbackService feedbackService) {
         this.userService = userService;
         this.conferenceService = conferenceService;
         this.sessionService = sessionService;
+        this.feedbackService = feedbackService;
     }
 
     public ResponseEntity<Void> registerForConference(String attendeeId, String conferenceId) {
@@ -49,8 +52,14 @@ public class AttendeeController {
         }
     }
 
-    public ResponseEntity<Void> submitSessionFeedback(FeedbackDTO feedbackDTO) {
-        return ResponseEntity.success();
+    public ResponseEntity<Void> submitFeedback(FeedbackDTO feedbackDTO) {
+        try {
+            feedbackService.submit(feedbackDTO);
+            return ResponseEntity.success();
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to submit feedback: %s %s", e.getMessage(), e));
+            return ResponseEntity.error("An unexpected error occurred when submitting feedback. Please try again later.");
+        }
     }
 
     public ResponseEntity<ConferenceDTO> getConference(String conferenceId) {

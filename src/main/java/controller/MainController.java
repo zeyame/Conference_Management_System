@@ -1,7 +1,7 @@
 package controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import domain.model.UserRole;
+import domain.model.user.UserRole;
 import dto.RegistrationDTO;
 import dto.UserDTO;
 import exception.PasswordException;

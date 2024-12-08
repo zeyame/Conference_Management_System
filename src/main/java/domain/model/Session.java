@@ -140,10 +140,14 @@ public class Session {
     }
 
     public void registerAttendee(String attendeeId) {
-        registeredAttendees.add(attendeeId);
+        this.registeredAttendees.add(attendeeId);
     }
 
-    public void unregisterAttendee(String attendeeId) {registeredAttendees.remove(attendeeId);}
+    public void unregisterAttendee(String attendeeId) {this.registeredAttendees.remove(attendeeId);}
+
+    public void addFeedback(String feedbackId) {this.feedback.add(feedbackId);}
+
+    public void removeFeedback(String feedbackId) {this.feedback.remove(feedbackId);}
 
     public String getId() {
         return this.id;

@@ -6,6 +6,8 @@ import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
 import view.attendee.pages.HomePage;
+import view.attendee.pages.form.ProvideConferenceFeedbackPage;
+import view.attendee.pages.form.ProvideFeedbackPage;
 import view.attendee.pages.view.session.ViewPersonalSchedulePage;
 import view.attendee.pages.view.session.ViewUpcomingSessions;
 import view.attendee.pages.view.user.ViewSpeakersPage;
@@ -13,6 +15,8 @@ import view.attendee.pages.view.user.ViewSpeakersPage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class ViewRegisteredConferencePage extends ViewConferencePage {
     // buttons
@@ -57,7 +61,10 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         footerPanel.add(viewPersonalSchedule);
         footerPanel.add(viewSessionsButton);
         footerPanel.add(viewSpeakersButton);
-        footerPanel.add(provideFeedbackButton);
+
+        if (this.provideFeedbackButton != null) {
+            footerPanel.add(provideFeedbackButton);
+        }
 
         footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
 
@@ -70,7 +77,10 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         this.viewPersonalSchedule = UIComponentFactory.createStyledButton("Your Personal Schedule");
         this.viewSessionsButton = UIComponentFactory.createStyledButton("View Upcoming Sessions");
         this.viewSpeakersButton = UIComponentFactory.createStyledButton("View Speakers");
-        this.provideFeedbackButton = UIComponentFactory.createStyledButton("Provide Feedback");
+
+        if (isUpcoming()) {
+            this.provideFeedbackButton = UIComponentFactory.createStyledButton("Provide Feedback");
+        }
     }
 
     private void onLeaveConference(String errorMessage) {
@@ -94,6 +104,10 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         this.viewPersonalSchedule.addActionListener(this::handleViewPersonalScheduleButton);
         this.viewSessionsButton.addActionListener(this::handleViewUpcomingSessionsButton);
         this.viewSpeakersButton.addActionListener(this::handleViewSpeakersButton);
+
+        if (this.provideFeedbackButton != null) {
+            this.provideFeedbackButton.addActionListener(this::handleProvideFeedbackButton);
+        }
     }
 
     private void handleLeaveConferenceButton(ActionEvent e) {
@@ -108,7 +122,7 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         if (choice == JOptionPane.YES_OPTION) {
             eventMediator.publishEvent(
                     ConferenceEventObserver.class,
-                    observer -> observer.onLeaveConference(attendee.getId(), conferenceDTO.getId(), this::onLeaveConference)
+                    observer -> observer.onLeaveConference(attendee.getId(), conferenceId, this::onLeaveConference)
             );
         } else if (choice == JOptionPane.NO_OPTION) {
             JOptionPane.showMessageDialog(
@@ -126,13 +140,22 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
     }
 
     private void handleViewUpcomingSessionsButton(ActionEvent e) {
-        ViewUpcomingSessions viewSessionsPage = new ViewUpcomingSessions(attendee, conferenceDTO.getId(), eventMediator, navigator);
+        ViewUpcomingSessions viewSessionsPage = new ViewUpcomingSessions(attendee, conferenceId, eventMediator, navigator);
         navigator.navigateTo(viewSessionsPage);
     }
 
     private void handleViewSpeakersButton(ActionEvent e) {
         ViewSpeakersPage viewSpeakersPage = new ViewSpeakersPage(attendee, eventMediator, navigator, conferenceId);
         navigator.navigateTo(viewSpeakersPage);
+    }
+
+    private void handleProvideFeedbackButton(ActionEvent e) {
+        ProvideFeedbackPage provideFeedbackPage = new ProvideConferenceFeedbackPage(attendee, eventMediator, navigator, conferenceDTO);
+        navigator.navigateTo(provideFeedbackPage);
+    }
+
+    private boolean isUpcoming() {
+        return LocalDateTime.of(conferenceDTO.getStartDate(), LocalTime.MIN).isAfter(LocalDateTime.now());
     }
 
 }

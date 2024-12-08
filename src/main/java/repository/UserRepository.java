@@ -1,12 +1,9 @@
 package repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import domain.model.User;
-import util.file.JsonFileHandler;
-import util.LoggerUtil;
+import domain.model.user.User;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class UserRepository extends BaseRepository<User> {
     private static UserRepository instance;

@@ -161,6 +161,21 @@ public class SessionService {
         }
     }
 
+    public void addFeedback(String id, String feedbackId) {
+        if (id == null || feedbackId == null || id.isEmpty() || feedbackId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid session id and/or feedback id.");
+        }
+
+        Optional<Session> sessionOptional = sessionRepository.findById(id);
+        if (sessionOptional.isEmpty()) {
+            throw new SessionException(String.format("Session with id '%s' does not exist.", id));
+        }
+
+        Session session = sessionOptional.get();
+        session.addFeedback(feedbackId);
+
+        sessionRepository.save(session, session.getId());
+    }
 
     public SessionDTO getById(String id) {
         if (id == null || id.isEmpty()) {

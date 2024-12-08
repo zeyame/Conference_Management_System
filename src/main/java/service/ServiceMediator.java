@@ -25,6 +25,11 @@ public class ServiceMediator {
     }
 
     // SESSION RELATED METHODS - CRUD ORDERED
+
+    public void addFeedbackToSession(String feedbackId, String sessionId) {
+        sessionService.addFeedback(sessionId, feedbackId);
+    }
+
     public SessionDTO getSessionById(String sessionId) {
         return sessionService.getById(sessionId);
     }
@@ -53,6 +58,10 @@ public class ServiceMediator {
 
     public void assignNewSessionForSpeaker(SessionDTO sessionDTO) {
         userService.assignNewSessionForSpeaker(sessionDTO);
+    }
+
+    public void addFeedbackToSpeaker(String feedbackId, String speakerId) {
+        userService.addFeedbackToSpeaker(speakerId, feedbackId);
     }
 
     public UserDTO getUserById(String userId) {
@@ -91,6 +100,10 @@ public class ServiceMediator {
     // CONFERENCE RELATED METHODS  - CRUD ORDERED
     public void registerSessionInConference(SessionDTO sessionDTO) {
         conferenceService.registerSession(sessionDTO);
+    }
+
+    public void addFeedbackToConference(String feedbackId, String conferenceId) {
+        conferenceService.addFeedback(conferenceId, feedbackId);
     }
     public ConferenceDTO getConferenceById(String conferenceId) {
         return conferenceService.getById(conferenceId);

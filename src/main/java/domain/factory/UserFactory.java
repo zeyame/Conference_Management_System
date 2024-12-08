@@ -1,6 +1,6 @@
 package domain.factory;
 
-import domain.model.*;
+import domain.model.user.*;
 import dto.RegistrationDTO;
 import util.IdGenerator;
 

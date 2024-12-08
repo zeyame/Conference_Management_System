@@ -1,25 +1,25 @@
-package domain.model;
-
-import util.LoggerUtil;
+package domain.model.user;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Speaker extends User {
     private final String bio;
+    private final Set<String> feedback;
     private final Map<LocalDateTime, AssignedSession> assignedSessions;          // K: Session Time, V: Session ID
 
     // no-arg constructor for JSON serialization/de-serialization
     private Speaker() {
         super(null, null, null, null, null);
         this.bio = null;
+        this.feedback = new HashSet<>();
         this.assignedSessions = new TreeMap<>();
     }
 
     public Speaker(String id, String email, String name, String bio, String hashedPassword, UserRole role) {
         super(id, email, name, hashedPassword, role);
         this.bio = bio;
+        this.feedback = new HashSet<>();
         this.assignedSessions = new TreeMap<>();
     }
 
@@ -79,9 +79,14 @@ public class Speaker extends User {
             return this.endTime;
         }
     }
+    public void addFeedback(String feedbackId) {this.feedback.add(feedbackId);}
 
     public String getBio() {
         return this.bio;
+    }
+
+    public Set<String> getFeedback() {
+        return this.feedback;
     }
 
     public Map<LocalDateTime, AssignedSession> getAssignedSessions() {

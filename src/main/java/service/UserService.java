@@ -1,7 +1,7 @@
 package service;
 
 import domain.factory.UserFactory;
-import domain.model.*;
+import domain.model.user.*;
 import dto.RegistrationDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
@@ -115,6 +115,20 @@ public class UserService {
         save(speaker, "An unexpected error occurred when assigning session to speaker's schedule. Please try again later.");
     }
 
+    public void addFeedbackToSpeaker(String speakerId, String feedbackId) {
+        if (speakerId == null || feedbackId == null || speakerId.isEmpty() || feedbackId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid speaker id and/or feedback id.");
+        }
+
+        User user = findById(speakerId);
+
+        validateRole(user, UserRole.SPEAKER);
+
+        Speaker speaker = (Speaker) user;
+        speaker.addFeedback(feedbackId);
+
+        save(speaker, "An unexpected error occurred when saving feedback to speaker data. Please try again later.");
+    }
 
     // READ METHODS
     public List<UserDTO> findAllById(Set<String> ids) {

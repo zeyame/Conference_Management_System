@@ -1,16 +1,14 @@
 package util.ui;
 
-import domain.model.UserRole;
+import domain.model.user.UserRole;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class UIComponentFactory {
 

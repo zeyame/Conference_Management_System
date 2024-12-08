@@ -2,6 +2,7 @@ package view.attendee.observers;
 
 import controller.AttendeeController;
 import dto.ConferenceDTO;
+import dto.FeedbackDTO;
 import dto.UserDTO;
 import response.ResponseEntity;
 import util.LoggerUtil;
@@ -28,6 +29,18 @@ public class AttendeeConferenceManager implements ConferenceEventObserver {
             callback.accept(null);
         } else {
             callback.accept(registerAttendeeResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onSubmitFeedback(FeedbackDTO feedbackDTO, Consumer<String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Attendee request to submit feedback for conference '%s' received.", feedbackDTO.getConferenceId()));
+
+        ResponseEntity<Void> submitFeedbackResponse = attendeeController.submitFeedback(feedbackDTO);
+        if (submitFeedbackResponse.isSuccess()) {
+            callback.accept(null);
+        } else {
+            callback.accept(submitFeedbackResponse.getErrorMessage());
         }
     }
 

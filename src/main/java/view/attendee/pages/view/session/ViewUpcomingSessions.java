@@ -13,9 +13,7 @@ import view.attendee.pages.view.conference.ViewRegisteredConferencePage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ViewUpcomingSessions extends JPanel {
@@ -90,10 +88,6 @@ public class ViewUpcomingSessions extends JPanel {
     }
 
     // Joption Pane helpers
-    private void showSuccess(String message) {
-        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
-    }
-
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }

@@ -1,8 +1,6 @@
 package view.attendee.pages.view.conference;
 
-import dto.ConferenceDTO;
 import dto.UserDTO;
-import util.LoggerUtil;
 import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;

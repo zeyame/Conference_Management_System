@@ -1,6 +1,6 @@
 package util.email;
 
-import domain.model.UserRole;
+import domain.model.user.UserRole;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
 import dto.UserDTO;

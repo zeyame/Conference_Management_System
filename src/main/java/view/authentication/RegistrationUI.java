@@ -1,7 +1,7 @@
 package view.authentication;
 
 import controller.MainController;
-import domain.model.UserRole;
+import domain.model.user.UserRole;
 import dto.RegistrationDTO;
 import exception.FormValidationException;
 import response.ResponseEntity;
@@ -9,12 +9,9 @@ import util.LoggerUtil;
 import util.ui.UIComponentFactory;
 import util.validation.FormValidator;
 
-import javax.mail.internet.AddressException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.Arrays;
-import javax.mail.internet.InternetAddress;
 
 public class RegistrationUI extends JFrame {
     // controller to process UI input

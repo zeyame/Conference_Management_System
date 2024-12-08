@@ -1,6 +1,6 @@
 package util.email;
 
-import domain.model.UserRole;
+import domain.model.user.UserRole;
 import util.LoggerUtil;
 
 import javax.mail.*;

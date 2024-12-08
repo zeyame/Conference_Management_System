@@ -1,12 +1,12 @@
 package view.attendee.pages.view.session;
 
-import domain.model.FeedbackType;
+import domain.model.feedback.FeedbackType;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.SessionEventObserver;
-import view.attendee.pages.form.FeedbackPage;
+import view.attendee.pages.form.ProvideFeedbackPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -80,14 +80,6 @@ public class ViewUpcomingRegisteredSessionPage extends ViewSessionPage {
                     JOptionPane.INFORMATION_MESSAGE
             );
         }
-    }
-
-    private void handleProvideSessionFeedbackButton(ActionEvent e) {
-        FeedbackPage feedbackPage = new FeedbackPage(attendee, eventMediator, navigator, sessionDTO, FeedbackType.SESSION);
-    }
-
-    private void handleProvideSpeakerFeedbackButton(ActionEvent e) {
-
     }
 
     private void onLeaveSession(String errorMessage) {

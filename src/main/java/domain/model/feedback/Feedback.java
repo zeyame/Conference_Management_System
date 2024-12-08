@@ -1,14 +1,20 @@
-package domain.model;
+package domain.model.feedback;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public class Feedback {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SessionFeedback.class, name = "Session"),
+        @JsonSubTypes.Type(value = ConferenceFeedback.class, name = "Conference"),
+        @JsonSubTypes.Type(value = SpeakerFeedback.class, name = "Speaker")
+})
+public abstract class Feedback {
 
     private final String id;
     private final String attendeeId;
     private final String attendeeName;
-    private final String sessionId;
-    private final String conferenceId;
     private final int rating;
     private final String comment;
     @JsonProperty("type")
@@ -19,19 +25,15 @@ public class Feedback {
         this.id = null;
         this.attendeeId = null;
         this.attendeeName = null;
-        this.sessionId = null;
-        this.conferenceId = null;
         this.rating = 0;
         this.comment = null;
         this.type = null;
     }
 
-    public Feedback(String id, String attendeeId, String attendeeName, String sessionId, String conferenceId, int rating, String comment, FeedbackType type) {
+    public Feedback(String id, String attendeeId, String attendeeName, int rating, String comment, FeedbackType type) {
         this.id = id;
         this.attendeeId = attendeeId;
         this.attendeeName = attendeeName;
-        this.sessionId = sessionId;
-        this.conferenceId = conferenceId;
         this.rating = rating;
         this.comment = comment;
         this.type = type;
@@ -46,11 +48,6 @@ public class Feedback {
     }
 
     public String getAttendeeName() {return this.attendeeName;}
-
-    public String getSessionId() {return this.sessionId;}
-    public String getConferenceId() {
-        return this.conferenceId;
-    }
 
     public int getRating() {
         return this.rating;

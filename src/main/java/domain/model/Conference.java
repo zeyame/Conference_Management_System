@@ -134,6 +134,14 @@ public class Conference {
         this.speakers.remove(speakerId);
     }
 
+    public void addFeedback(String feedbackId) {
+        this.feedback.add(feedbackId);
+    }
+
+    public void removeFeedback(String feedbackId) {
+        this.feedback.remove(feedbackId);
+    }
+
     public String getId() {
         return this.id;
     }

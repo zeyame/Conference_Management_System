@@ -147,6 +147,22 @@ public class ConferenceService {
         }
     }
 
+    public void addFeedback(String id, String feedbackId) {
+        if (id == null || feedbackId == null || id.isEmpty() || feedbackId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid conference id and/or feedback id.");
+        }
+
+        Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
+        if (conferenceOptional.isEmpty()) {
+            throw new ConferenceException(String.format("Conference with id '%s' does not exist.", id));
+        }
+
+        Conference conference = conferenceOptional.get();
+        conference.addFeedback(feedbackId);
+
+        save(conference);
+    }
+
     public ConferenceDTO getById(String id) {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Invalid conference id.");

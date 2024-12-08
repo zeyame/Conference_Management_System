@@ -1,7 +1,7 @@
 package util.validation;
 
 
-import domain.model.UserRole;
+import domain.model.user.UserRole;
 import dto.UserDTO;
 import exception.FormValidationException;
 

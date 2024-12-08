@@ -1,4 +1,4 @@
-package domain.model;
+package domain.model.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import exception.SessionException;

@@ -1,4 +1,4 @@
-package domain.model;
+package domain.model.user;
 
 import java.util.HashSet;
 import java.util.Set;

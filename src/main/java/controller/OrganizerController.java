@@ -132,7 +132,9 @@ public class OrganizerController {
         try {
             ConferenceDTO conferenceDTO = conferenceService.getById(conferenceId);
             Set<String> feedbackIds = conferenceDTO.getFeedback();
+            System.out.println("ConferenceDTO feedback size in conference '" + conferenceDTO.getName() + "': " + feedbackIds);
             List<FeedbackDTO> feedbackDTOS = feedbackService.findAllById(feedbackIds);
+            System.out.println("FeedbackDTOs found from feedback service: " + feedbackDTOS.size());
             return ResponseEntity.success(feedbackDTOS);
         } catch (ConferenceException e) {
             return ResponseEntity.error(String.format("Could not find feedback for the conference with id '%s' as it does not exist.", conferenceId));

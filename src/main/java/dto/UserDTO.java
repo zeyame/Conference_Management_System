@@ -1,6 +1,6 @@
 package dto;
 
-import domain.model.UserRole;
+import domain.model.user.UserRole;
 
 public class UserDTO {
     private final String id;
