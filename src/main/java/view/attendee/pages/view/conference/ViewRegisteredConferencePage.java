@@ -20,6 +20,7 @@ import java.time.LocalTime;
 
 public class ViewRegisteredConferencePage extends ViewConferencePage {
     // buttons
+    private JButton requestCertificateButton;
     private JButton leaveConferenceButton;
     private JButton viewPersonalSchedule;
     private JButton viewSessionsButton;
@@ -40,7 +41,9 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
     protected void createPageContent() {
         // header panel with leave button
         JPanel headerPanel = UIComponentFactory.createHeaderPanel(conferenceDTO.getName(), this::handleBackButton, 400);
-        headerPanel.add(Box.createRigidArea(new Dimension(450, 0)));
+        headerPanel.add(Box.createRigidArea(new Dimension(280, 0)));
+        headerPanel.add(requestCertificateButton);
+        headerPanel.add(Box.createRigidArea(new Dimension(20, 0)));
         headerPanel.add(leaveConferenceButton);
         add(headerPanel, BorderLayout.NORTH);
 
@@ -73,6 +76,7 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
 
     private void initializeButtons() {
         // initialize buttons
+        this.requestCertificateButton = UIComponentFactory.createStyledButton("Request Certificate");
         this.leaveConferenceButton = UIComponentFactory.createStyledButton("Leave Conference");
         this.viewPersonalSchedule = UIComponentFactory.createStyledButton("Your Personal Schedule");
         this.viewSessionsButton = UIComponentFactory.createStyledButton("View Upcoming Sessions");
@@ -100,6 +104,7 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
 
     // button handlers
     private void setUpListeners() {
+        this.requestCertificateButton.addActionListener(this::handleRequestCertificateButton);
         this.leaveConferenceButton.addActionListener(this::handleLeaveConferenceButton);
         this.viewPersonalSchedule.addActionListener(this::handleViewPersonalScheduleButton);
         this.viewSessionsButton.addActionListener(this::handleViewUpcomingSessionsButton);
@@ -108,6 +113,10 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         if (this.provideFeedbackButton != null) {
             this.provideFeedbackButton.addActionListener(this::handleProvideFeedbackButton);
         }
+    }
+
+    private void handleRequestCertificateButton(ActionEvent e) {
+
     }
 
     private void handleLeaveConferenceButton(ActionEvent e) {

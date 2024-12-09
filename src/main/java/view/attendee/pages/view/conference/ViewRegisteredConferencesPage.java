@@ -13,15 +13,18 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ViewRegisteredConferencesPage extends JPanel {
 
     private final UserDTO attendee;
     private final UIEventMediator eventMediator;
     private final Navigator navigator;
-    private List<ConferenceDTO> ongoingConferences;
-    private List<ConferenceDTO> upcomingConferences;
+    private Map<String, ConferenceDTO> ongoingConferences = new HashMap<>();
+    private Map<String, ConferenceDTO> upcomingConferences = new HashMap<>();
+    private Map<String, ConferenceDTO> pastConferences = new HashMap<>();
 
     public ViewRegisteredConferencesPage(UserDTO attendee, UIEventMediator eventMediator, Navigator navigator) {
         this.attendee = attendee;
@@ -41,16 +44,34 @@ public class ViewRegisteredConferencesPage extends JPanel {
         JPanel headerPanel = UIComponentFactory.createHeaderPanel("Your Registered Conferences", this::handleBackButton, 480);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Split panel for ongoing and upcoming conferences
-        JSplitPane splitPane = createSplitPane();
-        splitPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        // left split panel for upcoming and ongoing conferences
+        JSplitPane leftSplitPane = createSplitPane();
+
+        leftSplitPane.setBorder(BorderFactory.createEmptyBorder(20, 0, 0,0));
+
+        // right panel for past conferences
+        JPanel pastConferencesScrollPanePanel = createConferencePanel(
+                "Past",
+                pastConferences.values().stream().toList()
+        );
+
+        // joining left split pane with right scroll panel
+        JSplitPane splitPane = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                leftSplitPane,
+                pastConferencesScrollPanePanel
+        );
+
+        splitPane.setResizeWeight(0.5);
+        splitPane.setDividerSize(5);
+        splitPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         add(splitPane, BorderLayout.CENTER);
     }
 
     private JSplitPane createSplitPane() {
         // create panels for ongoing and upcoming conferences
-        JPanel ongoingPanel = createConferencePanel("Ongoing", ongoingConferences);
-        JPanel upcomingPanel = createConferencePanel("Upcoming", upcomingConferences);
+        JPanel ongoingPanel = createConferencePanel("Ongoing", ongoingConferences.values().stream().toList());
+        JPanel upcomingPanel = createConferencePanel("Upcoming", upcomingConferences.values().stream().toList());
 
         Dimension equalSize = new Dimension(400, 0);
         ongoingPanel.setPreferredSize(equalSize);
@@ -88,31 +109,41 @@ public class ViewRegisteredConferencesPage extends JPanel {
         }
 
         // split the fetched registered conferences into ongoing and upcoming
-        this.ongoingConferences = filterOngoingConferences(registeredConferences);
-        this.upcomingConferences = filterUpcomingConferences(registeredConferences);
+        filterUpcomingConferences(registeredConferences);
+        filterOngoingConferences(registeredConferences);
+        filterPastConferences(registeredConferences);
     }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
-    private List<ConferenceDTO> filterUpcomingConferences(List<ConferenceDTO> conferences) {
+    private void filterUpcomingConferences(List<ConferenceDTO> conferences) {
         LocalDateTime now = LocalDateTime.now();
 
-        return conferences.stream()
+        conferences.stream()
                 .filter(conference -> LocalDateTime.of(conference.getStartDate(), LocalTime.MIN).isAfter(now))
-                .toList();
+                .forEach(conference -> upcomingConferences.put(conference.getId(), conference));
     }
 
-    private List<ConferenceDTO> filterOngoingConferences(List<ConferenceDTO> conferences) {
+    private void filterPastConferences(List<ConferenceDTO> conferences) {
         LocalDateTime now = LocalDateTime.now();
 
-        return conferences.stream()
+        conferences.stream()
+                .filter(conference -> LocalDateTime.of(conference.getEndDate(), LocalTime.MAX).isBefore(now))
+                .forEach(conference -> pastConferences.put(conference.getId(), conference));
+    }
+
+    private void filterOngoingConferences(List<ConferenceDTO> conferences) {
+        LocalDateTime now = LocalDateTime.now();
+
+        conferences.stream()
                 .filter(conference -> {
                     LocalDateTime startDateTime = LocalDateTime.of(conference.getStartDate(), LocalTime.MIN);
                     LocalDateTime endDateTime = LocalDateTime.of(conference.getEndDate(), LocalTime.MAX);
 
                     return now.isAfter(startDateTime) && now.isBefore(endDateTime);
-                }).toList();
+                })
+                .forEach(conference -> ongoingConferences.put(conference.getId(), conference));
     }
 
     private void handleViewConferenceButton(ActionEvent e) {
@@ -120,9 +151,15 @@ public class ViewRegisteredConferencesPage extends JPanel {
         JButton sourceButton = (JButton) e.getSource();
         String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
 
-        // navigate to "View Registered Conference" page
-        ViewRegisteredConferencePage viewRegisteredConferencePage = new ViewRegisteredConferencePage(attendee, eventMediator, navigator, conferenceId);
-        navigator.navigateTo(viewRegisteredConferencePage);
+        if (pastConferences.containsKey(conferenceId)) {
+            // navigate to "View Past Registered Conference" page
+            ViewConferencePage viewPastConferencePage = new ViewPastRegisteredConferencePage(attendee, eventMediator, navigator, conferenceId);
+            navigator.navigateTo(viewPastConferencePage);
+        } else {
+            // navigate to "View Registered Conference" page
+            ViewConferencePage viewRegisteredConferencePage = new ViewRegisteredConferencePage(attendee, eventMediator, navigator, conferenceId);
+            navigator.navigateTo(viewRegisteredConferencePage);
+        }
     }
 
     private void handleBackButton(ActionEvent e) {

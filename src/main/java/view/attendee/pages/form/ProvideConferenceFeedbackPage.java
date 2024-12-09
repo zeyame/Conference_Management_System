@@ -8,9 +8,12 @@ import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
 import view.attendee.pages.view.conference.ViewConferencePage;
+import view.attendee.pages.view.conference.ViewPastRegisteredConferencePage;
 import view.attendee.pages.view.conference.ViewRegisteredConferencePage;
 
 import java.awt.event.ActionEvent;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class ProvideConferenceFeedbackPage extends ProvideFeedbackPage {
     private final ConferenceDTO conferenceDTO;
@@ -28,6 +31,12 @@ public class ProvideConferenceFeedbackPage extends ProvideFeedbackPage {
 
     @Override
     protected void handleBackAction(ActionEvent e) {
+        if (LocalDateTime.of(conferenceDTO.getEndDate(), LocalTime.MAX).isBefore(LocalDateTime.now())) {
+            ViewConferencePage viewConferencePage = new ViewPastRegisteredConferencePage(attendee, eventMediator, navigator, conferenceDTO.getId());
+            navigator.navigateTo(viewConferencePage, false);
+            return;
+        }
+
         ViewConferencePage viewConferencePage = new ViewRegisteredConferencePage(attendee, eventMediator, navigator, conferenceDTO.getId());
         navigator.navigateTo(viewConferencePage, false);
     }
