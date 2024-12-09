@@ -10,18 +10,21 @@ public class Attendee extends User {
     @JsonProperty("schedule")
     private final Map<LocalDateTime, String> schedule;          // K: Session Time, V: Session ID
     private final Set<String> registeredConferences;
+    private final Set<String> submittedFeedback;
 
     // no-arg constructor for JSON serialization/de-serialization
     private Attendee() {
         super(null, null, null, null, null);
         this.schedule = new TreeMap<>();
         this.registeredConferences = new HashSet<>();
+        this.submittedFeedback = new HashSet<>();
     }
 
     public Attendee(String id, String email, String name, String hashedPassword, UserRole userRole) {
         super(id, email, name, hashedPassword, userRole);
         this.schedule = new TreeMap<>();
         this.registeredConferences = new HashSet<>();
+        this.submittedFeedback = new HashSet<>();
     }
 
     public void addRegisteredConference(String conferenceId) {
@@ -49,12 +52,11 @@ public class Attendee extends User {
             throw new SessionException(String.format("Session id '%s' is not in attendee's '%s' personal schedule.", sessionId, this.getName()));
         }
     }
-
     public Map<LocalDateTime, String> getSchedule() {
-        return schedule;
-    }
+        return new TreeMap<>(this.schedule);
+    }           // defensive copy
 
     public Set<String> getRegisteredConferences() {
-        return registeredConferences;
-    }
+        return new HashSet<>(this.registeredConferences);
+    }       // defensive copy
 }

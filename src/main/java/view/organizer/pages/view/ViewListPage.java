@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public abstract class ViewListPage<T> {
+public abstract class ViewListPage<T> extends JPanel {
     protected final OrganizerObserver organizerObserver;
     protected final String eventName;           // event can be a conference or a session
 

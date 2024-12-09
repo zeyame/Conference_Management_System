@@ -58,7 +58,7 @@ public class AttendeeController {
             return ResponseEntity.success();
         } catch (Exception e) {
             LoggerUtil.getInstance().logError(String.format("Failed to submit feedback: %s %s", e.getMessage(), e));
-            return ResponseEntity.error("An unexpected error occurred when submitting feedback. Please try again later.");
+            return ResponseEntity.error(e.getMessage());
         }
     }
 

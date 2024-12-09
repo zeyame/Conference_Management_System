@@ -3,6 +3,7 @@ package util.ui;
 import domain.model.user.UserRole;
 import dto.ConferenceDTO;
 import dto.SessionDTO;
+import dto.UserDTO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -145,26 +146,35 @@ public class UIComponentFactory {
         return gbc;
     }
 
-    public static JPanel createSpeakerPanel(String speakerName, String speakerEmail, String speakerBio) {
+    public static JPanel createSpeakerPanel(UserDTO speaker, String speakerBio, String buttonText, ActionListener buttonHandler) {
         JPanel speakersPanel = new JPanel();
         speakersPanel.setLayout(new BoxLayout(speakersPanel, BoxLayout.Y_AXIS));
 
         // name of speaker
-        JLabel nameLabel = new JLabel("Name: " + speakerName);
+        JLabel nameLabel = new JLabel("Name: " + speaker.getName());
         nameLabel.setFont(new Font("Sans serif", Font.BOLD, 18));
         nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
 
         // email of speaker
-        JLabel emailLabel = new JLabel("Email: " + speakerEmail);
+        JLabel emailLabel = new JLabel("Email: " + speaker.getEmail());
         emailLabel.setFont(new Font("Sans serif", Font.PLAIN, 14));
+        emailLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
 
         // bio of speaker
         JLabel bioLabel = new JLabel("Bio: " + speakerBio);
         bioLabel.setFont(new Font("Sans serif", Font.PLAIN, 14));
+        bioLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+
+        // View/Provide Feedback button
+        JButton button = createStyledButton(buttonText);
+        button.putClientProperty("speaker", speaker);
+        button.addActionListener(buttonHandler);
 
         speakersPanel.add(nameLabel);
         speakersPanel.add(emailLabel);
         speakersPanel.add(bioLabel);
+        speakersPanel.add(button);
 
         return speakersPanel;
     }

@@ -1,5 +1,6 @@
 package controller;
 
+import domain.model.user.Speaker;
 import dto.ConferenceDTO;
 import dto.FeedbackDTO;
 import dto.SessionDTO;
@@ -174,6 +175,27 @@ public class OrganizerController {
         } catch (SessionException e) {
             LoggerUtil.getInstance().logError(String.format("Could not retrieve feedback for session wit id '%s' as it does not exist.", sessionId));
             return ResponseEntity.error(String.format("Session with id '%s' does not exist.", sessionId));
+        }
+    }
+
+
+    public ResponseEntity<Map<String, String>> getSpeakerBios(Set<String> speakerIds) {
+        try {
+            Map<String, String> speakerBios = userService.findSpeakerBiosById(speakerIds);
+            return ResponseEntity.success(speakerBios);
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to fetch speaker bios: %s %s", e.getMessage(), e));
+            return ResponseEntity.error("An unexpected error occurred when retrieving speaker bios. Please try again later.");
+        }
+    }
+
+    public ResponseEntity<List<FeedbackDTO>> getSpeakerFeedback(String speakerId) {
+        try {
+            List<FeedbackDTO> speakerFeedback = feedbackService.findAllBySpeakerId(speakerId);
+            return ResponseEntity.success(speakerFeedback);
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to retrieve feedback for speaker with id '%s': %s %s", speakerId, e.getMessage(), e));
+            return ResponseEntity.error("An unexpected error occurred when retrieving speaker's feedback. Please try again later.");
         }
     }
 

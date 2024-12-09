@@ -21,6 +21,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final OrganizerController organizerController;
@@ -42,6 +43,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
     private final String VIEW_CONFERENCE_FEEDBACK_PAGE = "View Conference Feedback Page";
     private final String VIEW_SESSION_FEEDBACK_PAGE = "View Session Feedback Page";
+    private final String VIEW_SPEAKER_FEEDBACK_PAGE = "View Speaker Feedback Page";
     private final String VIEW_SPEAKERS_PAGE = "View Speakers Page";
 
     // map used for quick retrieval of organizer subpages need for routing
@@ -434,6 +436,33 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         navigateTo(VIEW_SESSION_ATTENDANCE_PAGE, viewSessionAttendancePage.createPageContent(), true);
     }
 
+    @Override
+    public void onGetSpeakerBiosRequest(Set<String> speakerIds, BiConsumer<Map<String, String>, String> callback) {
+        LoggerUtil.getInstance().logInfo("Request by organizer to retrieve speaker bios received.");
+
+        ResponseEntity<Map<String, String>> speakerBiosResponse = organizerController.getSpeakerBios(speakerIds);
+        if (speakerBiosResponse.isSuccess()) {
+            callback.accept(speakerBiosResponse.getData(), null);
+        } else {
+            callback.accept(null, speakerBiosResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onViewSpeakerFeedbackRequest(String speakerId, String speakerName) {
+        LoggerUtil.getInstance().logInfo(String.format("Organizer request to retrieve feedback for speaker '%s' received.", speakerId));
+
+        ResponseEntity<List<FeedbackDTO>> speakerFeedbackResponse = organizerController.getSpeakerFeedback(speakerId);
+        if (!speakerFeedbackResponse.isSuccess()) {
+            showError(VIEW_SPEAKERS_PAGE, speakerFeedbackResponse.getErrorMessage());
+            return;
+        }
+
+        List<FeedbackDTO> feedbackDTOs = speakerFeedbackResponse.getData();
+        ViewListPage<FeedbackDTO> viewListPage = new ViewFeedbackPage(this, speakerName, feedbackDTOs);
+        navigateTo(VIEW_SPEAKER_FEEDBACK_PAGE, viewListPage.createPageContent(), true);
+    }
+
     private ConferenceDTO fetchConference(String conferenceId) {
         ResponseEntity<ConferenceDTO> managedConferenceResponse = organizerController.getManagedConference(conferenceId);
         if (!managedConferenceResponse.isSuccess()) {
@@ -545,5 +574,4 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
                 JOptionPane.ERROR_MESSAGE
         );
     }
-
 }

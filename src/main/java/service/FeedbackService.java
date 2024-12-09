@@ -25,8 +25,15 @@ public class FeedbackService {
     }
 
     public void submit(FeedbackDTO feedbackDTO) {
-        Feedback feedback = FeedbackFactory.create(feedbackDTO);
+        if (feedbackDTO == null) {
+            throw new IllegalArgumentException("Invalid feedback data.");
+        }
 
+        if (hasAlreadySubmitted(feedbackDTO)) {
+            throw new FeedbackException("You have already submitted feedback once.");
+        }
+
+        Feedback feedback = FeedbackFactory.create(feedbackDTO);
         try {
             // save references to feedback in relevant domains
             switch (feedback.getType()) {
@@ -63,6 +70,18 @@ public class FeedbackService {
                 .collect(Collectors.toList());
     }
 
+    public List<FeedbackDTO> findAllBySpeakerId(String speakerId) {
+        if (speakerId == null || speakerId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid speaker id");
+        }
+
+        return feedbackRepository.findAllSpeakerFeedback()
+                .stream()
+                .filter(speakerFeedback -> speakerFeedback.getSpeakerId().equals(speakerId))
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     public void deleteById(String id ) {
         boolean isDeleted = feedbackRepository.deleteById(id);
         if (!isDeleted) {
@@ -72,6 +91,54 @@ public class FeedbackService {
 
     public void deleteAllById(Set<String> ids) {
         ids.forEach(this::deleteById);
+    }
+
+    private boolean hasAlreadySubmitted(FeedbackDTO feedbackDTO) {
+        if (feedbackDTO == null) {
+            throw new IllegalArgumentException("Invalid feedback data");
+        }
+
+        return switch (feedbackDTO.getType()) {
+            case CONFERENCE -> hasAlreadySubmittedForConference(feedbackDTO.getAttendeeId(), feedbackDTO.getConferenceId());
+            case SESSION -> hasAlreadySubmittedForSession(feedbackDTO.getAttendeeId(), feedbackDTO.getSessionId());
+            case SPEAKER -> hasAlreadySubmittedForSpeaker(feedbackDTO.getAttendeeId(), feedbackDTO.getSpeakerId());
+        };
+    }
+
+    private boolean hasAlreadySubmittedForConference(String attendeeId, String conferenceId) {
+        if (attendeeId == null || conferenceId == null || attendeeId.isEmpty() || conferenceId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid attendee id and/or conference id.");
+        }
+
+        return feedbackRepository.findAllConferenceFeedback()
+                .stream()
+                .anyMatch(conferenceFeedback ->
+                        conferenceFeedback.getAttendeeId().equals(attendeeId) && conferenceFeedback.getConferenceId().equals(conferenceId)
+                );
+    }
+
+    private boolean hasAlreadySubmittedForSession(String attendeeId, String sessionId) {
+        if (attendeeId == null || sessionId == null || attendeeId.isEmpty() || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid attendee id and/or session id.");
+        }
+
+        return feedbackRepository.findAllSessionFeedback()
+                .stream()
+                .anyMatch(sessionFeedback ->
+                        sessionFeedback.getAttendeeId().equals(attendeeId) && sessionFeedback.getSessionId().equals(sessionId)
+                );
+    }
+
+    private boolean hasAlreadySubmittedForSpeaker(String attendeeId, String speakerId) {
+        if (attendeeId == null || speakerId == null || attendeeId.isEmpty() || speakerId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid attendee id and/or speaker id.");
+        }
+
+        return feedbackRepository.findAllSpeakerFeedback()
+                .stream()
+                .anyMatch(speakerFeedback ->
+                        speakerFeedback.getAttendeeId().equals(attendeeId) && speakerFeedback.getSpeakerId().equals(speakerId)
+                );
     }
 
     private FeedbackDTO mapToDTO(Feedback feedback) {

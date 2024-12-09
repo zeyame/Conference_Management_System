@@ -37,7 +37,7 @@ public abstract class ProvideFeedbackPage extends JPanel {
         setLayout(new BorderLayout());
 
         // header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format(getFeedbackTitle()), this::handleBackAction,  350-getFeedbackTitle().length());
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(String.format(getFeedbackTitle()), this::handleBackAction,  400-getFeedbackTitle().length());
         add(headerPanel, BorderLayout.NORTH);
 
         // form

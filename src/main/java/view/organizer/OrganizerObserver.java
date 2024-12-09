@@ -1,9 +1,13 @@
 package view.organizer;
 
 import dto.ConferenceDTO;
+import dto.FeedbackDTO;
 import dto.SessionDTO;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
 
 public interface OrganizerObserver {
@@ -45,5 +49,9 @@ public interface OrganizerObserver {
 
     // Edit Session Page events
     void onUpdateSessionRequest(SessionDTO updatedSessionDTO);
+
+    // View Speakers Page events
+    void onGetSpeakerBiosRequest(Set<String> speakerIds, BiConsumer<Map<String, String>, String> callback);
+    void onViewSpeakerFeedbackRequest(String speakerId, String speakerName);
 
 }

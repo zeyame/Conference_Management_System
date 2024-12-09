@@ -4,6 +4,9 @@ import dto.UserDTO;
 import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
+import view.attendee.pages.form.ProvideFeedbackPage;
+import view.attendee.pages.form.ProvideSessionFeedbackPage;
+import view.attendee.pages.form.ProvideSpeakerFeedbackPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,14 +22,11 @@ public class ViewPastRegisteredSessionPage extends ViewSessionPage {
     protected JPanel createFooterPanel() {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
 
-        JButton provideSessionFeedbackButton = UIComponentFactory.createStyledButton("Provide Session Feedback");
-        JButton provideSpeakerFeedbackButton = UIComponentFactory.createStyledButton("Provide Speaker Feedback");
+        JButton provideFeedback = UIComponentFactory.createStyledButton("Provide Feedback");
 
-        provideSessionFeedbackButton.addActionListener(this::handleProvideSessionFeedbackButton);
-        provideSpeakerFeedbackButton.addActionListener(this::handleProvideSpeakerFeedbackButton);
+        provideFeedback.addActionListener(this::handleProvideSessionFeedbackButton);
 
-        footerPanel.add(provideSessionFeedbackButton);
-        footerPanel.add(provideSpeakerFeedbackButton);
+        footerPanel.add(provideFeedback);
         footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 80));
 
         return footerPanel;
@@ -38,7 +38,9 @@ public class ViewPastRegisteredSessionPage extends ViewSessionPage {
         navigator.navigateTo(viewPersonalSchedulePage);
     }
 
-    private void handleProvideSessionFeedbackButton(ActionEvent e) {}
+    private void handleProvideSessionFeedbackButton(ActionEvent e) {
+        ProvideFeedbackPage provideFeedbackPage = new ProvideSessionFeedbackPage(attendee, eventMediator, navigator, sessionDTO);
+        navigator.navigateTo(provideFeedbackPage);
+    }
 
-    private void handleProvideSpeakerFeedbackButton(ActionEvent e) {}
 }

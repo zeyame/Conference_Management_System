@@ -1,1 +1,38 @@
-{"f675cdc8-f66c-4e54-82aa-38bb0a373856":{"id":"f675cdc8-f66c-4e54-82aa-38bb0a373856","attendeeId":"a998dd6b-4b48-4cdb-af76-10b427ab9cf4","attendeeName":"Zeyad","rating":4,"comment":"Decent Conference. Could be better.","conferenceId":"a014a785-3bc2-41c1-bfee-36a3f9c13fc5","type":"Conference"}}
+{
+  "ed3d3f36-bff7-4c7b-bb05-7a9519884a2f": {
+    "id": "ed3d3f36-bff7-4c7b-bb05-7a9519884a2f",
+    "attendeeId": "a998dd6b-4b48-4cdb-af76-10b427ab9cf4",
+    "attendeeName": "Zeyad",
+    "rating": 4,
+    "comment": "So far, excellent conference.",
+    "conferenceId": "a014a785-3bc2-41c1-bfee-36a3f9c13fc5",
+    "type": "Conference"
+  },
+  "9eb50de2-432a-4c9f-a4c1-b12da8fb7263": {
+    "id": "9eb50de2-432a-4c9f-a4c1-b12da8fb7263",
+    "attendeeId": "a998dd6b-4b48-4cdb-af76-10b427ab9cf4",
+    "attendeeName": "Zeyad",
+    "rating": 5,
+    "comment": "Great Speaker",
+    "speakerId": "239af81a-f6c9-4703-894f-88cc7489d449",
+    "type": "Speaker"
+  },
+  "8a91d409-6b48-4b8a-b99e-3240c466c402": {
+    "id": "8a91d409-6b48-4b8a-b99e-3240c466c402",
+    "attendeeId": "a998dd6b-4b48-4cdb-af76-10b427ab9cf4",
+    "attendeeName": "Zeyad",
+    "rating": 4,
+    "comment": "Good Session.",
+    "sessionId": "9c6b1328-3612-4533-ad02-488b793838bd",
+    "type": "Session"
+  },
+  "0b26d298-0ed1-492b-b9c5-824b6cc68bb9": {
+    "id": "0b26d298-0ed1-492b-b9c5-824b6cc68bb9",
+    "attendeeId": "a998dd6b-4b48-4cdb-af76-10b427ab9cf4",
+    "attendeeName": "Zeyad",
+    "rating": 1,
+    "comment": "Bad session.",
+    "sessionId": "f3943c4d-30cd-4c5a-90bd-f4cf76e77664",
+    "type": "Session"
+  }
+}

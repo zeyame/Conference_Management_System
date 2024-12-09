@@ -32,7 +32,7 @@ public class AttendeeSessionManager implements SessionEventObserver {
 
     @Override
     public void onSubmitFeedback(FeedbackDTO feedbackDTO, Consumer<String> callback) {
-        LoggerUtil.getInstance().logInfo(String.format("Attendee request to submit feedback for session '%s' received.", feedbackDTO.getSessionId()));
+        LoggerUtil.getInstance().logInfo(("Attendee request to submit feedback was received."));
 
         ResponseEntity<Void> submitSessionFeedbackResponse = attendeeController.submitFeedback(feedbackDTO);
         if (submitSessionFeedbackResponse.isSuccess()) {

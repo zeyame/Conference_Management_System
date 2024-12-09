@@ -78,7 +78,7 @@ public class ViewRegisteredConferencePage extends ViewConferencePage {
         this.viewSessionsButton = UIComponentFactory.createStyledButton("View Upcoming Sessions");
         this.viewSpeakersButton = UIComponentFactory.createStyledButton("View Speakers");
 
-        if (isUpcoming()) {
+        if (!isUpcoming()) {
             this.provideFeedbackButton = UIComponentFactory.createStyledButton("Provide Feedback");
         }
     }

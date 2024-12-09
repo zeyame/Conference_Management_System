@@ -7,7 +7,9 @@ import dto.UserDTO;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.SessionEventObserver;
+import view.attendee.pages.view.session.ViewPastRegisteredSessionPage;
 import view.attendee.pages.view.session.ViewPersonalSchedulePage;
+import view.attendee.pages.view.session.ViewSessionPage;
 
 import java.awt.event.ActionEvent;
 
@@ -28,8 +30,8 @@ public class ProvideSessionFeedbackPage extends ProvideFeedbackPage {
 
     @Override
     protected void handleBackAction(ActionEvent e) {
-        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(attendee, eventMediator, navigator, sessionDTO.getConferenceId());
-        navigator.navigateTo(viewPersonalSchedulePage, false);
+        ViewSessionPage viewSessionPage = new ViewPastRegisteredSessionPage(attendee, sessionDTO.getId(), eventMediator, navigator);
+        navigator.navigateTo(viewSessionPage, false);
     }
 
     @Override

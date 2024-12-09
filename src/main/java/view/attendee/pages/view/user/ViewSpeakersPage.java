@@ -6,6 +6,8 @@ import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.observers.ConferenceEventObserver;
+import view.attendee.pages.form.ProvideFeedbackPage;
+import view.attendee.pages.form.ProvideSpeakerFeedbackPage;
 import view.attendee.pages.view.conference.ViewConferencePage;
 import view.attendee.pages.view.conference.ViewRegisteredConferencePage;
 
@@ -52,18 +54,18 @@ public class ViewSpeakersPage extends JPanel {
             JPanel emptyStatePanel = UIComponentFactory.createEmptyStatePanel("No speakers have been assigned to speak at this conference yet.", 200);
             add(emptyStatePanel, BorderLayout.CENTER);
         } else {
-            JScrollPane scrollPane = createSessionsScrollPane();
+            JScrollPane scrollPane = createSpeakersScrollPane();
             add(scrollPane, BorderLayout.CENTER);
         }
     }
 
-    private JScrollPane createSessionsScrollPane() {
+    private JScrollPane createSpeakersScrollPane() {
         JPanel speakersPanel = new JPanel();
         speakersPanel.setLayout(new BoxLayout(speakersPanel, BoxLayout.Y_AXIS));
         speakersPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
 
         for (UserDTO speaker: speakers) {
-            JPanel speakerPanel = UIComponentFactory.createSpeakerPanel(speaker.getName(), speaker.getEmail(), speakerBios.get(speaker.getId()));
+            JPanel speakerPanel = UIComponentFactory.createSpeakerPanel(speaker, speakerBios.get(speaker.getId()), "Provide Feedback", this::handleProvideFeedbackButton);
             speakersPanel.add(speakerPanel);
         }
         JScrollPane scrollPane = new JScrollPane(speakersPanel);
@@ -125,6 +127,14 @@ public class ViewSpeakersPage extends JPanel {
     private void handleBackButton(ActionEvent e) {
         ViewConferencePage viewConferencePage = new ViewRegisteredConferencePage(attendee, eventMediator, navigator, conferenceId);
         navigator.navigateTo(viewConferencePage);
+    }
+
+    private void handleProvideFeedbackButton(ActionEvent e) {
+        JButton sourceButton = (JButton) e.getSource();
+        UserDTO speaker = (UserDTO) sourceButton.getClientProperty("speaker");
+
+        ProvideFeedbackPage provideFeedbackPage = new ProvideSpeakerFeedbackPage(attendee, eventMediator, navigator, speaker.getId(), speaker.getName(), conferenceId);
+        navigator.navigateTo(provideFeedbackPage);
     }
 
     // helpers
