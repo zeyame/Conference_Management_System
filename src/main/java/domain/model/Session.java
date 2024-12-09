@@ -145,6 +145,10 @@ public class Session {
 
     public void unregisterAttendee(String attendeeId) {this.registeredAttendees.remove(attendeeId);}
 
+    public void markAttendeeAsPresent(String attendeeId) {this.presentAttendees.add(attendeeId);}
+
+    public void markAttendeeAsAbsent(String attendeeId) {this.presentAttendees.remove(attendeeId);}
+
     public void addFeedback(String feedbackId) {this.feedback.add(feedbackId);}
 
     public void removeFeedback(String feedbackId) {this.feedback.remove(feedbackId);}
@@ -217,6 +221,7 @@ public class Session {
         if (this.registeredAttendees.isEmpty() || this.presentAttendees.isEmpty()) {
             return 0;
         }
-        return (float) this.presentAttendees.size() / this.registeredAttendees.size();
+        return ((float) this.presentAttendees.size() / this.registeredAttendees.size()) * 100;
     }
+
 }

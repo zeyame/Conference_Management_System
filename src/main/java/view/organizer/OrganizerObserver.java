@@ -25,7 +25,7 @@ public interface OrganizerObserver {
     // Manage Conference Page events
     void onEditConferenceRequest(ConferenceDTO conferenceDTO);
     void onDeleteConferenceRequest(String conferenceId);
-    void onViewAttendeesRequest(String conferenceId);
+    void onViewConferenceAttendeesRequest(String conferenceId);
     void onViewSessionsRequest(String conferenceId);
     void onViewSpeakersRequest(String conferenceId);
     void onViewConferenceFeedbackRequest(String conferenceId);
@@ -49,6 +49,10 @@ public interface OrganizerObserver {
 
     // Edit Session Page events
     void onUpdateSessionRequest(SessionDTO updatedSessionDTO);
+
+    // View Session Registered Attendees Page events
+    void onMarkAttendeeAsPresentRequest(String sessionId, String attendeeId);
+    void onMarkAttendeeAsAbsentRequest(String sessionId, String attendeeId);
 
     // View Speakers Page events
     void onGetSpeakerBiosRequest(Set<String> speakerIds, BiConsumer<Map<String, String>, String> callback);

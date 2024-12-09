@@ -146,6 +146,26 @@ public class UIComponentFactory {
         return gbc;
     }
 
+    public static JPanel createAttendeePanel(String attendeeName, String attendeeEmail) {
+        JPanel attendeePanel = new JPanel();
+        attendeePanel.setLayout(new BoxLayout(attendeePanel, BoxLayout.Y_AXIS));
+
+        // name of attendee
+        JLabel nameLabel = new JLabel("Name: " + attendeeName);
+        nameLabel.setFont(new Font("Sans serif", Font.BOLD, 18));
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
+
+        // email of attendee
+        JLabel emailLabel = new JLabel("Email: " + attendeeEmail);
+        emailLabel.setFont(new Font("Sans serif", Font.PLAIN, 14));
+
+        // add components to panel
+        attendeePanel.add(nameLabel);
+        attendeePanel.add(emailLabel);
+
+        return attendeePanel;
+    }
+
     public static JPanel createSpeakerPanel(UserDTO speaker, String speakerBio, String buttonText, ActionListener buttonHandler) {
         JPanel speakersPanel = new JPanel();
         speakersPanel.setLayout(new BoxLayout(speakersPanel, BoxLayout.Y_AXIS));

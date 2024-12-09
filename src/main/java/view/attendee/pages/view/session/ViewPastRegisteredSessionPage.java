@@ -11,6 +11,10 @@ import view.attendee.pages.form.ProvideSpeakerFeedbackPage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 public class ViewPastRegisteredSessionPage extends ViewSessionPage {
 
@@ -38,9 +42,14 @@ public class ViewPastRegisteredSessionPage extends ViewSessionPage {
         navigator.navigateTo(viewPersonalSchedulePage);
     }
 
+
     private void handleProvideSessionFeedbackButton(ActionEvent e) {
+        if (!sessionDTO.getPresentAttendees().contains(attendee.getId())) {
+            showError("You did not attend this session and so you cannot provide feedback.");
+            return;
+        }
+
         ProvideFeedbackPage provideFeedbackPage = new ProvideSessionFeedbackPage(attendee, eventMediator, navigator, sessionDTO);
         navigator.navigateTo(provideFeedbackPage);
     }
-
 }

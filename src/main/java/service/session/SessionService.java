@@ -177,6 +177,38 @@ public class SessionService {
         sessionRepository.save(session, session.getId());
     }
 
+    public void markAttendeeAsPresent(String id, String attendeeId) {
+        if (id == null || attendeeId == null || id.isEmpty() || attendeeId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid session id and/or attendee id.");
+        }
+
+        Optional<Session> sessionOptional = sessionRepository.findById(id);
+        if (sessionOptional.isEmpty()) {
+            throw new SessionException(String.format("Session with id '%s' does not exist.", id));
+        }
+
+        Session session = sessionOptional.get();
+        session.markAttendeeAsPresent(attendeeId);
+
+        sessionRepository.save(session, session.getId());
+    }
+
+    public void markAttendeeAsAbsent(String id, String attendeeId) {
+        if (id == null || attendeeId == null || id.isEmpty() || attendeeId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid session id and/or attendee id.");
+        }
+
+        Optional<Session> sessionOptional = sessionRepository.findById(id);
+        if (sessionOptional.isEmpty()) {
+            throw new SessionException(String.format("Session with id '%s' does not exist.", id));
+        }
+
+        Session session = sessionOptional.get();
+        session.markAttendeeAsAbsent(attendeeId);
+
+        sessionRepository.save(session, session.getId());
+    }
+
     public SessionDTO getById(String id) {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Invalid session id provided.");

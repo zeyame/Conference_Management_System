@@ -214,6 +214,6 @@ public class SessionDTO {
         if (this.registeredAttendees.isEmpty() || this.presentAttendees.isEmpty()) {
             return 0;
         }
-        return (float) this.presentAttendees.size() / this.registeredAttendees.size();
+        return ((float) this.presentAttendees.size() / this.registeredAttendees.size()) * 100;
     }
 }

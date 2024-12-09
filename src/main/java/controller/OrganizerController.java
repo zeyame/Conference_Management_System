@@ -69,6 +69,26 @@ public class OrganizerController {
         }
     }
 
+    public ResponseEntity<Void> markAttendeeAsPresent(String sessionId, String attendeeId) {
+        try {
+            sessionService.markAttendeeAsPresent(sessionId, attendeeId);
+            return ResponseEntity.success();
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to mark attendee '%s' as present for session '%s': %s, %s", attendeeId, sessionId, e.getMessage(), e));
+            return ResponseEntity.error("An unexpected error occurred when marking attendee as present for this session. Please try again later.");
+        }
+    }
+
+    public ResponseEntity<Void> markAttendeeAsAbsent(String sessionId, String attendeeId) {
+        try {
+            sessionService.markAttendeeAsAbsent(sessionId, attendeeId);
+            return ResponseEntity.success();
+        } catch (Exception e) {
+            LoggerUtil.getInstance().logError(String.format("Failed to mark attendee '%s' as present for session '%s': %s, %s", attendeeId, sessionId, e.getMessage(), e));
+            return ResponseEntity.error("An unexpected error occurred when marking attendee as present for this session. Please try again later.");
+        }
+    }
+
     public ResponseEntity<List<UserDTO>> getRegisteredSpeakers() {
         return ResponseEntity.success(userService.findAllSpeakers());
     }

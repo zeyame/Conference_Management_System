@@ -38,7 +38,8 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     private final String ADD_SESSION_PAGE = "Add Session Page";
     private final String UPDATE_CONFERENCE_PAGE = "Update Conference Page";
     private final String UPDATE_SESSION_PAGE = "Update Session Page";
-    private final String VIEW_ATTENDEES_PAGE = "View Attendees Page";
+    private final String VIEW_CONFERENCE_ATTENDEES_PAGE = "View Conference Attendees Page";
+    private final String VIEW_SESSION_ATTENDEES_PAGE = "View Session Attendees Page";
     private final String VIEW_SESSIONS_PAGE = "View Sessions Page";
     private final String VIEW_SESSION_ATTENDANCE_PAGE = "View Session Attendance Page";
     private final String VIEW_CONFERENCE_FEEDBACK_PAGE = "View Conference Feedback Page";
@@ -299,7 +300,7 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
     }
 
     @Override
-    public void onViewAttendeesRequest(String conferenceId) {
+    public void onViewConferenceAttendeesRequest(String conferenceId) {
         LoggerUtil.getInstance().logInfo(String.format("Request to view attendees for conference with id '%s' received.", conferenceId));
 
         // get conference data
@@ -316,8 +317,8 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         }
 
         List<UserDTO> conferenceAttendees = conferenceAttendeesResponse.getData();
-        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, conference.getName(), conferenceAttendees);
-        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent(), true);
+        ViewListPage<UserDTO> viewConferenceAttendees = new ViewConferenceAttendees(this, conference.getName(), conferenceAttendees);
+        navigateTo(VIEW_CONFERENCE_ATTENDEES_PAGE, viewConferenceAttendees.createPageContent(), true);
     }
 
     @Override
@@ -415,8 +416,8 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
 
         List<UserDTO> attendees = fetchSessionAttendees(sessionId);
 
-        ViewListPage<UserDTO> viewAttendeesPage = new ViewAttendeesPage(this, sessionDTO.getName(), attendees);
-        navigateTo(VIEW_ATTENDEES_PAGE, viewAttendeesPage.createPageContent(), true);
+        ViewListPage<UserDTO> viewSessionAttendeesPage = new ViewSessionAttendeesPage(this, attendees, sessionDTO);
+        navigateTo(VIEW_SESSION_ATTENDEES_PAGE, viewSessionAttendeesPage.createPageContent(), true);
     }
 
     @Override
@@ -435,6 +436,28 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         ViewListPage<UserDTO> viewSessionAttendancePage = new ViewSessionAttendancePage(this, registeredAttendees, presentAttendees, sessionDTO.getName(), attendanceRecord);
         navigateTo(VIEW_SESSION_ATTENDANCE_PAGE, viewSessionAttendancePage.createPageContent(), true);
     }
+
+    @Override
+    public void onMarkAttendeeAsPresentRequest(String sessionId, String attendeeId) {
+        LoggerUtil.getInstance().logInfo(String.format("Organizer request to mark attendee with id '%s' as present in session '%s' received.", attendeeId, sessionId));
+
+        ResponseEntity<Void> markAttendeeAsPresentResponse = organizerController.markAttendeeAsPresent(sessionId, attendeeId);
+        if (!markAttendeeAsPresentResponse.isSuccess()) {
+            showError(VIEW_SESSION_ATTENDEES_PAGE, markAttendeeAsPresentResponse.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void onMarkAttendeeAsAbsentRequest(String sessionId, String attendeeId) {
+        LoggerUtil.getInstance().logInfo(String.format("Organizer request to mark attendee with id '%s' as absent for session '%s' received.", attendeeId, sessionId));
+
+        ResponseEntity<Void> markAttendeeAsPresentResponse = organizerController.markAttendeeAsAbsent(sessionId, attendeeId);
+        if (!markAttendeeAsPresentResponse.isSuccess()) {
+            showError(VIEW_SESSION_ATTENDEES_PAGE, markAttendeeAsPresentResponse.getErrorMessage());
+        }
+    }
+
+
 
     @Override
     public void onGetSpeakerBiosRequest(Set<String> speakerIds, BiConsumer<Map<String, String>, String> callback) {

@@ -43,7 +43,7 @@ public abstract class ViewSessionPage extends JPanel {
 
         // details panel
         JPanel sessionDetails = UIComponentFactory.createSessionDetailsPanel(sessionDTO);
-        sessionDetails.setBorder(BorderFactory.createEmptyBorder(0, 190, 40, 0));
+        sessionDetails.setBorder(BorderFactory.createEmptyBorder(0, 215, 40, 0));
         add(sessionDetails, BorderLayout.CENTER);
 
         // footer
