@@ -1,4 +1,4 @@
-package view.attendee.pages.view.user;
+package view.attendee.pages.view;
 
 import dto.ConferenceDTO;
 import dto.UserDTO;

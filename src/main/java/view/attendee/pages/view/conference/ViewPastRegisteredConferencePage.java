@@ -6,6 +6,7 @@ import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
 import view.attendee.pages.form.ProvideConferenceFeedbackPage;
 import view.attendee.pages.form.ProvideFeedbackPage;
+import view.attendee.pages.view.ViewCertificatePage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,6 +45,7 @@ public class ViewPastRegisteredConferencePage extends ViewConferencePage {
     }
 
     private void handleRequestCertificateButton(ActionEvent e) {
-
+        ViewCertificatePage viewCertificatePage = new ViewCertificatePage(attendee, eventMediator, navigator, conferenceDTO);
+        navigator.navigateTo(viewCertificatePage);
     }
 }

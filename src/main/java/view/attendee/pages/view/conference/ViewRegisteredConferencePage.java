@@ -10,7 +10,7 @@ import view.attendee.pages.form.ProvideConferenceFeedbackPage;
 import view.attendee.pages.form.ProvideFeedbackPage;
 import view.attendee.pages.view.session.ViewPersonalSchedulePage;
 import view.attendee.pages.view.session.ViewUpcomingSessions;
-import view.attendee.pages.view.user.ViewSpeakersPage;
+import view.attendee.pages.view.ViewSpeakersPage;
 
 import javax.swing.*;
 import java.awt.*;
