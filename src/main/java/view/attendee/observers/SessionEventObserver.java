@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 public interface SessionEventObserver {
     void onRegisterForSession(String attendeeId, String sessionId, Consumer<String> callback);
     void onSubmitFeedback(FeedbackDTO feedbackDTO, Consumer<String> callback);
+    void onGetSessionsInConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback);
     void onGetPersonalSchedule(String attendeeId, String conferenceId, BiConsumer<List<SessionDTO>, String> callback);
     void onGetUpcomingSessionsForConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback);
     void onGetSession(String sessionId, BiConsumer<SessionDTO, String> callback);

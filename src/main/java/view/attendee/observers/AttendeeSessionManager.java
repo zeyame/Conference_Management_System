@@ -43,6 +43,18 @@ public class AttendeeSessionManager implements SessionEventObserver {
     }
 
     @Override
+    public void onGetSessionsInConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback) {
+        LoggerUtil.getInstance().logInfo(String.format("Request to get sessions in conference with id '%s' received.", conferenceId));
+
+        ResponseEntity<List<SessionDTO>> sessionsResponse = attendeeController.getConferenceSessions(conferenceId);
+        if (sessionsResponse.isSuccess()) {
+            callback.accept(sessionsResponse.getData(), null);
+        } else {
+            callback.accept(null, sessionsResponse.getErrorMessage());
+        }
+    }
+
+    @Override
     public void onGetUpcomingSessionsForConference(String conferenceId, BiConsumer<List<SessionDTO>, String> callback) {
         LoggerUtil.getInstance().logInfo(String.format("Attendee request to view sessions in conference with id '%s' received.", conferenceId));
 

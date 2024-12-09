@@ -111,7 +111,7 @@ public class UIComponentFactory {
     public static JPanel createEmptyStatePanel(String message, int leftPadding) {
         JPanel emptyStatePanel = new JPanel();
         JLabel emptyStateMessage = new JLabel("<html>" + message.replaceAll("\n", "<br>") + "</html>");
-        emptyStateMessage.setFont(new Font("Sans serif", Font.PLAIN, 16));
+        emptyStateMessage.setFont(new Font("Sans serif", Font.PLAIN, 18));
         emptyStateMessage.setPreferredSize(new Dimension(800, 100));
         emptyStateMessage.setMaximumSize(new Dimension(400, Integer.MAX_VALUE)); // Ensure label resizes appropriately
         emptyStatePanel.add(emptyStateMessage);

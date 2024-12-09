@@ -1,10 +1,12 @@
 package view.attendee.pages.view;
 
 import dto.ConferenceDTO;
+import dto.SessionDTO;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
 import view.attendee.Navigator;
 import view.attendee.UIEventMediator;
+import view.attendee.observers.SessionEventObserver;
 import view.attendee.pages.view.conference.ViewConferencePage;
 import view.attendee.pages.view.conference.ViewPastRegisteredConferencePage;
 
@@ -12,6 +14,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 public class ViewCertificatePage extends JPanel {
 
@@ -20,6 +25,8 @@ public class ViewCertificatePage extends JPanel {
     private final Navigator navigator;
     private final ConferenceDTO conferenceDTO;
 
+    private List<SessionDTO> conferenceSessions;
+
     public ViewCertificatePage(UserDTO attendee, UIEventMediator eventMediator, Navigator navigator, ConferenceDTO conferenceDTO) {
         this.attendee = attendee;
         this.eventMediator = eventMediator;
@@ -27,8 +34,34 @@ public class ViewCertificatePage extends JPanel {
         this.conferenceDTO = conferenceDTO;
 
         setLayout(new BorderLayout());
-        add(createHeaderPanel(), BorderLayout.NORTH);
-        add(createCertificatePanel(), BorderLayout.CENTER);
+
+        fetchConferenceSessions();
+
+        createPageContent();
+    }
+
+    private void createPageContent() {
+        JPanel emptyStatePanel;
+        if (!LocalDateTime.of(conferenceDTO.getEndDate(), LocalTime.MAX).isBefore(LocalDateTime.now())) {
+            add(UIComponentFactory.createHeaderPanel("", this::handleBackButton, 0), BorderLayout.NORTH);
+            emptyStatePanel = UIComponentFactory.createEmptyStatePanel(
+                    "The conference is not over yet. Please wait for the conference to conclude and then try requesting a" +
+                            " certificate of completion.",
+                    160
+            );
+            add(emptyStatePanel, BorderLayout.CENTER);
+        } else if (!hasAttendedAtleastASession()) {
+            add(UIComponentFactory.createHeaderPanel("", this::handleBackButton, 0), BorderLayout.NORTH);
+            emptyStatePanel = UIComponentFactory.createEmptyStatePanel(
+                    "You have not attended a single session in this conference. Certificates are only awarded to attendees " +
+                            "who have attended at least one session.",
+                    160
+            );
+            add(emptyStatePanel, BorderLayout.CENTER);
+        } else {
+            add(createHeaderPanel(), BorderLayout.NORTH);
+            add(createCertificatePanel(), BorderLayout.CENTER);
+        }
     }
 
     private JPanel createHeaderPanel() {
@@ -83,10 +116,29 @@ public class ViewCertificatePage extends JPanel {
         certificatePanel.add(createNameLabel());
         certificatePanel.add(createConferenceLabel());
         certificatePanel.add(Box.createVerticalStrut(20));
+        certificatePanel.add(createSessionLabel());
+        certificatePanel.add(Box.createVerticalStrut(20));
         certificatePanel.add(createFooterLabel());
 
         return certificatePanel;
     }
+
+    private JLabel createSessionLabel() {
+        String sessionNames = getAttendedSessionNames();
+        String sessionText = "<html><div style='text-align: center; width: 100%;'>"
+                + "<b>Sessions Attended:</b><br>"
+                + sessionNames
+                + "</div></html>";
+
+        JLabel sessionLabel = new JLabel(sessionText);
+        sessionLabel.setFont(new Font("Garamond", Font.PLAIN, 18));
+        sessionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sessionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sessionLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        return sessionLabel;
+    }
+
 
     private Border createCertificateBorder() {
         return new CompoundBorder(
@@ -137,8 +189,42 @@ public class ViewCertificatePage extends JPanel {
         return footerLabel;
     }
 
+    private void fetchConferenceSessions() {
+        eventMediator.publishEvent(
+                SessionEventObserver.class,
+                observer -> observer.onGetSessionsInConference(conferenceDTO.getId(), this::onConferenceSessionsFetched)
+        );
+    }
+
+    private void onConferenceSessionsFetched(List<SessionDTO> conferenceSessions, String errorMessage) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            showError(errorMessage);
+            return;
+        }
+        this.conferenceSessions = conferenceSessions;
+    }
+
+
+    protected void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     private void handleBackButton(ActionEvent e) {
         ViewConferencePage viewConferencePage = new ViewPastRegisteredConferencePage(attendee, eventMediator, navigator, conferenceDTO.getId());
         navigator.navigateTo(viewConferencePage);
     }
+
+    private boolean hasAttendedAtleastASession() {
+        return conferenceSessions.stream()
+                .anyMatch(session -> session.getPresentAttendees().contains(attendee.getId()));
+    }
+
+    private String getAttendedSessionNames() {
+        return conferenceSessions.stream()
+                .filter(session -> session.getPresentAttendees().contains(attendee.getId()))
+                .map(SessionDTO::getName)
+                .reduce((a, b) -> a + ", " + b)
+                .get();
+    }
+
 }
