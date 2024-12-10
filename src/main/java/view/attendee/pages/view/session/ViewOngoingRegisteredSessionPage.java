@@ -2,8 +2,8 @@ package view.attendee.pages.view.session;
 
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +30,7 @@ public class ViewOngoingRegisteredSessionPage extends ViewSessionPage {
 
     @Override
     protected void handleBackButton(ActionEvent e) {
-        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(attendee, eventMediator, navigator, sessionDTO.getConferenceId());
+        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(userDTO, eventMediator, navigator, sessionDTO.getConferenceId());
         navigator.navigateTo(viewPersonalSchedulePage);
     }
 

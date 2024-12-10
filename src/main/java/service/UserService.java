@@ -262,6 +262,36 @@ public class UserService {
         return attendee.getRegisteredConferences();
     }
 
+    public Set<String> findAssignedSessionsForSpeaker(String speakerId) {
+        if (speakerId == null || speakerId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid speaker id.");
+        }
+
+
+        User user = findById(speakerId);
+
+        validateRole(user, UserRole.SPEAKER);
+
+        Speaker speaker = (Speaker) user;
+        return speaker.getAssignedSessionIds();
+    }
+
+    public void updateSpeakerBio(String speakerId, String newBio) {
+        if (speakerId == null || newBio == null || speakerId.isEmpty() || newBio.isEmpty()) {
+            throw new IllegalArgumentException("Invalid speaker id.");
+        }
+
+
+        User user = findById(speakerId);
+
+        validateRole(user, UserRole.SPEAKER);
+
+        Speaker speaker = (Speaker) user;
+        speaker.setBio(newBio);
+
+        save(speaker, "An unexpected error occurred when saving your new bio. Please try again later.");
+    }
+
     public void unassignConferenceFromOrganizer(String id, String conferenceId) {
         if (id == null || id.isEmpty() || conferenceId == null || conferenceId.isEmpty()) {
             throw new IllegalArgumentException("Organizer id and conference id are required to remove conference from organizer's managed conferences and cannot be null or empty.");

@@ -4,11 +4,10 @@ import domain.model.feedback.FeedbackType;
 import dto.FeedbackDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
-import view.attendee.observers.SessionEventObserver;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
+import view.observers.SessionEventObserver;
 import view.attendee.pages.view.session.ViewPastRegisteredSessionPage;
-import view.attendee.pages.view.session.ViewPersonalSchedulePage;
 import view.attendee.pages.view.session.ViewSessionPage;
 
 import java.awt.event.ActionEvent;

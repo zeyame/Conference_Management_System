@@ -1,10 +1,13 @@
 package domain.model.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Speaker extends User {
-    private final String bio;
+    private String bio;
     private final Set<String> feedback;
     private final Map<LocalDateTime, AssignedSession> assignedSessions;          // K: Session Time, V: Session ID
 
@@ -48,7 +51,9 @@ public class Speaker extends User {
 
     public static class AssignedSession {
         private final String id;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private final LocalDateTime startTime;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private final LocalDateTime endTime;
 
         public AssignedSession() {
@@ -85,11 +90,20 @@ public class Speaker extends User {
         return this.bio;
     }
 
+    public void setBio(String bio) {this.bio = bio;}
+
     public Set<String> getFeedback() {
         return this.feedback;
     }
 
     public Map<LocalDateTime, AssignedSession> getAssignedSessions() {
         return new HashMap<>(this.assignedSessions);
+    }
+
+    public Set<String> getAssignedSessionIds() {
+        return assignedSessions.values()
+                .stream()
+                .map(AssignedSession::getId)
+                .collect(Collectors.toSet());
     }
 }

@@ -3,8 +3,8 @@ package view.attendee.pages.form;
 import dto.UserDTO;
 import util.ui.FormBuilder;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
 
 import javax.swing.*;
 import java.awt.*;

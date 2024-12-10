@@ -13,6 +13,7 @@ import util.LoggerUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -398,8 +399,8 @@ public class SessionService {
                 session.getName(),
                 session.getRoom(),
                 session.getDate() != null ? session.getDate() : LocalDate.now(),
-                session.getStartTime(),
-                session.getEndTime()
+                session.getStartTime() != null ? session.getStartTime() : LocalTime.now(),
+                session.getEndTime() != null ? session.getEndTime() : LocalTime.now()
         ).setId(session.getId())
          .setDescription(session.getDescription())
          .setRegisteredAttendees(session.getRegisteredAttendees())

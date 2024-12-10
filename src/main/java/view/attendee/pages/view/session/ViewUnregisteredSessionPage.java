@@ -2,9 +2,9 @@ package view.attendee.pages.view.session;
 
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
-import view.attendee.observers.SessionEventObserver;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
+import view.observers.SessionEventObserver;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -27,14 +27,14 @@ public class ViewUnregisteredSessionPage extends ViewSessionPage {
     // button handlers
     @Override
     protected void handleBackButton(ActionEvent e) {
-        ViewUpcomingSessions viewUpcomingSessions = new ViewUpcomingSessions(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
+        ViewUpcomingSessions viewUpcomingSessions = new ViewUpcomingSessions(userDTO, sessionDTO.getConferenceId(), eventMediator, navigator);
         navigator.navigateTo(viewUpcomingSessions);
     }
 
     private void handleRegisterButton(ActionEvent e) {
         eventMediator.publishEvent(
                 SessionEventObserver.class,
-                observer -> observer.onRegisterForSession(attendee.getId(), sessionDTO.getId(), this::onRegisteredForSession)
+                observer -> observer.onRegisterForSession(userDTO.getId(), sessionDTO.getId(), this::onRegisteredForSession)
         );
     }
 
@@ -46,7 +46,7 @@ public class ViewUnregisteredSessionPage extends ViewSessionPage {
         }
 
         showSuccess(String.format("You have successfully been registered to attend session '%s'.", sessionDTO.getName()));
-        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(attendee, eventMediator, navigator, sessionDTO.getConferenceId());
+        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(userDTO, eventMediator, navigator, sessionDTO.getConferenceId());
         navigator.navigateTo(viewPersonalSchedulePage, false);
     }
 

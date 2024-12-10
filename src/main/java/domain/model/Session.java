@@ -124,10 +124,6 @@ public class Session {
         }
 
         public Session build() {
-            SessionValidator.validateSessionParameters(
-                    this.id, this.conferenceId, this.speakerId,
-                    null, this.name,
-                    this.date, this.startTime, this.endTime, false);
             return new Session(this);
         }
     }

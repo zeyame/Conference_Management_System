@@ -3,9 +3,9 @@ package view.attendee.pages.view.session;
 import dto.SessionDTO;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
-import view.attendee.observers.SessionEventObserver;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
+import view.observers.SessionEventObserver;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,7 @@ import java.awt.event.ActionEvent;
 
 public abstract class ViewSessionPage extends JPanel {
     // dependencies
-    protected final UserDTO attendee;
+    protected final UserDTO userDTO;
     protected final String sessionId;
     protected final UIEventMediator eventMediator;
     protected final Navigator navigator;
@@ -21,8 +21,8 @@ public abstract class ViewSessionPage extends JPanel {
     // fetched data
     protected SessionDTO sessionDTO;
 
-    public ViewSessionPage(UserDTO attendee, String sessionId, UIEventMediator eventMediator, Navigator navigator) {
-        this.attendee = attendee;
+    public ViewSessionPage(UserDTO userDTO, String sessionId, UIEventMediator eventMediator, Navigator navigator) {
+        this.userDTO = userDTO;
         this.sessionId = sessionId;
         this.eventMediator = eventMediator;
         this.navigator = navigator;
@@ -38,7 +38,7 @@ public abstract class ViewSessionPage extends JPanel {
         removeAll();
 
         // header panel
-        JPanel headerPanel = UIComponentFactory.createHeaderPanel(sessionDTO.getName(), this::handleBackButton, 500);
+        JPanel headerPanel = UIComponentFactory.createHeaderPanel(sessionDTO.getName(), this::handleBackButton, 510);
         add(headerPanel, BorderLayout.NORTH);
 
         // details panel
@@ -77,6 +77,7 @@ public abstract class ViewSessionPage extends JPanel {
             showError(errorMessage);
             return;
         }
+        System.out.println("Session data fetched: " + sessionDTO.getName());
         this.sessionDTO = sessionDTO;
     }
 

@@ -55,7 +55,6 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         this.userDTO = userDTO;
 
         // frame configuration
-        setTitle("Organizer Landing Page");
         setSize(new Dimension(1400, 800));
         setResizable(false);
         setLayout(new BorderLayout());

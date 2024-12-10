@@ -4,9 +4,9 @@ import dto.ConferenceDTO;
 import dto.UserDTO;
 import util.LoggerUtil;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
-import view.attendee.observers.ConferenceEventObserver;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
+import view.observers.ConferenceEventObserver;
 import view.attendee.pages.view.conference.ViewConferencePage;
 import view.attendee.pages.view.conference.ViewRegisteredConferencesPage;
 import view.attendee.pages.view.conference.ViewUpcomingConferencePage;
@@ -65,14 +65,24 @@ public class HomePage extends JPanel {
 
     private JPanel createHomePageHeader() {
         // header panel using BorderLayout to position back button and title
-        JPanel headerPanel = new JPanel(new BorderLayout());
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
 
         // page title in the center
         JLabel headerLabel = new JLabel("Upcoming Conferences");
         headerLabel.setFont(new Font("Sans serif", Font.BOLD, 24));
         headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        headerPanel.add(headerLabel, BorderLayout.CENTER);
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setFocusPainted(false);
+        logoutButton.addActionListener(this::handleLogoutButton);
+
+
+        headerPanel.add(Box.createRigidArea(new Dimension(550, 0)));
+        headerPanel.add(headerLabel);
+        headerPanel.add(Box.createRigidArea(new Dimension(450, 0)));
+        headerPanel.add(logoutButton);
 
         return headerPanel;
     }
@@ -94,6 +104,14 @@ public class HomePage extends JPanel {
         this.upcomingConferences = conferenceDTOs;
     }
 
+    private void handleLogoutButton(ActionEvent e) {
+        int choice = showConfirmDialog();
+
+        if (choice == JOptionPane.YES_OPTION) {
+            navigator.logout();
+        }
+    }
+
     private void handleViewConferenceButton(ActionEvent e) {
         JButton sourceButton = (JButton) e.getSource();
         String conferenceId = (String) sourceButton.getClientProperty("conferenceId");
@@ -106,6 +124,17 @@ public class HomePage extends JPanel {
         // navigate to View Registered Conferences Page
         ViewRegisteredConferencesPage viewRegisteredConferencesPage = new ViewRegisteredConferencesPage(attendee, this.eventMediator, this.navigator);
         navigator.navigateTo(viewRegisteredConferencesPage);
+    }
+
+
+    private int showConfirmDialog() {
+        return JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to logout?",
+                "Confirm Logout",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
     }
 
     private void showError(String message) {

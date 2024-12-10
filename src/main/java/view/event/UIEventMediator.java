@@ -1,4 +1,4 @@
-package view.attendee;
+package view.event;
 
 import java.util.HashMap;
 import java.util.Map;

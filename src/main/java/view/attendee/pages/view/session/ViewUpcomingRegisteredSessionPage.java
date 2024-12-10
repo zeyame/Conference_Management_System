@@ -1,12 +1,10 @@
 package view.attendee.pages.view.session;
 
-import domain.model.feedback.FeedbackType;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
-import view.attendee.observers.SessionEventObserver;
-import view.attendee.pages.form.ProvideFeedbackPage;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
+import view.observers.SessionEventObserver;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,7 +52,7 @@ public class ViewUpcomingRegisteredSessionPage extends ViewSessionPage {
     // button handlers
     @Override
     protected void handleBackButton(ActionEvent e) {
-        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(attendee, eventMediator, navigator, sessionDTO.getConferenceId());
+        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(userDTO, eventMediator, navigator, sessionDTO.getConferenceId());
         navigator.navigateTo(viewPersonalSchedulePage);
     }
 
@@ -70,7 +68,7 @@ public class ViewUpcomingRegisteredSessionPage extends ViewSessionPage {
         if (choice == JOptionPane.YES_OPTION) {
             eventMediator.publishEvent(
                     SessionEventObserver.class,
-                    observer -> observer.onLeaveSession(sessionId, attendee.getId(), this::onLeaveSession)
+                    observer -> observer.onLeaveSession(sessionId, userDTO.getId(), this::onLeaveSession)
             );
         } else if (choice == JOptionPane.NO_OPTION) {
             JOptionPane.showMessageDialog(
@@ -90,7 +88,7 @@ public class ViewUpcomingRegisteredSessionPage extends ViewSessionPage {
         showSuccess(String.format("You have successfully left the session '%s'.", sessionDTO.getName()));
 
         // navigate back to view session page to display the updated list of upcoming sessions
-        ViewUpcomingSessions viewSessionsPage = new ViewUpcomingSessions(attendee, sessionDTO.getConferenceId(), eventMediator, navigator);
+        ViewUpcomingSessions viewSessionsPage = new ViewUpcomingSessions(userDTO, sessionDTO.getConferenceId(), eventMediator, navigator);
         navigator.navigateTo(viewSessionsPage, false);
     }
 

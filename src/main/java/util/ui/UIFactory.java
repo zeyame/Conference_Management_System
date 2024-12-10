@@ -2,6 +2,7 @@ package util.ui;
 
 import controller.AttendeeController;
 import controller.OrganizerController;
+import controller.SpeakerController;
 import dto.UserDTO;
 import repository.ConferenceRepository;
 import repository.FeedbackRepository;
@@ -10,11 +11,10 @@ import repository.UserRepository;
 import service.*;
 import service.conference.ConferenceService;
 import service.session.SessionService;
-import util.email.EmailService;
 import view.attendee.AttendeeUI;
 import view.organizer.OrganizerUI;
-import view.speaker.SpeakerUI;
 import view.UserUI;
+import view.speaker.SpeakerUI;
 
 public class UIFactory {
 
@@ -51,10 +51,13 @@ public class UIFactory {
         // creating attendee controller for AttendeeUI
         AttendeeController attendeeController = new AttendeeController(userService, conferenceService, sessionService, feedbackService);
 
+        // creating speaker controller for SpeakerUI
+        SpeakerController speakerController = new SpeakerController(userService, sessionService);
+
         return switch (userDTO.getRole()) {
             case ORGANIZER -> new OrganizerUI(organizerController, userDTO);
-            case ATTENDEE -> new AttendeeUI(attendeeController, userDTO);
-            case SPEAKER -> new SpeakerUI(userDTO);
+            case ATTENDEE -> new AttendeeUI(attendeeController, speakerController, userDTO);
+            case SPEAKER -> new SpeakerUI(speakerController, attendeeController, userDTO);
         };
     }
 }

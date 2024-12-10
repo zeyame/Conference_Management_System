@@ -2,19 +2,14 @@ package view.attendee.pages.view.session;
 
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
 import view.attendee.pages.form.ProvideFeedbackPage;
 import view.attendee.pages.form.ProvideSessionFeedbackPage;
-import view.attendee.pages.form.ProvideSpeakerFeedbackPage;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 public class ViewPastRegisteredSessionPage extends ViewSessionPage {
 
@@ -38,18 +33,18 @@ public class ViewPastRegisteredSessionPage extends ViewSessionPage {
 
     @Override
     protected void handleBackButton(ActionEvent e) {
-        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(attendee, eventMediator, navigator, sessionDTO.getConferenceId());
+        ViewPersonalSchedulePage viewPersonalSchedulePage = new ViewPersonalSchedulePage(userDTO, eventMediator, navigator, sessionDTO.getConferenceId());
         navigator.navigateTo(viewPersonalSchedulePage);
     }
 
 
     private void handleProvideSessionFeedbackButton(ActionEvent e) {
-        if (!sessionDTO.getPresentAttendees().contains(attendee.getId())) {
+        if (!sessionDTO.getPresentAttendees().contains(userDTO.getId())) {
             showError("You did not attend this session and so you cannot provide feedback.");
             return;
         }
 
-        ProvideFeedbackPage provideFeedbackPage = new ProvideSessionFeedbackPage(attendee, eventMediator, navigator, sessionDTO);
+        ProvideFeedbackPage provideFeedbackPage = new ProvideSessionFeedbackPage(userDTO, eventMediator, navigator, sessionDTO);
         navigator.navigateTo(provideFeedbackPage);
     }
 }

@@ -4,10 +4,10 @@ import dto.ConferenceDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
-import view.attendee.observers.ConferenceEventObserver;
-import view.attendee.observers.SessionEventObserver;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
+import view.observers.ConferenceEventObserver;
+import view.observers.SessionEventObserver;
 import view.attendee.pages.view.conference.ViewRegisteredConferencePage;
 
 import javax.swing.*;

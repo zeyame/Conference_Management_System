@@ -1,4 +1,4 @@
-package view;
+package view.navigation;
 
 import javax.swing.*;
 import java.awt.*;

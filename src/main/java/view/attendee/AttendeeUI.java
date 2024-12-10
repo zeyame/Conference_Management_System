@@ -1,39 +1,47 @@
 package view.attendee;
 
 import controller.AttendeeController;
+import controller.MainController;
+import controller.SpeakerController;
 import dto.UserDTO;
+import repository.UserRepository;
+import service.UserService;
+import util.email.EmailService;
 import util.ui.UIComponentFactory;
-import view.NavigationManager;
+import view.navigation.NavigationManager;
 import view.UserUI;
-import view.attendee.observers.AttendeeConferenceManager;
-import view.attendee.observers.AttendeeSessionManager;
-import view.attendee.observers.ConferenceEventObserver;
-import view.attendee.observers.SessionEventObserver;
+import view.observers.AttendeeConferenceManager;
+import view.observers.AttendeeSessionManager;
+import view.observers.ConferenceEventObserver;
+import view.observers.SessionEventObserver;
 import view.attendee.pages.HomePage;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
+import view.authentication.LoginUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayDeque;
 
 public class AttendeeUI extends JFrame implements UserUI, Navigator {
 
     private final AttendeeController attendeeController;
+    private final SpeakerController speakerController;
     private final UserDTO userDTO;
     private final UIEventMediator eventMediator;
     private final JPanel contentPanel;
     private final CardLayout cardLayout;
     private final NavigationManager navigationManager;
 
-    public AttendeeUI(AttendeeController attendeeController, UserDTO userDTO) {
+    public AttendeeUI(AttendeeController attendeeController, SpeakerController speakerController, UserDTO userDTO) {
         this.attendeeController = attendeeController;
+        this.speakerController = speakerController;
         this.userDTO = userDTO;
         this.eventMediator = new UIEventMediator();
         this.contentPanel = new JPanel(new CardLayout());
         this.cardLayout = new CardLayout();
         this.navigationManager = new NavigationManager(contentPanel);
 
-        // frame configuration
-        setTitle("Organizer Landing Page");
+        // frame configuratio
         setSize(new Dimension(1400, 800));
         setResizable(false);
         setLayout(new BorderLayout());
@@ -89,9 +97,15 @@ public class AttendeeUI extends JFrame implements UserUI, Navigator {
         return navigationManager.canNavigateBack();
     }
 
+    @Override
+    public void logout() {
+        LoginUI loginUI = new LoginUI(new MainController(new UserService(UserRepository.getInstance()), EmailService.getInstance()));
+        this.dispose();
+    }
+
     private void registerObservers() {
         eventMediator.registerObserver(ConferenceEventObserver.class, new AttendeeConferenceManager(attendeeController));
-        eventMediator.registerObserver(SessionEventObserver.class, new AttendeeSessionManager(attendeeController));
+        eventMediator.registerObserver(SessionEventObserver.class, new AttendeeSessionManager(attendeeController, speakerController));
     }
 
     private void initializeHomePage() {

@@ -127,10 +127,6 @@ public class SessionDTO {
         }
 
         public SessionDTO build() {
-            SessionValidator.validateSessionParameters(
-                    this.id, this.conferenceId, this.speakerId,
-                    this.speakerName, this.name,
-                    this.date, this.startTime, this.endTime, true);
             return new SessionDTO(this);
         }
     }

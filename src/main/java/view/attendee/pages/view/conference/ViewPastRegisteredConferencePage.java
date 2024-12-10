@@ -2,8 +2,8 @@ package view.attendee.pages.view.conference;
 
 import dto.UserDTO;
 import util.ui.UIComponentFactory;
-import view.attendee.Navigator;
-import view.attendee.UIEventMediator;
+import view.navigation.Navigator;
+import view.event.UIEventMediator;
 import view.attendee.pages.form.ProvideConferenceFeedbackPage;
 import view.attendee.pages.form.ProvideFeedbackPage;
 import view.attendee.pages.view.ViewCertificatePage;

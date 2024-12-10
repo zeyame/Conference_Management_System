@@ -1,4 +1,4 @@
-package view.attendee.observers;
+package view.observers;
 
 import dto.ConferenceDTO;
 import dto.FeedbackDTO;
