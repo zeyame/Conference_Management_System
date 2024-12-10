@@ -99,7 +99,7 @@ public class AttendeeUI extends JFrame implements UserUI, Navigator {
 
     @Override
     public void logout() {
-        LoginUI loginUI = new LoginUI(new MainController(new UserService(UserRepository.getInstance()), EmailService.getInstance()));
+        new LoginUI(new MainController(new UserService(UserRepository.getInstance()), EmailService.getInstance()));
         this.dispose();
     }
 

@@ -39,6 +39,11 @@ public class ViewUpcomingConferencePage extends ViewConferencePage {
         navigator.navigateTo(homePage);
     }
 
+    @Override
+    protected void handleBackButton(ActionEvent e) {
+        HomePage homePage = new HomePage(attendee, eventMediator, navigator);
+        navigator.navigateTo(homePage);
+    }
 
 
     // button handlers
@@ -48,4 +53,5 @@ public class ViewUpcomingConferencePage extends ViewConferencePage {
                 observer -> observer.onRegisterForAConference(attendee.getId(), conferenceDTO.getId(), this::onRegisteredForConference)
         );
     }
+
 }

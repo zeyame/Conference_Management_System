@@ -58,4 +58,6 @@ public interface OrganizerObserver {
     void onGetSpeakerBiosRequest(Set<String> speakerIds, BiConsumer<Map<String, String>, String> callback);
     void onViewSpeakerFeedbackRequest(String speakerId, String speakerName);
 
+    void onLogoutRequest();
+
 }

@@ -30,7 +30,7 @@ public abstract class ViewListPage<T> extends JPanel {
     public JPanel createPageContent() {
         // creating main components
         JPanel headerPanel = UIComponentFactory
-                .createHeaderPanel(getPageTitle(), e -> organizerObserver.onNavigateBackRequest(), 400-getPageTitle().length());
+                .createHeaderPanel(getPageTitle(), e -> organizerObserver.onNavigateBackRequest(), 460-getPageTitle().length());
         mainContentPanel.add(headerPanel, BorderLayout.NORTH);
 
         if (items.isEmpty()) {

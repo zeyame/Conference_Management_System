@@ -1,12 +1,17 @@
 package view.organizer;
 
+import controller.MainController;
 import controller.OrganizerController;
 import dto.ConferenceDTO;
 import dto.FeedbackDTO;
 import dto.SessionDTO;
 import dto.UserDTO;
+import repository.UserRepository;
 import response.ResponseEntity;
+import service.UserService;
+import util.email.EmailService;
 import view.UserUI;
+import view.authentication.LoginUI;
 import view.organizer.pages.*;
 import util.LoggerUtil;
 import util.ui.UIComponentFactory;
@@ -483,6 +488,12 @@ public class OrganizerUI extends JFrame implements UserUI, OrganizerObserver {
         List<FeedbackDTO> feedbackDTOs = speakerFeedbackResponse.getData();
         ViewListPage<FeedbackDTO> viewListPage = new ViewFeedbackPage(this, speakerName, feedbackDTOs);
         navigateTo(VIEW_SPEAKER_FEEDBACK_PAGE, viewListPage.createPageContent(), true);
+    }
+
+    @Override
+    public void onLogoutRequest() {
+        new LoginUI(new MainController(new UserService(UserRepository.getInstance()), EmailService.getInstance()));
+        this.dispose();
     }
 
     private ConferenceDTO fetchConference(String conferenceId) {
